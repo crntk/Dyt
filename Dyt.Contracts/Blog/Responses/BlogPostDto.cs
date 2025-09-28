@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dyt.Contracts.Blog.Responses
 {
-    internal class BlogPostDto
+    public class BlogPostDto
     {
     }
 }

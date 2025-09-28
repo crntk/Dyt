@@ -1,0 +1,132 @@
+﻿@* 
+  Create.cshtml
+  Ziyaretçinin randevu oluşturduğu form. Tarih seçildiğinde uygun saatler otomatik gelir.
+  Controller: AppointmentController.Create (GET/POST)
+  Model: AppointmentCreateVm
+*@
+@model Dyt.Web.ViewModels.AppointmentCreateVm
+
+@{
+    // Sayfa başlığını ayarlıyorum; _Layout varsa <title> içinde görünecek
+    ViewData["Title"] = "Randevu Oluştur";
+}
+
+<div class="container" style="max-width:720px;margin:40px auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">
+    <h1 style="font-size:22px;margin:0 0 16px 0;">Randevu Oluştur</h1>
+
+    @* Doğrulama özetini gösteriyorum *@
+    <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:12px;"></div>
+
+    @* Formu başlatıyorum; antiforgery token otomatik eklenecek *@
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken() @* CSRF koruması için *@
+
+        @* Tarih alanı *@
+        <div class="mb-3">
+            <label class="form-label">Tarih</label>
+            <input asp-for="Date" type="date" class="form-control" />
+            <span asp-validation-for="Date" class="text-danger"></span>
+        </div>
+
+        @* Saat seçimi: Tarih seçildiğinde AJAX ile doldurulacak *@
+        <div class="mb-3">
+            <label class="form-label">Saat</label>
+            <select id="slotSelect" class="form-select">
+                <option value="">Önce tarih seçin</option>
+            </select>
+            @* Hidden alan: seçilen saati TimeOnly'e bağlayacağım *@
+            <input asp-for="StartTime" type="hidden" />
+            <span asp-validation-for="StartTime" class="text-danger"></span>
+        </div>
+
+        @* Ad Soyad *@
+        <div class="mb-3">
+            <label class="form-label">Ad Soyad</label>
+            <input asp-for="ClientName" class="form-control" />
+            <span asp-validation-for="ClientName" class="text-danger"></span>
+        </div>
+
+        @* Telefon *@
+        <div class="mb-3">
+            <label class="form-label">Telefon</label>
+            <input asp-for="ClientPhone" class="form-control" placeholder="+90..." />
+            <span asp-validation-for="ClientPhone" class="text-danger"></span>
+        </div>
+
+        @* E-posta (opsiyonel) *@
+        <div class="mb-3">
+            <label class="form-label">E-posta (opsiyonel)</label>
+            <input asp-for="ClientEmail" class="form-control" />
+            <span asp-validation-for="ClientEmail" class="text-danger"></span>
+        </div>
+
+        @* Not (opsiyonel) *@
+        <div class="mb-3">
+            <label class="form-label">Not (opsiyonel)</label>
+            <textarea asp-for="Note" rows="3" class="form-control"></textarea>
+            <span asp-validation-for="Note" class="text-danger"></span>
+        </div>
+
+        @* Gönder butonu *@
+        <button type="submit" class="btn btn-primary">Randevuyu Oluştur</button>
+    </form>
+</div>
+
+@section Scripts {
+    @* jQuery ve doğrulama scriptleri projenin layout'unda yüklü varsayılmıştır.
+       Eğer yoksa, _Layout.cshtml içine jquery + jquery.validate + jquery.validate.unobtrusive ekle. *@
+    <script>
+        // Tarih alanı değişince uygun saatleri çekip <select>'e dolduracağım
+        document.addEventListener('DOMContentLoaded', function () { // DOM hazır olduğunda çalıştırıyorum
+            const dateInput = document.querySelector('input[name="Date"]'); // Tarih input'unu buluyorum
+            const slotSelect = document.getElementById('slotSelect'); // Saat select'ini buluyorum
+            const startTimeHidden = document.querySelector('input[name="StartTime"]'); // Gizli StartTime alanını buluyorum
+
+            // Select değiştiğinde gizli StartTime alanını HH:mm formatında güncelleyeceğim
+            slotSelect.addEventListener('change', function () { // Select değişimini yakalıyorum
+                const val = slotSelect.value; // Seçili değeri alıyorum
+                startTimeHidden.value = val ? val : ""; // Seçili zaman varsa gizli alana yazıyorum, yoksa boş bırakıyorum
+            });
+
+            // Tarih değiştiğinde /appointment/slots endpoint'inden slotları çekeceğim
+            dateInput.addEventListener('change', async function () { // Tarih değişimini yakalıyorum
+                const dateVal = dateInput.value; // yyyy-MM-dd formatındaki değeri alıyorum
+                // Değer boşsa select'i sıfırlayıp çıkıyorum
+                if (!dateVal) { // Eğer tarih seçilmemişse
+                    slotSelect.innerHTML = '<option value="">Önce tarih seçin</option>'; // Seçimi sıfırlıyorum
+                    startTimeHidden.value = ""; // Gizli alanı temizliyorum
+                    return; // İşlemi bitiriyorum
+                }
+
+                // Uçtan slotları çekiyorum
+                const resp = await fetch(`/appointment/slots?date=${encodeURIComponent(dateVal)}`); // Endpoint'e istek atıyorum
+                if (!resp.ok) { // Başarısızsa
+                    slotSelect.innerHTML = '<option value="">Uygun saat bulunamadı</option>'; // Hata mesajı yazıyorum
+                    startTimeHidden.value = ""; // Gizli alanı temizliyorum
+                    return; // Çıkıyorum
+                }
+
+                const data = await resp.json(); // JSON cevabı alıyorum (SlotDto listesi bekliyorum)
+                if (!Array.isArray(data) || data.length === 0) { // Liste boşsa
+                    slotSelect.innerHTML = '<option value="">Uygun saat bulunamadı</option>'; // Bilgilendiriyorum
+                    startTimeHidden.value = ""; // Gizli alanı temizliyorum
+                    return; // Çıkıyorum
+                }
+
+                // Select'i dolduruyorum
+                const opts = ['<option value="">Saat seçin</option>']; // İlk seçenek olarak yönlendirici metin ekliyorum
+                for (const s of data) { // Her slot için dönüyorum
+                    // API SlotDto: { date, startTime, endTime } bekliyorum. time biçimleri "HH:mm:ss" olabilir.
+                    const start = (s.startTime ?? '').toString().substring(0,5); // Başlangıç saatinin ilk 5 karakterini alıyorum (HH:mm)
+                    const end = (s.endTime ?? '').toString().substring(0,5); // Bitiş saatinin ilk 5 karakterini alıyorum
+                    const label = `${start} - ${end}`; // Etiket metnini oluşturuyorum
+                    opts.push(`<option value="${start}">${label}</option>`); // Option elemanını listeme ekliyorum
+                }
+                slotSelect.innerHTML = opts.join(''); // Select'in içeriğini ürettiğim seçeneklerle değiştiriyorum
+
+                // Önceki bir seçim varsa temizliyorum
+                startTimeHidden.value = ""; // Gizli alanı sıfırlıyorum
+            });
+        });
+    </script>
+}

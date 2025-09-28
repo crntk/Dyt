@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dyt.Contracts.Profile.Responses
 {
-    internal class DietitianProfileDto
+    public class DietitianProfileDto
     {
     }
 }

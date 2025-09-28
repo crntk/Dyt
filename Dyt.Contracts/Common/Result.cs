@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dyt.Contracts.Common
 {
-    internal class Result
+    public class Result
     {
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dyt.Contracts.Appointments.Events
 {
-    internal class AppointmentStatusChanged
+    public class AppointmentStatusChanged
     {
     }
 }

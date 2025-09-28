@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Dyt.Contracts.Appointments.Responses
 {
-    internal class SlotDto
+    /// <summary>Uygunluk listesinde tek bir zaman aralığı.</summary>
+    public class SlotDto
     {
+        public DateOnly Date { get; set; }         // Gün
+        public TimeOnly StartTime { get; set; }    // Başlangıç
+        public TimeOnly EndTime { get; set; }      // Bitiş
     }
 }

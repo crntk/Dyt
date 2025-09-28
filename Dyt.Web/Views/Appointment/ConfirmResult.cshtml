@@ -1,0 +1,46 @@
+﻿@* 
+  ConfirmResult.cshtml
+  Bu sayfa, randevu onay/ret linkinden gelen sonucu kullanıcıya gösterir.
+  Controller: AppointmentController.Confirm -> return View("ConfirmResult", model: "mesaj")
+  Model türü string olduğu için @model string yazıyoruz ve içeriği @Model ile ekrana basıyoruz.
+*@
+@model string
+
+@{
+    // Sayfa başlığını ayarlıyorum; _Layout.cshtml varsa <title> içinde görünecek.
+    ViewData["Title"] = "Randevu Onay Sonucu";
+}
+
+<!-- Ana konteyner: basit ve merkezde bir kutu yapısı -->
+<div class="container" style="max-width:680px;margin:40px auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">
+    <!-- Başlık alanı -->
+    <h1 style="font-size:22px;margin:0 0 12px 0;">Randevu Onayı</h1>
+
+    <!-- İşlem sonucu mesajı: Controller’dan string model olarak gelir -->
+    <p style="font-size:16px;line-height:1.6;margin:0 0 16px 0;">
+        @Model
+    </p>
+
+    <!-- Bilgilendirici kısa not -->
+    <p style="color:#6b7280;font-size:14px;margin:0 0 20px 0;">
+        Bu sayfayı kapatabilir veya ana sayfaya dönebilirsiniz.
+    </p>
+
+    <!-- Basit geri dön butonu -->
+    <a href="~/"
+       style="display:inline-block;padding:10px 16px;border-radius:8px;border:1px solid #e5e7eb;text-decoration:none;">
+        Ana sayfa
+    </a>
+</div>
+
+@* 
+  Notlar:
+  - Eğer _Layout.cshtml kullanıyorsan bu dosya onu otomatik kullanır (Views/_ViewStart.cshtml içinde Layout ayarlıysa).
+  - Layout kullanmak istemezsen dosyanın en üstüne @{ Layout = null; } yazabilirsin.
+  - Görsel stil için basit inline stiller verdim; istersen Bootstrap/Tailwind ile değiştirebilirsin.
+*@
+
+<script>
+    // 5 saniye sonra ana sayfaya yönlendiriyorum
+    setTimeout(function(){ window.location.href = "/"; }, 5000);
+</script>

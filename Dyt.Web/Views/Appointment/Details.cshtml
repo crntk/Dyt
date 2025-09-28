@@ -1,0 +1,51 @@
+﻿@* 
+  Details.cshtml
+  Oluşturulan randevunun özetini gösterir.
+  Controller: AppointmentController.Details
+  Model: Dyt.Contracts.Appointments.Responses.AppointmentDto
+*@
+@model Dyt.Contracts.Appointments.Responses.AppointmentDto
+
+@{
+    // Sayfa başlığını ayarlıyorum
+    ViewData["Title"] = "Randevu Detayı";
+}
+
+<div class="container" style="max-width:720px;margin:40px auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">
+    <h1 style="font-size:22px;margin:0 0 16px 0;">Randevu Detayı</h1>
+
+    <dl style="display:grid;grid-template-columns:160px 1fr;gap:8px 16px;">
+        <dt>Tarih</dt>
+        <dd>@Model.Date.ToString("yyyy-MM-dd")</dd>
+
+        <dt>Başlangıç</dt>
+        <dd>@Model.StartTime.ToString("HH\\:mm")</dd>
+
+        <dt>Bitiş</dt>
+        <dd>@Model.EndTime.ToString("HH\\:mm")</dd>
+
+        <dt>Danışan</dt>
+        <dd>@Model.ClientName</dd>
+
+        <dt>Telefon</dt>
+        <dd>@Model.ClientPhone</dd>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ClientEmail))
+        {
+            <dt>E-posta</dt>
+            <dd>@Model.ClientEmail</dd>
+        }
+
+        <dt>Durum</dt>
+        <dd>@Model.Status</dd>
+
+        <dt>Onay</dt>
+        <dd>@Model.ConfirmationState</dd>
+    </dl>
+
+    <div style="margin-top:16px;">
+        <a href="~/" style="display:inline-block;padding:10px 16px;border-radius:8px;border:1px solid #e5e7eb;text-decoration:none;">
+            Ana sayfa
+        </a>
+    </div>
+</div>

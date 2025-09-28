@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dyt.Contracts.Appointments.Requests
 {
-    internal class SlotsQueryRequest
+    public class SlotsQueryRequest
     {
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dyt.Contracts.Blog.Requests
 {
-    internal class BlogPostCreateRequest
+    public class BlogPostCreateRequest
     {
     }
 }

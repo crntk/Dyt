@@ -6,7 +6,18 @@ using System.Threading.Tasks;
 
 namespace Dyt.Contracts.Appointments.Responses
 {
-    internal class AppointmentDto
+    /// <summary>UI'a dönen randevu özeti.</summary>
+    public class AppointmentDto
     {
+        public int Id { get; set; }
+        public DateOnly Date { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+        public string ClientPhone { get; set; } = string.Empty;
+        public string? ClientEmail { get; set; }
+        public string Status { get; set; } = "Scheduled";
+        public string ConfirmationState { get; set; } = "Yanıtlanmadı";
     }
 }
+

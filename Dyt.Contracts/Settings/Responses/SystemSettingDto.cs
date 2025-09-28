@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dyt.Contracts.Settings.Responses
 {
-    internal class SystemSettingDto
+    public class SystemSettingDto
     {
     }
 }

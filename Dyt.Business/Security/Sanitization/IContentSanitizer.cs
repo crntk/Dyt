@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dyt.Business.Security.Sanitization
 {
-    internal interface IContentSanitizer
+    public interface IContentSanitizer
     {
     }
 }

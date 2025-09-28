@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Dyt.Contracts.Profile.Requests
 {
-    internal class ProfileUpdateRequest
+    public class ProfileUpdateRequest
     {
     }
 }
