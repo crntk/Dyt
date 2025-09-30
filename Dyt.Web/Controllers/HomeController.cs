@@ -1,32 +1,27 @@
-using Dyt.Web.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc; // MVC attribute ve türleri için ekliyorum
 
-namespace Dyt.Web.Controllers
+namespace Dyt.Web.Controllers // Web katmaný controller'larý için ad alanýný tanýmlýyorum
 {
-    public class HomeController : Controller
+    /// <summary>
+    /// Genel web sayfalarýný yöneten controller.
+    /// Varsayýlan giriþ noktasý, randevu oluþturma sayfasýna yönlendirir.
+    /// </summary>
+    public class HomeController : Controller // MVC Controller taban sýnýfýndan türetiyorum
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
+        /// <summary>
+        /// Ana sayfaya gelen ziyaretçiyi randevu oluþturma sayfasýna yönlendirir.
+        /// </summary>
+        public IActionResult Index() // GET /Home/Index veya / isteði için action'ý tanýmlýyorum
         {
-            _logger = logger;
+            return RedirectToAction("Create", "Appointment"); // Randevu formuna yönlendiriyorum
         }
 
-        public IActionResult Index()
+        /// <summary>
+        /// Gizlilik sayfasýný gösterir (þimdilik þablon).
+        /// </summary>
+        public IActionResult Privacy() // GET /Home/Privacy action'ýný tanýmlýyorum
         {
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(); // Varsayýlan Privacy view'ýný döndürüyorum
         }
     }
 }

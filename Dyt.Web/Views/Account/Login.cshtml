@@ -1,0 +1,30 @@
+﻿@* Basit giriş formu – e-posta/parola *@
+@{
+    ViewData["Title"] = "Giriş";
+    var returnUrl = (string?)ViewData["ReturnUrl"];
+}
+<h1 style="margin:24px 0;">Yönetici Girişi</h1>
+
+<form asp-action="Login" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+    <div class="mb-3">
+        <label class="form-label">E-posta</label>
+        <input type="email" name="email" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Parola</label>
+        <input type="password" name="password" class="form-control" />
+    </div>
+
+    <div class="text-danger">
+        @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@e.ErrorMessage</div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Giriş Yap</button>
+</form>

@@ -1,0 +1,117 @@
+﻿@* 
+  Admin / Randevu Listesi
+  Model: PagedResult<AppointmentDto>
+  Filtreler: tarih aralığı, durum, onay durumu, arama
+*@
+@model Dyt.Contracts.Common.PagedResult<Dyt.Contracts.Appointments.Responses.AppointmentDto>
+
+@{
+    // Görüntü başlığını ayarlıyorum
+    ViewData["Title"] = "Randevu Listesi";
+    // Filtreleri ViewBag üzerinden geri alıyorum (Controller'da ViewBag.Filters = request yapılmıştı)
+    var f = (Dyt.Contracts.Appointments.Requests.AppointmentQueryRequest)ViewBag.Filters;
+}
+
+<div class="container" style="max-width:1100px;margin:32px auto;">
+    <h1 style="font-size:22px;margin-bottom:16px;">Randevu Listesi</h1>
+
+    <!-- Filtre formu -->
+    <form method="get" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:end;border:1px solid #e5e7eb;padding:12px;border-radius:12px;background:#fff;">
+        <div>
+            <label style="display:block;font-size:12px;color:#6b7280;">Başlangıç</label>
+            <input type="date" name="from" value="@(f.DateFrom?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div>
+            <label style="display:block;font-size:12px;color:#6b7280;">Bitiş</label>
+            <input type="date" name="to" value="@(f.DateTo?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div>
+            <label style="display:block;font-size:12px;color:#6b7280;">Durum</label>
+            <select name="status" class="form-select">
+                <option value="">Hepsi</option>
+                @foreach (var s in new[] { "Scheduled", "Canceled", "NoShow" })
+                {
+                    <option value="@s" @(f.Status == s ? "selected" : null)>@s</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label style="display:block;font-size:12px;color:#6b7280;">Onay</label>
+            <select name="confirmation" class="form-select">
+                <option value="">Hepsi</option>
+                @foreach (var s in new[] { "Yanıtlanmadı", "Gelecek", "Gelmeyecek" })
+                {
+                    <option value="@s" @(f.ConfirmationState == s ? "selected" : null)>@s</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label style="display:block;font-size:12px;color:#6b7280;">Arama</label>
+            <input type="text" name="search" value="@(f.Search)" placeholder="Ad/Telefon" class="form-control" />
+        </div>
+        <div>
+            <label style="display:block;font-size:12px;color:#6b7280;">&nbsp;</label>
+            <button type="submit" class="btn btn-primary">Filtrele</button>
+        </div>
+    </form>
+
+    <!-- Liste tablosu -->
+    <div style="margin-top:16px;overflow:auto;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">
+        <table class="table" style="margin:0;">
+            <thead>
+                <tr>
+                    <th>Tarih</th>
+                    <th>Saat</th>
+                    <th>Danışan</th>
+                    <th>Telefon</th>
+                    <th>Durum</th>
+                    <th>Onay</th>
+                    <th style="width:120px;">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Items.Count == 0)
+                {
+                    <tr><td colspan="7" class="text-center">Kayıt bulunamadı.</td></tr>
+                }
+                else
+                {
+                    foreach (var a in Model.Items)
+                    {
+                        <tr>
+                            <td>@a.Date.ToString("yyyy-MM-dd")</td>
+                            <td>@a.StartTime.ToString("HH\\:mm") - @a.EndTime.ToString("HH\\:mm")</td>
+                            <td>@a.ClientName</td>
+                            <td>@a.ClientPhone</td>
+                            <td>@a.Status</td>
+                            <td>@a.ConfirmationState</td>
+                            <td>
+                                @* ileride: Detay / İptal / No-Show / Sil gibi butonlar gelecek *@
+                                <a class="btn btn-sm btn-outline-secondary" asp-area="Admin" asp-controller="Appointments" asp-action="Index" asp-route-search="@a.ClientPhone">Bul</a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Sayfalama -->
+    @{
+        var totalPages = (int)Math.Ceiling(Model.TotalCount / (double)Model.PageSize); // Toplam sayfa sayısını hesaplıyorum
+        var current = Model.Page; // Mevcut sayfayı alıyorum
+    }
+    <nav aria-label="Sayfalama" style="margin-top:12px;">
+        <ul class="pagination">
+            <li class="page-item @(current <= 1 ? "disabled" : null)">
+                <a class="page-link" href="@Url.Action("Index", new { page = current - 1, pageSize = Model.PageSize, from = f.DateFrom?.ToString("yyyy-MM-dd"), to = f.DateTo?.ToString("yyyy-MM-dd"), status = f.Status, confirmation = f.ConfirmationState, search = f.Search })">Önceki</a>
+            </li>
+
+            <li class="page-item disabled"><span class="page-link">Sayfa @current / @totalPages</span></li>
+
+            <li class="page-item @(current >= totalPages ? "disabled" : null)">
+                <a class="page-link" href="@Url.Action("Index", new { page = current + 1, pageSize = Model.PageSize, from = f.DateFrom?.ToString("yyyy-MM-dd"), to = f.DateTo?.ToString("yyyy-MM-dd"), status = f.Status, confirmation = f.ConfirmationState, search = f.Search })">Sonraki</a>
+            </li>
+        </ul>
+    </nav>
+</div>

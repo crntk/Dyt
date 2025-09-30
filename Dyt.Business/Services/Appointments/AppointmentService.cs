@@ -6,6 +6,7 @@ using Dyt.Data.Entities.Scheduling;         // Appointment varlığı için ekli
 using Dyt.Data.Enums;                       // Durum ve onay enumları için ekliyorum
 using Microsoft.EntityFrameworkCore;        // EF Core işlemleri için ekliyorum
 using Microsoft.Extensions.Logging;         // Günlükleme için ekliyorum
+using Dyt.Contracts.Common; // PagedResult<T> tipi için gerekli
 
 namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının ad alanını tanımlıyorum
 {
@@ -167,5 +168,73 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
             var slots = await _schedule.GetDailySlotsAsync(date, ct); // Uygunluk servisinden slotları alıyorum
             return slots; // Sonucu aynen döndürüyorum
         }
+
+        /// <summary>
+        /// Admin tarafında randevuları filtreleyip sayfalayarak döner.
+        /// </summary>
+        public async Task<PagedResult<Dyt.Contracts.Appointments.Responses.AppointmentDto>>
+            QueryAsync(Dyt.Contracts.Appointments.Requests.AppointmentQueryRequest request, CancellationToken ct = default) // Sayfalı sorgu metodunu tanımlıyorum
+        {
+            // Temel sorguyu başlatıyorum
+            var q = _db.Appointments.AsNoTracking().AsQueryable(); // EF Core sorgusunu değişiklik takibi olmadan başlatıyorum
+
+            // Tarih aralığı filtresi varsa uyguluyorum
+            if (request.DateFrom.HasValue) // Başlangıç tarihi verilmiş mi kontrol ediyorum
+                q = q.Where(a => a.AppointmentDate >= request.DateFrom.Value); // Başlangıç tarihine göre filtreliyorum
+            if (request.DateTo.HasValue) // Bitiş tarihi verilmiş mi kontrol ediyorum
+                q = q.Where(a => a.AppointmentDate <= request.DateTo.Value); // Bitiş tarihine göre filtreliyorum
+
+            // Durum filtresi (string geldiği için enum isimleriyle kıyaslıyorum)
+            if (!string.IsNullOrWhiteSpace(request.Status)) // Durum değeri boş değilse
+                q = q.Where(a => a.Status.ToString() == request.Status); // Enum'u ToString ile kıyaslıyorum
+
+            // Onay durumu filtresi
+            if (!string.IsNullOrWhiteSpace(request.ConfirmationState)) // Onay durumu boş değilse
+                q = q.Where(a => a.ConfirmationState.ToString() == request.ConfirmationState); // Enum'u ToString ile kıyaslıyorum
+
+            // Arama filtresi (isim veya telefon)
+            if (!string.IsNullOrWhiteSpace(request.Search)) // Arama ifadesi boş değilse
+            {
+                var s = request.Search.Trim(); // Boşlukları kırpıyorum
+                q = q.Where(a => a.ClientName.Contains(s) || a.ClientPhone.Contains(s)); // İsim veya telefonda geçenleri filtreliyorum
+            }
+
+            // Toplam kayıt sayısını alıyorum (sayfalama için)
+            var total = await q.CountAsync(ct); // Toplam adedi sayıyorum
+
+            // Varsayılan sıralama: en yakın randevu en üstte olacak şekilde tarih/saat
+            q = q.OrderBy(a => a.AppointmentDate).ThenBy(a => a.StartTime); // Tarih ve saat bazlı sıralama yapıyorum
+
+            // Sayfalama hesapları
+            var page = request.Page <= 0 ? 1 : request.Page; // Sayfa 1'den küçükse 1 yapıyorum
+            var size = request.PageSize <= 0 ? 10 : Math.Min(request.PageSize, 100); // Boyut 1'den küçükse 10, 100'den büyükse 100 yapıyorum
+            var skip = (page - 1) * size; // Atlanacak kayıt sayısını hesaplıyorum
+
+            // İlgili sayfadaki kayıtları çekip DTO'ya projekte ediyorum
+            var list = await q.Skip(skip).Take(size)
+                .Select(a => new Dyt.Contracts.Appointments.Responses.AppointmentDto // DTO'ya yansıtıyorum
+                {
+                    Id = a.Id, // Kimlik
+                    Date = a.AppointmentDate, // Tarih
+                    StartTime = a.StartTime, // Başlangıç
+                    EndTime = a.EndTime, // Bitiş
+                    ClientName = a.ClientName, // İsim
+                    ClientPhone = a.ClientPhone, // Telefon
+                    ClientEmail = a.ClientEmail, // E-posta
+                    Status = a.Status.ToString(), // Durum
+                    ConfirmationState = a.ConfirmationState.ToString() // Onay durumu
+                })
+                .ToListAsync(ct); // Listeye çeviriyorum
+
+            // PagedResult<T> ile paketi hazırlayıp döndürüyorum
+            return new PagedResult<Dyt.Contracts.Appointments.Responses.AppointmentDto>
+            {
+                Items = list, // Sayfadaki kayıtlar
+                TotalCount = total, // Toplam adet
+                Page = page, // Mevcut sayfa
+                PageSize = size // Sayfa boyutu
+            };
+        }
+
     }
 }

@@ -1,152 +1,134 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dyt.Business.Interfaces.Appointments; // Onay token servisini kullanmak için ekliyorum
-using Dyt.Business.Interfaces.Notifications; // SMS gönderici ve şablon servisini kullanmak için ekliyorum
-using Dyt.Business.Options; // Hatırlatma zamanlaması için ayarlara erişmek için ekliyorum
+﻿using Dyt.Business.Interfaces.Appointments; // Onay token servisi için ekliyorum
+using Dyt.Business.Interfaces.Notifications; // SMS ve şablon servisi için ekliyorum
+using Dyt.Business.Options; // Hatırlatma ayarlarını okumak için ekliyorum
 using Dyt.Business.Security.Url; // İmzalı URL üretimi için ekliyorum
 using Dyt.Business.Utils; // Zaman sağlayıcısı için ekliyorum
-using Dyt.Data.Context; // Veritabanı bağlamına erişmek için ekliyorum
-using Dyt.Data.Enums; // Randevu durum ve onay enum'ları için ekliyorum
-using Microsoft.EntityFrameworkCore; // EF Core sorguları için ekliyorum
-using Microsoft.Extensions.Hosting; // IHostedService için ekliyorum
+using Dyt.Data.Context; // DbContext tipini görmek için ekliyorum
+using Dyt.Data.Enums; // Enum'lar için ekliyorum
+using Microsoft.EntityFrameworkCore; // EF sorguları için ekliyorum
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting; // BackgroundService tabanı için ekliyorum
 using Microsoft.Extensions.Logging; // Loglama için ekliyorum
-using Microsoft.Extensions.Options; // IOptions desenini kullanmak için ekliyorum
+using Microsoft.Extensions.Options; // IOptions için ekliyorum
 
-namespace Dyt.Business.Background // Arka plan işleri için ad alanını belirliyorum
+namespace Dyt.Business.Background // Arka plan işleri için ad alanını koruyorum
 {
     /// <summary>
-    /// Belirli aralıklarla çalışarak yaklaşan randevular için SMS hatırlatması gönderir
-    /// ve randevuya 2 saat kala hâlâ yanıt yoksa kontrol paneli uyarısı için log kaydı bırakır.
-    /// SMS metni şablondan üretilir; onay/ret linkleri tek kullanımlık ve süreli token içerir.
+    /// Yaklaşan randevular için SMS hatırlatma ve 2 saat kala yanıt yok uyarısını işleyen servis.
+    /// DbContext scoped olduğu için doğrudan enjekte edilmez; her çalışmada DI scope oluşturulur.
     /// </summary>
-    public class ReminderHostedService : BackgroundService // IHostedService'in hazır taban sınıfını kullanıyorum
+    public class ReminderHostedService : BackgroundService // Arka plan servis tabanı
     {
-        private readonly ILogger<ReminderHostedService> _log; // Günlükleme için logger tutuyorum
-        private readonly AppDbContext _db; // Veritabanı bağlamını tutuyorum
-        private readonly IDateTimeProvider _clock; // Zaman sağlayıcısı tutuyorum
-        private readonly ISmsSender _sms; // SMS göndericiyi tutuyorum
-        private readonly INotificationTemplateService _tpl; // Şablonlayıcı servisi tutuyorum
-        private readonly IConfirmationTokenService _tokens; // Onay token servisini tutuyorum
-        private readonly ISignedUrlService _urls; // İmzalı URL üretim servisini tutuyorum
-        private readonly ReminderOptions _opt; // Hatırlatma ayarlarını tutuyorum
+        private readonly ILogger<ReminderHostedService> _log; // Logger alanı
+        private readonly IServiceScopeFactory _scopeFactory; // Yeni scope yaratmak için fabrika
+        private readonly IDateTimeProvider _clock; // Zaman sağlayıcısı
+        private readonly ISmsSender _sms; // SMS gönderici
+        private readonly INotificationTemplateService _tpl; // Şablon servisi
+        private readonly IConfirmationTokenService _tokens; // Onay token servisi
+        private readonly ISignedUrlService _urls; // İmzalı URL servisi
+        private readonly ReminderOptions _opt; // Hatırlatma ayarları
 
         /// <summary>
-        /// Gerekli tüm bağımlılıkları alarak servisi başlatır.
+        /// Bağımlılıkları alarak servisi başlatır. DbContext yerine IServiceScopeFactory enjekte edilir.
         /// </summary>
-        public ReminderHostedService( // Kurucu metodu tanımlıyorum
-            ILogger<ReminderHostedService> log, // Logger'ı DI'dan alıyorum
-            AppDbContext db, // DbContext'i alıyorum
-            IDateTimeProvider clock, // Zaman sağlayıcısını alıyorum
-            ISmsSender sms, // SMS göndericiyi alıyorum
-            INotificationTemplateService tpl, // Şablon üreticiyi alıyorum
-            IConfirmationTokenService tokens, // Token üreticiyi alıyorum
-            ISignedUrlService urls, // İmzalı URL üreticiyi alıyorum
-            IOptions<ReminderOptions> opt) // Hatırlatma ayarlarını IOptions ile alıyorum
+        public ReminderHostedService(
+            ILogger<ReminderHostedService> log,             // Loglama için alıyorum
+            IServiceScopeFactory scopeFactory,              // Scoped servisleri elde etmek için alıyorum
+            IDateTimeProvider clock,                        // Zaman sağlayıcısını alıyorum
+            ISmsSender sms,                                 // SMS göndericiyi alıyorum
+            INotificationTemplateService tpl,               // Şablon servisini alıyorum
+            IConfirmationTokenService tokens,               // Token servisini alıyorum
+            ISignedUrlService urls,                         // URL üreticiyi alıyorum
+            IOptions<ReminderOptions> opt)                  // Ayarları IOptions ile alıyorum
         {
-            _log = log; // Logger'ı alan değişkenine atıyorum
-            _db = db; // DbContext'i alan değişkenine atıyorum
-            _clock = clock; // Zaman sağlayıcısını alan değişkenine atıyorum
-            _sms = sms; // SMS servisini alan değişkenine atıyorum
-            _tpl = tpl; // Şablon servisini alan değişkenine atıyorum
-            _tokens = tokens; // Token servisini alan değişkene atıyorum
-            _urls = urls; // URL servisini alan değişkene atıyorum
-            _opt = opt.Value; // Ayar değerini alan değişkenine atıyorum
+            _log = log;                 // Logger'ı saklıyorum
+            _scopeFactory = scopeFactory; // Scope fabrikasını saklıyorum
+            _clock = clock;             // Zaman sağlayıcısını saklıyorum
+            _sms = sms;                 // SMS göndericiyi saklıyorum
+            _tpl = tpl;                 // Şablon servisini saklıyorum
+            _tokens = tokens;           // Token servisini saklıyorum
+            _urls = urls;               // URL servisini saklıyorum
+            _opt = opt.Value;           // Ayar değerini saklıyorum
         }
 
         /// <summary>
-        /// Arka plan döngüsünü başlatır; belirtilen aralıklarla kontrol yapar.
+        /// Sonsuz döngü içinde belirlenen aralıklarla hatırlatma/uyarı işlemlerini yürütür.
         /// </summary>
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken) // Çalışma döngüsünü override ediyorum
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken) // Çalışma döngüsünü başlatıyorum
         {
-            var delay = TimeSpan.FromSeconds(Math.Max(30, _opt.ScanIntervalSeconds)); // Tarama aralığını saniyeden TimeSpan'e çeviriyorum (minimum 30 sn)
-            while (!stoppingToken.IsCancellationRequested) // Servis sonlandırılmadığı sürece döngüyü sürdürüyorum
+            var delay = TimeSpan.FromSeconds(Math.Max(30, _opt.ScanIntervalSeconds)); // Minimum 30 sn gecikme
+            while (!stoppingToken.IsCancellationRequested) // İptal edilmedikçe döngü
             {
-                try // Hataları izole etmek için try bloğu açıyorum
+                try // Hataları izole ediyorum
                 {
-                    await ProcessRemindersAsync(stoppingToken); // Hatırlatma ve uyarıları işliyorum
+                    await ProcessRemindersAsync(stoppingToken); // Asıl işi yapıyorum
                 }
-                catch (Exception ex) // Hata oluşursa
+                catch (Exception ex) // Hata olursa
                 {
                     _log.LogError(ex, "Hatırlatma servisi çalışırken hata oluştu"); // Hata logluyorum
                 }
-                await Task.Delay(delay, stoppingToken); // Belirlenen aralık kadar bekliyorum
+
+                await Task.Delay(delay, stoppingToken); // Sonraki turu bekliyorum
             }
         }
 
         /// <summary>
-        /// Yaklaşan randevular için SMS hatırlatmaları gönderir ve 2 saat kala yanıt yok uyarısı üretir.
+        /// Tek seferlik hatırlatma ve 2 saat kala uyarı işlerini yapar.
+        /// Her çalışmada yeni bir scope açar ve DbContext’i scope içinden alır.
         /// </summary>
-        private async Task ProcessRemindersAsync(CancellationToken ct) // Esas iş mantığını ayrı metoda alıyorum
+        private async Task ProcessRemindersAsync(CancellationToken ct) // İş mantığını kapsülleyen metot
         {
-            var now = _clock.UtcNow; // Şu anki UTC zamanını alıyorum
-            var remindAtFrom = now.AddHours(_opt.HoursBefore - 0.25); // 15 dk toleransla alt sınırı hesaplıyorum
-            var remindAtTo = now.AddHours(_opt.HoursBefore + 0.25); // 15 dk toleransla üst sınırı hesaplıyorum
+            using var scope = _scopeFactory.CreateScope(); // Yeni bir DI scope oluşturuyorum
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>(); // Scoped DbContext'i buradan alıyorum
 
-            // Hatırlatma penceresine giren randevuları çekiyorum
-            var toRemind = await _db.Appointments
-                .AsNoTracking() // Okuma amaçlı olduğu için takip açmıyorum
-                .Where(a => a.Status == AppointmentStatus.Scheduled) // Sadece planlı randevular
-                .Where(a => a.ConfirmationState == ConfirmationState.Yanıtlanmadı) // Hâlâ yanıt yoksa
+            var now = _clock.UtcNow; // Şu an UTC
+            var remindAtFrom = now.AddHours(_opt.HoursBefore - 0.25); // 15 dk tolerans
+            var remindAtTo = now.AddHours(_opt.HoursBefore + 0.25); // 15 dk tolerans
+
+            // Hatırlatma penceresindeki randevuları çekiyorum
+            var toRemind = await db.Appointments
+                .AsNoTracking()
+                .Where(a => a.Status == AppointmentStatus.Scheduled)
+                .Where(a => a.ConfirmationState == ConfirmationState.Yanıtlanmadı)
                 .Where(a =>
-                    // Tarih-saat birleştirip aralığa düşeni buluyorum
-                    DateTime.SpecifyKind(new DateTime(a.AppointmentDate.Year, a.AppointmentDate.Month, a.AppointmentDate.Day, a.StartTime.Hour, a.StartTime.Minute, 0), DateTimeKind.Utc)
-                    >= remindAtFrom &&
-                    DateTime.SpecifyKind(new DateTime(a.AppointmentDate.Year, a.AppointmentDate.Month, a.AppointmentDate.Day, a.StartTime.Hour, a.StartTime.Minute, 0), DateTimeKind.Utc)
-                    <= remindAtTo)
-                .Select(a => new { a.Id, a.ClientName, a.ClientPhone, a.AppointmentDate, a.StartTime }) // Gerekli alanları seçiyorum
-                .ToListAsync(ct); // Listeye alıyorum
+                    DateTime.SpecifyKind(new DateTime(a.AppointmentDate.Year, a.AppointmentDate.Month, a.AppointmentDate.Day, a.StartTime.Hour, a.StartTime.Minute, 0), DateTimeKind.Utc) >= remindAtFrom &&
+                    DateTime.SpecifyKind(new DateTime(a.AppointmentDate.Year, a.AppointmentDate.Month, a.AppointmentDate.Day, a.StartTime.Hour, a.StartTime.Minute, 0), DateTimeKind.Utc) <= remindAtTo)
+                .Select(a => new { a.Id, a.ClientName, a.ClientPhone, a.AppointmentDate, a.StartTime })
+                .ToListAsync(ct);
 
-            foreach (var a in toRemind) // Her randevu için döngüye giriyorum
+            foreach (var a in toRemind) // Her randevu için
             {
-                var ttl = TimeSpan.FromMinutes(_opt.HoursBefore * 60); // Token ömrünü saatten dakikaya çeviriyorum
-                var exp = DateTimeOffset.UtcNow.Add(ttl); // Token son kullanım zamanını hesaplıyorum
+                var exp = DateTimeOffset.UtcNow.AddHours(_opt.HoursBefore); // Token ömrü
+                var tYes = _tokens.GenerateYesToken(a.Id, exp); // Evet token
+                var tNo = _tokens.GenerateNoToken(a.Id, exp);  // Hayır token
 
-                var tYes = _tokens.GenerateYesToken(a.Id, exp); // Evet token'ını üretiyorum
-                var tNo = _tokens.GenerateNoToken(a.Id, exp); // Hayır token'ını üretiyorum
+                var yesUrl = _urls.Build("/appointment/confirm", new Dictionary<string, string?> { ["token"] = tYes, ["intent"] = "yes" }); // Evet URL
+                var noUrl = _urls.Build("/appointment/confirm", new Dictionary<string, string?> { ["token"] = tNo, ["intent"] = "no" }); // Hayır URL
 
-                var yesUrl = _urls.Build("/appointment/confirm", new Dictionary<string, string?> // Evet linkini üretiyorum
-                {
-                    ["token"] = tYes, // Token parametresini ekliyorum
-                    ["intent"] = "yes" // Niyet bilgisini ekliyorum
-                });
-
-                var noUrl = _urls.Build("/appointment/confirm", new Dictionary<string, string?> // Hayır linkini üretiyorum
-                {
-                    ["token"] = tNo, // Token parametresini ekliyorum
-                    ["intent"] = "no" // Niyet bilgisini ekliyorum
-                });
-
-                var message = _tpl.RenderReminder(a.ClientName, a.AppointmentDate, a.StartTime, yesUrl, noUrl); // Şablondan SMS metnini üretiyorum
-                var _ = await _sms.SendAsync(a.ClientPhone, message, ct); // SMS gönderimini çağırıyorum (dönüş bilgisi loglanabilir)
-                _log.LogInformation("Hatırlatma SMS gönderildi. AppointmentId={Id}", a.Id); // Bilgi logu yazıyorum
+                var message = _tpl.RenderReminder(a.ClientName, a.AppointmentDate, a.StartTime, yesUrl, noUrl); // SMS metni
+                _ = await _sms.SendAsync(a.ClientPhone, message, ct); // Mock gönderim
+                _log.LogInformation("Hatırlatma SMS gönderildi. AppointmentId={Id}", a.Id); // Log
             }
 
-            // 2 saat kala hâlâ yanıt yoksa kontrol paneline uyarı düşmek için log kaydı bırakıyorum (örn. ileride SignalR ile gösterilebilir)
-            var twoHoursFrom = now.AddHours(2 - 0.25); // 15 dk tolerans ile alt sınırı hesaplıyorum
-            var twoHoursTo = now.AddHours(2 + 0.25); // Üst sınırı hesaplıyorum
+            // 2 saat kala hâlâ yanıt yoksa uyarı kaydı (şimdilik log)
+            var twoFrom = now.AddHours(2 - 0.25); // 15 dk tolerans
+            var twoTo = now.AddHours(2 + 0.25); // 15 dk tolerans
 
-            var twoHourAlerts = await _db.Appointments
-                .AsNoTracking() // Takip yok
-                .Where(a => a.Status == AppointmentStatus.Scheduled) // Planlı randevular
-                .Where(a => a.ConfirmationState == ConfirmationState.Yanıtlanmadı) // Hâlâ yanıt yok
+            var twoHourAlerts = await db.Appointments
+                .AsNoTracking()
+                .Where(a => a.Status == AppointmentStatus.Scheduled)
+                .Where(a => a.ConfirmationState == ConfirmationState.Yanıtlanmadı)
                 .Where(a =>
-                    DateTime.SpecifyKind(new DateTime(a.AppointmentDate.Year, a.AppointmentDate.Month, a.AppointmentDate.Day, a.StartTime.Hour, a.StartTime.Minute, 0), DateTimeKind.Utc)
-                    >= twoHoursFrom &&
-                    DateTime.SpecifyKind(new DateTime(a.AppointmentDate.Year, a.AppointmentDate.Month, a.AppointmentDate.Day, a.StartTime.Hour, a.StartTime.Minute, 0), DateTimeKind.Utc)
-                    <= twoHoursTo)
+                    DateTime.SpecifyKind(new DateTime(a.AppointmentDate.Year, a.AppointmentDate.Month, a.AppointmentDate.Day, a.StartTime.Hour, a.StartTime.Minute, 0), DateTimeKind.Utc) >= twoFrom &&
+                    DateTime.SpecifyKind(new DateTime(a.AppointmentDate.Year, a.AppointmentDate.Month, a.AppointmentDate.Day, a.StartTime.Hour, a.StartTime.Minute, 0), DateTimeKind.Utc) <= twoTo)
                 .Select(a => new { a.Id, a.ClientName, a.AppointmentDate, a.StartTime })
-                .ToListAsync(ct); // Listeye alıyorum
+                .ToListAsync(ct);
 
-            foreach (var a in twoHourAlerts) // Her uyarı için dönüyorum
+            foreach (var a in twoHourAlerts) // Uyarı log
             {
-                var msg = _tpl.RenderTwoHourNoResponseAlert(a.ClientName, a.AppointmentDate, a.StartTime); // Uyarı metnini oluşturuyorum
-                _log.LogWarning("2 saat kala yanıt yok: {Msg} (AppointmentId={Id})", msg, a.Id); // Şimdilik log olarak yazıyorum
-                // Not: İleride bu noktada kontrol paneli için Notification tablosuna kayıt atılabilir.
+                var msg = _tpl.RenderTwoHourNoResponseAlert(a.ClientName, a.AppointmentDate, a.StartTime); // Uyarı metni
+                _log.LogWarning("2 saat kala yanıt yok: {Msg} (AppointmentId={Id})", msg, a.Id); // Log
             }
         }
     }
 }
-
