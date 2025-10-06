@@ -11,6 +11,24 @@
     ViewData["Title"] = "Randevu Oluştur";
 }
 
+<style>
+    /* Slot seçim kutuları için basit stiller */
+    .slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+    .slot-item { position: relative; display: flex; align-items: center; justify-content: center; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; cursor: pointer; user-select: none; transition: .15s ease; }
+    .slot-item input { position: absolute; opacity: 0; pointer-events: none; }
+    .slot-free { background: #e8f5e9; border-color: #34d399; color: #065f46; }
+    .slot-busy { background: #ffebee; border-color: #ef4444; color: #7f1d1d; cursor: not-allowed; }
+    .slot-free:hover { filter: brightness(0.98); }
+    .slot-selected { background: #e3f2fd; border-color: #2563eb; color: #1e3a8a; }
+    .slot-time { font-variant-numeric: tabular-nums; }
+
+    /* Mini (önizleme) grid */
+    .slot-mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 4px; }
+    .slot-mini-item { display: flex; align-items: center; justify-content: center; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; line-height: 1; white-space: nowrap; }
+    .slot-mini-free { background: #ecfdf5; border-color: #34d399; color: #065f46; }
+    .slot-mini-busy { background: #fef2f2; border-color: #ef4444; color: #7f1d1d; }
+</style>
+
 <div class="container" style="max-width:720px;margin:40px auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">
     <h1 style="font-size:22px;margin:0 0 16px 0;">Randevu Oluştur</h1>
 
@@ -28,12 +46,10 @@
             <span asp-validation-for="Date" class="text-danger"></span>
         </div>
 
-        @* Saat seçimi: Tarih seçildiğinde AJAX ile doldurulacak *@
+        @* Saat seçimi: Tarih seçildiğinde checkbox grid olarak dolacak *@
         <div class="mb-3">
             <label class="form-label">Saat</label>
-            <select id="slotSelect" class="form-select">
-                <option value="">Önce tarih seçin</option>
-            </select>
+            <div id="slotGrid" class="slot-grid"></div>
             @* Hidden alan: seçilen saati TimeOnly'e bağlayacağım *@
             <input asp-for="StartTime" type="hidden" />
             <span asp-validation-for="StartTime" class="text-danger"></span>
@@ -72,61 +88,169 @@
     </form>
 </div>
 
+@* 14 günlük müsaitlik önizleme tablosu *@
+<div class="container" style="max-width:900px;margin:0 auto 40px auto;">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">Önümüzdeki 14 Gün – Müsaitlik</h5>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle" id="previewTable">
+          <thead>
+            <tr>
+              <th style="width:140px;">Tarih</th>
+              <th style="width:120px;">Gün</th>
+              <th>Müsaitlik</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 @section Scripts {
-    @* jQuery ve doğrulama scriptleri projenin layout'unda yüklü varsayılmıştır.
-       Eğer yoksa, _Layout.cshtml içine jquery + jquery.validate + jquery.validate.unobtrusive ekle. *@
     <script>
-        // Tarih alanı değişince uygun saatleri çekip <select>'e dolduracağım
-        document.addEventListener('DOMContentLoaded', function () { // DOM hazır olduğunda çalıştırıyorum
-            const dateInput = document.querySelector('input[name="Date"]'); // Tarih input'unu buluyorum
-            const slotSelect = document.getElementById('slotSelect'); // Saat select'ini buluyorum
-            const startTimeHidden = document.querySelector('input[name="StartTime"]'); // Gizli StartTime alanını buluyorum
+        document.addEventListener('DOMContentLoaded', function () {
+            const dateInput = document.querySelector('input[name="Date"]');
+            const slotGrid = document.getElementById('slotGrid');
+            const startTimeHidden = document.querySelector('input[name="StartTime"]');
 
-            // Select değiştiğinde gizli StartTime alanını HH:mm formatında güncelleyeceğim
-            slotSelect.addEventListener('change', function () { // Select değişimini yakalıyorum
-                const val = slotSelect.value; // Seçili değeri alıyorum
-                startTimeHidden.value = val ? val : ""; // Seçili zaman varsa gizli alana yazıyorum, yoksa boş bırakıyorum
+            // Yardımcı: saat biçimleme HH:mm
+            function fmt(t) {
+                const s = (t ?? '').toString();
+                return s.length >= 5 ? s.substring(0, 5) : s;
+            }
+            // Yardımcı: yyyy-MM-dd -> dd.MM.yyyy (TR)
+            function fmtDateTR(iso) {
+                if (!iso) return '';
+                const [y, m, d] = iso.split('-');
+                return `${d}.${m}.${y}`;
+            }
+
+            // Tek seçim kuralı: bir checkbox seçildiğinde diğerlerini kaldır
+            function enforceSingleSelection(changed) {
+                const boxes = slotGrid.querySelectorAll('input[type="checkbox"][data-available="true"]');
+                boxes.forEach(cb => {
+                    const label = cb.closest('label');
+                    if (cb !== changed) {
+                        cb.checked = false;
+                        label.classList.remove('slot-selected');
+                    }
+                });
+            }
+
+            // Grid'i verilen tarih için doldur
+            async function renderSlotGrid(isoDate) {
+                slotGrid.innerHTML = '';
+                startTimeHidden.value = '';
+                if (!isoDate) return;
+                const resp = await fetch(`/appointment/slot-states?date=${encodeURIComponent(isoDate)}`);
+                if (!resp.ok) { slotGrid.innerHTML = '<div class="text-muted">Uygun saat bulunamadı</div>'; return; }
+                const data = await resp.json();
+                if (!Array.isArray(data) || data.length === 0) { slotGrid.innerHTML = '<div class="text-muted">Uygun saat bulunamadı</div>'; return; }
+
+                const frag = document.createDocumentFragment();
+                for (const s of data) {
+                    const start = fmt(s.startTime);
+                    const end = fmt(s.endTime);
+                    const available = !!s.isAvailable;
+
+                    const label = document.createElement('label');
+                    label.className = `slot-item ${available ? 'slot-free' : 'slot-busy'}`;
+                    label.title = available ? 'Müsait' : 'Dolu';
+
+                    const cb = document.createElement('input');
+                    cb.type = 'checkbox';
+                    cb.value = start; // HH:mm
+                    cb.disabled = !available;
+                    cb.setAttribute('data-available', available ? 'true' : 'false');
+
+                    const span = document.createElement('span');
+                    span.className = 'slot-time';
+                    span.textContent = `${start} - ${end}`;
+
+                    label.appendChild(cb);
+                    label.appendChild(span);
+
+                    if (available) {
+                        label.addEventListener('click', function (e) {
+                            if (cb.disabled) return;
+                            setTimeout(() => {
+                                if (cb.checked) {
+                                    enforceSingleSelection(cb);
+                                    label.classList.add('slot-selected');
+                                    startTimeHidden.value = cb.value;
+                                } else {
+                                    label.classList.remove('slot-selected');
+                                    if (startTimeHidden.value === cb.value) startTimeHidden.value = '';
+                                }
+                            }, 0);
+                        });
+                    }
+
+                    frag.appendChild(label);
+                }
+                slotGrid.appendChild(frag);
+            }
+
+            // Tarih değişimi -> grid doldur
+            dateInput.addEventListener('change', function () {
+                const iso = dateInput.value; // yyyy-MM-dd
+                renderSlotGrid(iso);
             });
 
-            // Tarih değiştiğinde /appointment/slots endpoint'inden slotları çekeceğim
-            dateInput.addEventListener('change', async function () { // Tarih değişimini yakalıyorum
-                const dateVal = dateInput.value; // yyyy-MM-dd formatındaki değeri alıyorum
-                // Değer boşsa select'i sıfırlayıp çıkıyorum
-                if (!dateVal) { // Eğer tarih seçilmemişse
-                    slotSelect.innerHTML = '<option value="">Önce tarih seçin</option>'; // Seçimi sıfırlıyorum
-                    startTimeHidden.value = ""; // Gizli alanı temizliyorum
-                    return; // İşlemi bitiriyorum
-                }
+            // Önizleme için slot durumlarını yükleme
+            async function loadSlotStatesForDate(iso) {
+                const resp = await fetch(`/appointment/slot-states?date=${encodeURIComponent(iso)}`);
+                if (!resp.ok) return [];
+                const list = await resp.json();
+                return Array.isArray(list) ? list : [];
+            }
 
-                // Uçtan slotları çekiyorum
-                const resp = await fetch(`/appointment/slots?date=${encodeURIComponent(dateVal)}`); // Endpoint'e istek atıyorum
-                if (!resp.ok) { // Başarısızsa
-                    slotSelect.innerHTML = '<option value="">Uygun saat bulunamadı</option>'; // Hata mesajı yazıyorum
-                    startTimeHidden.value = ""; // Gizli alanı temizliyorum
-                    return; // Çıkıyorum
-                }
+            // 14 günlük önizleme tablosu
+            const tbody = document.querySelector('#previewTable tbody');
+            const dayNames = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+            const today = new Date();
+            async function buildPreview() {
+                for (let i = 0; i < 14; i++) {
+                    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    const iso = `${yyyy}-${mm}-${dd}`;
+                    const states = await loadSlotStatesForDate(iso);
 
-                const data = await resp.json(); // JSON cevabı alıyorum (SlotDto listesi bekliyorum)
-                if (!Array.isArray(data) || data.length === 0) { // Liste boşsa
-                    slotSelect.innerHTML = '<option value="">Uygun saat bulunamadı</option>'; // Bilgilendiriyorum
-                    startTimeHidden.value = ""; // Gizli alanı temizliyorum
-                    return; // Çıkıyorum
-                }
+                    const tr = document.createElement('tr');
+                    const td1 = document.createElement('td');
+                    const a = document.createElement('a');
+                    a.href = '#'; a.textContent = fmtDateTR(iso); a.addEventListener('click', (e) => { e.preventDefault(); dateInput.value = iso; renderSlotGrid(iso); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+                    td1.appendChild(a);
+                    const td2 = document.createElement('td');
+                    td2.textContent = dayNames[d.getDay()];
+                    const td3 = document.createElement('td');
 
-                // Select'i dolduruyorum
-                const opts = ['<option value="">Saat seçin</option>']; // İlk seçenek olarak yönlendirici metin ekliyorum
-                for (const s of data) { // Her slot için dönüyorum
-                    // API SlotDto: { date, startTime, endTime } bekliyorum. time biçimleri "HH:mm:ss" olabilir.
-                    const start = (s.startTime ?? '').toString().substring(0,5); // Başlangıç saatinin ilk 5 karakterini alıyorum (HH:mm)
-                    const end = (s.endTime ?? '').toString().substring(0,5); // Bitiş saatinin ilk 5 karakterini alıyorum
-                    const label = `${start} - ${end}`; // Etiket metnini oluşturuyorum
-                    opts.push(`<option value="${start}">${label}</option>`); // Option elemanını listeme ekliyorum
-                }
-                slotSelect.innerHTML = opts.join(''); // Select'in içeriğini ürettiğim seçeneklerle değiştiriyorum
+                    if (!Array.isArray(states) || states.length === 0) {
+                        td3.innerHTML = '<span class="text-muted">Müsaitlik belirtilmedi</span>';
+                    } else {
+                        const grid = document.createElement('div');
+                        grid.className = 'slot-mini-grid';
+                        for (const s of states) {
+                            const start = fmt(s.startTime);
+                            const end = fmt(s.endTime);
+                            const div = document.createElement('div');
+                            div.className = `slot-mini-item ${s.isAvailable ? 'slot-mini-free' : 'slot-mini-busy'}`;
+                            div.textContent = `${start}-${end}`;
+                            grid.appendChild(div);
+                        }
+                        td3.appendChild(grid);
+                    }
 
-                // Önceki bir seçim varsa temizliyorum
-                startTimeHidden.value = ""; // Gizli alanı sıfırlıyorum
-            });
+                    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
+                    tbody.appendChild(tr);
+                }
+            }
+            buildPreview();
         });
     </script>
 }

@@ -10,9 +10,6 @@ using Dyt.Contracts.Common; // PagedResult<T> tipi için gerekli
 
 namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının ad alanını tanımlıyorum
 {
-    /// <summary>
-    /// Randevu oluşturma, okuma ve durum güncelleme işlevlerini sağlayan servis.
-    /// </summary>
     public class AppointmentService : IAppointmentService // Arayüzü uygulayan sınıfı bildiriyorum
     {
         private readonly AppDbContext _db;                   // Veritabanı bağlamını saklamak için alan tanımlıyorum
@@ -21,9 +18,6 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
         private readonly IDateTimeProvider _clock;           // Zaman sağlayıcısını saklamak için alan tanımlıyorum
         private readonly ILogger<AppointmentService> _log;   // Günlükleme için logger alanı tanımlıyorum
 
-        /// <summary>
-        /// Gerekli bağımlılıkları alarak servisi başlatır.
-        /// </summary>
         public AppointmentService(AppDbContext db, IScheduleService schedule, IConfirmationTokenService tokens, IDateTimeProvider clock, ILogger<AppointmentService> log) // Kurucu metodu tanımlıyorum
         {
             _db = db;           // DbContext bağımlılığını alana atıyorum
@@ -31,6 +25,50 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
             _tokens = tokens;   // Token servisini alana atıyorum
             _clock = clock;     // Zaman sağlayıcısını alana atıyorum
             _log = log;         // Logger'ı alana atıyorum
+        }
+
+        private static string MapStatus(AppointmentStatus s) => s switch
+        {
+            AppointmentStatus.Scheduled => "Planlandı",
+            AppointmentStatus.Canceled => "İptal",
+            AppointmentStatus.NoShow => "Gelmedi",
+            _ => s.ToString()
+        };
+        private static string MapConfirmation(ConfirmationState c) => c switch
+        {
+            ConfirmationState.Yanıtlanmadı => "Yanıtlanmadı",
+            ConfirmationState.Gelecek => "Gelecek",
+            ConfirmationState.Gelmeyecek => "Gelmeyecek",
+            _ => c.ToString()
+        };
+
+        // Yardımcı: string -> enum dönüştürme (TR/EN değerleri destekler)
+        private static AppointmentStatus? ParseStatus(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return null;
+            var s = input.Trim();
+            if (string.Equals(s, "Scheduled", StringComparison.OrdinalIgnoreCase) || string.Equals(s, "Planlandı", StringComparison.OrdinalIgnoreCase))
+                return AppointmentStatus.Scheduled;
+            if (string.Equals(s, "Canceled", StringComparison.OrdinalIgnoreCase) || string.Equals(s, "İptal", StringComparison.OrdinalIgnoreCase) || string.Equals(s, "Iptal", StringComparison.OrdinalIgnoreCase))
+                return AppointmentStatus.Canceled;
+            if (string.Equals(s, "NoShow", StringComparison.OrdinalIgnoreCase) || string.Equals(s, "Gelmedi", StringComparison.OrdinalIgnoreCase))
+                return AppointmentStatus.NoShow;
+            return null;
+        }
+        private static ConfirmationState? ParseConfirmation(string? input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return null;
+            var s = input.Trim();
+            if (string.Equals(s, "Yanıtlanmadı", StringComparison.OrdinalIgnoreCase) || string.Equals(s, "Yanitlanmadi", StringComparison.OrdinalIgnoreCase))
+                return ConfirmationState.Yanıtlanmadı;
+            if (string.Equals(s, "Gelecek", StringComparison.OrdinalIgnoreCase))
+                return ConfirmationState.Gelecek;
+            if (string.Equals(s, "Gelmeyecek", StringComparison.OrdinalIgnoreCase))
+                return ConfirmationState.Gelmeyecek;
+            if (string.Equals(s, "Pending", StringComparison.OrdinalIgnoreCase)) return ConfirmationState.Yanıtlanmadı;
+            if (string.Equals(s, "Yes", StringComparison.OrdinalIgnoreCase) || string.Equals(s, "Accepted", StringComparison.OrdinalIgnoreCase)) return ConfirmationState.Gelecek;
+            if (string.Equals(s, "No", StringComparison.OrdinalIgnoreCase) || string.Equals(s, "Declined", StringComparison.OrdinalIgnoreCase)) return ConfirmationState.Gelmeyecek;
+            return null;
         }
 
         /// <summary>
@@ -77,8 +115,8 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
                 ClientName = entity.ClientName,         // İsim set ediyorum
                 ClientPhone = entity.ClientPhone,       // Telefon set ediyorum
                 ClientEmail = entity.ClientEmail,       // E-posta set ediyorum
-                Status = entity.Status.ToString(),      // Durumu metin olarak set ediyorum
-                ConfirmationState = entity.ConfirmationState.ToString() // Onay durumunu metin olarak set ediyorum
+                Status = MapStatus(entity.Status),      // Durumu metin olarak set ediyorum
+                ConfirmationState = MapConfirmation(entity.ConfirmationState) // Onay durumunu metin olarak set ediyorum
             };
         }
 
@@ -86,7 +124,7 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
         /// Kimliğe göre randevu döner; bulunamazsa null döner.
         /// </summary>
         public async Task<Dyt.Contracts.Appointments.Responses.AppointmentDto?>
-            GetByIdAsync(int id, CancellationToken ct = default) // Get metodunu uyguluyorum
+            GetByIdAsync(int id, CancellationToken ct = default) // Get metodunu uygulıyorum
         {
             var a = await _db.Appointments.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct); // Randevuyu çekiyorum
             if (a == null) return null; // Bulunamazsa null döndürüyorum
@@ -100,8 +138,8 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
                 ClientName = a.ClientName,          // İsim set ediyorum
                 ClientPhone = a.ClientPhone,        // Telefon set ediyorum
                 ClientEmail = a.ClientEmail,        // E-posta set ediyorum
-                Status = a.Status.ToString(),       // Durumu set ediyorum
-                ConfirmationState = a.ConfirmationState.ToString() // Onay durumunu set ediyorum
+                Status = MapStatus(a.Status),       // Durumu set ediyorum
+                ConfirmationState = MapConfirmation(a.ConfirmationState) // Onay durumunu set ediyorum
             };
         }
 
@@ -122,7 +160,7 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
         /// <summary>
         /// Randevuyu iptal eder.
         /// </summary>
-        public async Task<bool> CancelAsync(int id, CancellationToken ct = default) // İptal metodunu uyguluyorum
+        public async Task<bool> CancelAsync(int id, CancellationToken ct = default) // İptal metodunu uygulıyorum
         {
             var a = await _db.Appointments.FirstOrDefaultAsync(x => x.Id == id, ct); // Kaydı buluyorum
             if (a == null) return false; // Yoksa false döndürüyorum
@@ -137,7 +175,7 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
         /// Onay linkindeki token ve intent'e göre randevunun onay durumunu günceller.
         /// intent "yes" ise Gelecek, "no" ise Gelmeyecek olarak işaretler.
         /// </summary>
-        public async Task<bool> ProcessConfirmationAsync(string token, string intent, CancellationToken ct = default) // Onay işleme metodunu uyguluyorum
+        public async Task<bool> ProcessConfirmationAsync(string token, string intent, CancellationToken ct = default) // Onay işleme metodunu uygulıyorum
         {
             var (ok, appointmentId) = _tokens.Validate(token); // Token'ı doğrulayıp randevu kimliğini alıyorum
             if (!ok) return false; // Geçersizse false döndürüyorum
@@ -162,11 +200,15 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
         /// <summary>
         /// Verilen gün için uygun slotları döner (IScheduleService'e delege eder).
         /// </summary>
-        public async Task<IReadOnlyList<Dyt.Contracts.Appointments.Responses.SlotDto>>
-            GetAvailableSlotsAsync(DateOnly date, CancellationToken ct = default) // Slot listeleme metodunu uyguluyorum
+        public async Task<IReadOnlyList<Dyt.Contracts.Appointments.Responses.SlotDto>> GetAvailableSlotsAsync(DateOnly date, CancellationToken ct = default) // Slot listeleme metodunu uygulıyorum
         {
             var slots = await _schedule.GetDailySlotsAsync(date, ct); // Uygunluk servisinden slotları alıyorum
             return slots; // Sonucu aynen döndürüyorum
+        }
+
+        public async Task<IReadOnlyList<Dyt.Contracts.Appointments.Responses.SlotStateDto>> GetSlotStatesAsync(DateOnly date, CancellationToken ct = default)
+        {
+            return await _schedule.GetDailySlotStatesAsync(date, ct);
         }
 
         /// <summary>
@@ -184,13 +226,15 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
             if (request.DateTo.HasValue) // Bitiş tarihi verilmiş mi kontrol ediyorum
                 q = q.Where(a => a.AppointmentDate <= request.DateTo.Value); // Bitiş tarihine göre filtreliyorum
 
-            // Durum filtresi (string geldiği için enum isimleriyle kıyaslıyorum)
-            if (!string.IsNullOrWhiteSpace(request.Status)) // Durum değeri boş değilse
-                q = q.Where(a => a.Status.ToString() == request.Status); // Enum'u ToString ile kıyaslıyorum
+            // Durum filtresi (TR/EN destekli)
+            var st = ParseStatus(request.Status);
+            if (st.HasValue)
+                q = q.Where(a => a.Status == st.Value);
 
-            // Onay durumu filtresi
-            if (!string.IsNullOrWhiteSpace(request.ConfirmationState)) // Onay durumu boş değilse
-                q = q.Where(a => a.ConfirmationState.ToString() == request.ConfirmationState); // Enum'u ToString ile kıyaslıyorum
+            // Onay durumu filtresi (TR/EN destekli)
+            var cf = ParseConfirmation(request.ConfirmationState);
+            if (cf.HasValue)
+                q = q.Where(a => a.ConfirmationState == cf.Value);
 
             // Arama filtresi (isim veya telefon)
             if (!string.IsNullOrWhiteSpace(request.Search)) // Arama ifadesi boş değilse
@@ -221,8 +265,8 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
                     ClientName = a.ClientName, // İsim
                     ClientPhone = a.ClientPhone, // Telefon
                     ClientEmail = a.ClientEmail, // E-posta
-                    Status = a.Status.ToString(), // Durum
-                    ConfirmationState = a.ConfirmationState.ToString() // Onay durumu
+                    Status = MapStatus(a.Status), // Durum
+                    ConfirmationState = MapConfirmation(a.ConfirmationState) // Onay durumu
                 })
                 .ToListAsync(ct); // Listeye çeviriyorum
 
@@ -236,5 +280,27 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
             };
         }
 
+        // Yeni: Admin onay/red ve bekleyen sayısı
+        /// <summary>
+        /// Admin onay/red işlemi yapar.
+        /// </summary>
+        public async Task<bool> AdminSetConfirmationAsync(int id, ConfirmationState state, CancellationToken ct = default)
+        {
+            var a = await _db.Appointments.FirstOrDefaultAsync(x => x.Id == id, ct); // Kaydı buluyorum
+            if (a == null) return false; // Yoksa false döndürüyorum
+            if (a.Status != AppointmentStatus.Scheduled) return false; // Planlı değilse değiştirmiyorum
+            a.ConfirmationState = state; // Onay durumunu güncelliyorum
+            _db.Appointments.Update(a);          // Güncelleme işaretliyorum
+            await _db.SaveChangesAsync(ct);        // Kaydediyorum
+            return true;                            // Başarılı sonucu döndürüyorum
+        }
+
+        /// <summary>
+        /// Bekleyen randevu sayısını döner.
+        /// </summary>
+        public async Task<int> GetPendingCountAsync(CancellationToken ct = default)
+        {
+            return await _db.Appointments.AsNoTracking().CountAsync(a => a.Status == AppointmentStatus.Scheduled && a.ConfirmationState == ConfirmationState.Yanıtlanmadı, ct); // Sayıyorum
+        }
     }
 }

@@ -1,11 +1,41 @@
 ﻿@{
     ViewData["Title"] = "Kontrol Paneli";
 }
-<h1 style="margin:24px 0;">Kontrol Paneli</h1>
+<div class="container py-4">
+  <div class="row mb-3">
+    <div class="col-12">
+      <h1 class="h3 fw-bold mb-1">Kontrol Paneli</h1>
+      <p class="text-muted">Randevu, çalışma saatleri ve blog yönetimi.</p>
+    </div>
+  </div>
 
-<p>Hoş geldiniz. Buradan randevu, çalışma saatleri ve blog yönetimine geçeceğiz.</p>
-<ul>
-    <li><a asp-area="Admin" asp-controller="Appointments" asp-action="Index">Randevular</a></li>
-    <li><a asp-area="Admin" asp-controller="WorkingHours" asp-action="Index">Çalışma Saatleri</a> (bir sonraki adım)</li>
-    <li><a asp-area="Admin" asp-controller="Blog" asp-action="Index">Blog</a> (ilerleyen adım)</li>
-</ul>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Randevular</h5>
+          <p class="card-text text-muted small">Filtreleyin, durumlarını yönetin.</p>
+          <a class="btn btn-primary" asp-area="Admin" asp-controller="Appointments" asp-action="Index">Listeye Git</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Çalışma Saatleri</h5>
+          <p class="card-text text-muted small">Şablon ve istisnaları düzenleyin.</p>
+          <a class="btn btn-primary" asp-area="Admin" asp-controller="WorkingHours" asp-action="Index">Yönet</a>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Blog</h5>
+          <p class="card-text text-muted small">Yazılarınızı paylaşın ve düzenleyin.</p>
+          <a class="btn btn-primary disabled" href="#" tabindex="-1" aria-disabled="true">Yakında</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

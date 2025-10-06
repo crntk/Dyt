@@ -1,8 +1,30 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Anasayfa";
 }
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero py-5">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <h1 class="display-5 fw-bold mb-3">Sağlıklı Beslenme Yolculuğuna Hoş Geldiniz</h1>
+        <p class="lead text-secondary">Güncel makaleler, pratik öneriler ve kişisel randevu planlama.</p>
+        <div class="mt-3">
+          <a class="btn btn-lg btn-primary me-2" asp-controller="Appointment" asp-action="Create">Randevu Al</a>
+          <a class="btn btn-lg btn-outline-secondary" asp-controller="Blog" asp-action="Index">Bloğu Gör</a>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card shadow-sm p-4">
+          <h5 class="mb-3">Hızlı Randevu</h5>
+          <p class="text-muted mb-2">Uygun tarih ve saatleri anında görüp randevunuzu oluşturun.</p>
+          <a class="btn btn-primary" asp-controller="Appointment" asp-action="Create">Randevu Oluştur</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="container py-4">
+  <h3 class="mb-3">Son Yazılar</h3>
+  <div>
+    <p class="text-muted">Blog yazıları için üst menüden Blog'a geçin.</p>
+  </div>
+</section>

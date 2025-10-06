@@ -10,87 +10,67 @@ using System.Threading.Tasks;
 namespace Dyt.Business.Scheduling // Slot hesaplayıcısının bulunduğu ad alanı
 {
     /// <summary>
-    /// Çalışma şablonları, istisnalar ve slot uzunluğuna göre günlük uygun zaman aralıklarını hesaplayan yardımcı sınıf.
-    /// Sadece zaman aralığı üretir; mevcut randevuların düşülmesi üst serviste yapılır.
+    /// Tarih bazlı istisnalar ve slot uzunluğuna göre günlük uygun zaman aralıklarını hesaplayan yardımcı sınıf.
+    /// Haftalık şablonlar kaldırıldı; yalnızca tarih bazlı istisnalar (ExtraOpen/Closed) dikkate alınır.
     /// </summary>
     public static class SlotCalculator // Statik yardımcı sınıf olarak tasarladım
     {
         /// <summary>
-        /// Verilen gün için aktif şablonlardan slot aralıklarını üretir.
-        /// İstisnalarla (kapalı/ekstra açık) şablonlar birleştirilir ve final slot listesi çıkar.
+        /// Verilen gün için tarih bazlı istisnalardan slot aralıklarını üretir.
+        /// - ExtraOpen kayıtları çalışma pencerelerini tanımlar.
+        /// - Closed kayıtları bu pencerelerden düşülür.
         /// </summary>
-        public static List<SlotDto> BuildDailySlots( // Günlük slot üretimini yapan metot
-            DateOnly date, // Hesaplama yapılacak gün
-            IEnumerable<WorkingHourTemplate> templates, // Haftalık şablonlar
-            IEnumerable<WorkingHourException> exceptions) // Günlük istisnalar
+        public static List<SlotDto> BuildDailySlots(
+            DateOnly date,
+            IEnumerable<WorkingHourException> exceptions)
         {
-            var result = new List<SlotDto>(); // Sonuç listesi için boş bir liste oluşturuyorum
-
-            var dayOfWeek = date.DayOfWeek; // Günün haftanın hangi gününe denk geldiğini alıyorum
-            var activeTemplates = templates // Aktif şablonları filtreliyorum
-                .Where(t => t.IsActive && t.DayOfWeek == dayOfWeek) // Günle eşleşen ve aktif olanları seçiyorum
-                .OrderBy(t => t.StartTime) // Başlangıç saatine göre sıraya koyuyorum
-                .ToList(); // Listeye çeviriyorum
+            var result = new List<SlotDto>();
 
             // İlgili güne ait istisnaları alıyorum
             var dayExceptions = exceptions
-                .Where(e => e.Date == date) // Sadece bu güne ait olanları seçiyorum
-                .ToList(); // Listeye çeviriyorum
+                .Where(e => e.Date == date)
+                .ToList();
 
-            // Eğer tam gün kapalı istisnası varsa, o gün hiç slot üretmem
-            if (dayExceptions.Any(x => x.Type == Data.Enums.WorkingExceptionType.Closed && x.StartTime == null && x.EndTime == null)) // Tam gün kapalı kontrolü
-                return result; // Boş liste dönerim
+            // Eğer tam gün kapalı istisnası varsa, slot üretme
+            if (dayExceptions.Any(x => x.Type == Data.Enums.WorkingExceptionType.Closed && x.StartTime == null && x.EndTime == null))
+                return result;
 
-            // Şablonlardan temel çalışma aralıklarını çıkarıyorum
-            var baseWindows = activeTemplates
-                .Select(t => (start: t.StartTime, end: t.EndTime, slot: t.SlotMinutes)) // Başlangıç, bitiş ve slot uzunluğunu alıyorum
-                .ToList(); // Liste yapıyorum
+            // ExtraOpen pencereleri: yalnızca bunlardan üretim yapılır
+            var baseWindows = dayExceptions
+                .Where(x => x.Type == Data.Enums.WorkingExceptionType.ExtraOpen && x.StartTime.HasValue && x.EndTime.HasValue)
+                .Select(x => (start: x.StartTime!.Value, end: x.EndTime!.Value, slot: 30)) // Varsayılan slot: 30 dk
+                .ToList();
 
-            // İstisnalardan ekstra açık aralıklar varsa bunları da ekliyorum
-            foreach (var ex in dayExceptions.Where(x => x.Type == Data.Enums.WorkingExceptionType.ExtraOpen)) // Ekstra açık istisnaları geziyorum
-            {
-                if (ex.StartTime.HasValue && ex.EndTime.HasValue) // Başlangıç ve bitiş saati varsa
-                {
-                    baseWindows.Add((ex.StartTime.Value, ex.EndTime.Value, // Aralığı şablon listesine ekliyorum
-                        activeTemplates.FirstOrDefault()?.SlotMinutes ?? 30)); // Slot süresi için bir şablon varsa onu, yoksa 30 dk alıyorum
-                }
-            }
+            if (baseWindows.Count == 0)
+                return result; // O gün için hiç açık aralık yoksa boş liste dön
 
-            // Kapalı istisnalar belirli saat aralıklarını kapatabilir; bu durumda o aralıklarda slot üretmeyeceğim
+            // Saat bazlı kapalı aralıklar
             var closedWindows = dayExceptions
-                .Where(x => x.Type == Data.Enums.WorkingExceptionType.Closed && x.StartTime.HasValue && x.EndTime.HasValue) // Saat bazlı kapalı istisnalar
-                .Select(x => (x.StartTime!.Value, x.EndTime!.Value)) // Başlangıç ve bitiş saatlerini alıyorum
-                .ToList(); // Liste yapıyorum
+                .Where(x => x.Type == Data.Enums.WorkingExceptionType.Closed && x.StartTime.HasValue && x.EndTime.HasValue)
+                .Select(x => (x.StartTime!.Value, x.EndTime!.Value))
+                .ToList();
 
-            // Her pencere için slotları parçalıyorum
-            foreach (var (start, end, slot) in baseWindows) // Tüm çalışma aralıklarını geziyorum
+            foreach (var (start, end, slot) in baseWindows)
             {
-                var cursor = start; // Slot üretimine başlangıç saatinden başlıyorum
-                while (cursor.AddMinutes(slot) <= end) // Slot bitişi pencere bitişini geçmediği sürece devam ediyorum
+                var cursor = start;
+                while (cursor.AddMinutes(slot) <= end)
                 {
-                    var next = cursor.AddMinutes(slot); // Slotun bitişini hesaplıyorum
-
-                    // Bu slot kapalı istisna aralığına denk geliyor mu kontrol ediyorum
-                    var overlapsClosed = closedWindows.Any(cw => // Her kapalı aralıkla çakışmayı kontrol ediyorum
-                        !(next <= cw.Item1 || cursor >= cw.Item2)); // Ayrık aralık değilse çakışma vardır
-
-                    if (!overlapsClosed) // Kapalı ile çakışmıyorsa
+                    var next = cursor.AddMinutes(slot);
+                    var overlapsClosed = closedWindows.Any(cw => !(next <= cw.Item1 || cursor >= cw.Item2));
+                    if (!overlapsClosed)
                     {
-                        result.Add(new SlotDto // Yeni bir slot oluşturuyorum
+                        result.Add(new SlotDto
                         {
-                            Date = date, // Gün bilgisini set ediyorum
-                            StartTime = cursor, // Slot başlangıcı
-                            EndTime = next // Slot bitişi
-                        }); // Slotu listeye ekliyorum
+                            Date = date,
+                            StartTime = cursor,
+                            EndTime = next
+                        });
                     }
-
-                    cursor = next; // Bir sonraki slot için başlangıcı ileri alıyorum
+                    cursor = next;
                 }
             }
 
-            return result // Üretilen tüm slotları döndürüyorum
-                .OrderBy(s => s.StartTime) // Başlangıca göre sıralıyorum
-                .ToList(); // Listeye çeviriyorum
+            return result.OrderBy(s => s.StartTime).ToList();
         }
     }
 }

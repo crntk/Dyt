@@ -1,0 +1,144 @@
+﻿@* 
+  Çalışma saatleri yönetimi – yalnızca tarih bazlı istisnalar ve önizleme.
+  ViewBag.Exceptions : IReadOnlyList<WorkingHourExceptionDto>
+  ViewBag.Preview : IEnumerable<(DateOnly Date, string DayName, IReadOnlyList<Dyt.Contracts.Appointments.Responses.SlotDto> Slots)>
+*@
+@using Dyt.Contracts.Scheduling.Responses
+@using Dyt.Contracts.Appointments.Responses
+
+@{
+    ViewData["Title"] = "Çalışma Saatleri";
+    var exceptions = (IReadOnlyList<WorkingHourExceptionDto>)ViewBag.Exceptions;
+    var preview = ViewBag.Preview as IEnumerable<(DateOnly Date, string DayName, IReadOnlyList<SlotDto> Slots)> ?? Enumerable.Empty<(DateOnly, string, IReadOnlyList<SlotDto>)>();
+}
+
+<div class="container py-4">
+  <h1 class="h4 fw-bold mb-3">Çalışma Saatleri</h1>
+
+  @if (TempData["Msg"] is string m)
+  {
+    <div class="alert alert-success">@m</div>
+  }
+  @if (!ViewData.ModelState.IsValid)
+  {
+    <div class="alert alert-danger">
+      @foreach (var v in ViewData.ModelState.Values)
+      {
+        foreach (var e in v.Errors)
+        {
+          <div>@e.ErrorMessage</div>
+        }
+      }
+    </div>
+  }
+
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">İstisnalar (Tarih Bazlı Müsaitlik)</h5>
+          <form asp-action="SaveException" method="post" class="row g-2">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Id" value="" />
+            <div class="col-4">
+              <label class="form-label">Tarih</label>
+              <input type="date" name="Date" class="form-control" />
+            </div>
+            <div class="col-3">
+              <label class="form-label">Başlangıç</label>
+              <input type="time" name="StartTime" class="form-control" />
+            </div>
+            <div class="col-3">
+              <label class="form-label">Bitiş</label>
+              <input type="time" name="EndTime" class="form-control" />
+            </div>
+            <div class="col-2 form-check" style="padding-top:32px;">
+              <input type="hidden" name="IsClosed" value="false" />
+              <input class="form-check-input" type="checkbox" name="IsClosed" value="true" />
+              <label class="form-check-label">Kapalı</label>
+            </div>
+            <div class="col-12">
+              <input type="text" name="Note" class="form-control" placeholder="Not (opsiyonel)" />
+            </div>
+            <div class="col-12">
+              <button class="btn btn-primary">Kaydet</button>
+            </div>
+          </form>
+          <div class="table-responsive mt-3">
+            <table class="table table-sm table-striped align-middle">
+              <thead>
+                <tr>
+                  <th>Tarih</th>
+                  <th>Saat</th>
+                  <th>Tip</th>
+                  <th>Not</th>
+                  <th style="width:120px;">İşlem</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var e in exceptions)
+                {
+                  <tr>
+                    <td>@e.Date.ToString("dd.MM.yyyy dddd", new System.Globalization.CultureInfo("tr-TR"))</td>
+                    <td>
+                      @(e.StartTime.HasValue? e.StartTime.Value.ToString("HH\\:mm") : "-")
+                      -
+                      @(e.EndTime.HasValue? e.EndTime.Value.ToString("HH\\:mm") : "-")
+                    </td>
+                    <td>@(e.IsClosed ? "Kapalı" : "Açık")</td>
+                    <td>@e.Note</td>
+                    <td>
+                      <form asp-action="DeleteException" method="post" onsubmit="return confirm('Silinsin mi?')" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@e.Id" />
+                        <button class="btn btn-sm btn-outline-danger">Sil</button>
+                      </form>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-1">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Önümüzdeki 14 Gün – Müsaitlik Önizleme</h5>
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Tarih</th>
+                  <th>Gün</th>
+                  <th>Müsait Saatler</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach (var d in preview)
+                {
+                  <tr>
+                    <td>@d.Date.ToString("dd.MM.yyyy")</td>
+                    <td>@(new System.Globalization.CultureInfo("tr-TR").DateTimeFormat.GetDayName((System.DayOfWeek)@d.Date.DayOfWeek))</td>
+                    <td>
+                      @if (d.Slots.Count == 0)
+                      {<span class="text-muted">Müsaitlik belirtilmedi</span>}
+                      else
+                      {
+                        @(string.Join(", ", d.Slots.Select(s => $"{s.StartTime:HH\\:mm}-{s.EndTime:HH\\:mm}")))
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -100,5 +100,16 @@ namespace Dyt.Web.Controllers                               // Web katmanı cont
             var slots = await _appointments.GetAvailableSlotsAsync(date, ct); // Uygun slotları alıyorum
             return Json(slots); // JSON olarak döndürüyorum
         }
+
+        /// <summary>
+        /// Verilen gün için tüm slotlar ve doluluk durumlarını JSON döner.
+        /// GET /appointment/slot-states?date=yyyy-MM-dd
+        /// </summary>
+        [HttpGet("/appointment/slot-states")]
+        public async Task<IActionResult> SlotStates([FromQuery] DateOnly date, CancellationToken ct)
+        {
+            var states = await _appointments.GetSlotStatesAsync(date, ct);
+            return Json(states);
+        }
     }
 }

@@ -1,0 +1,17 @@
+@using Dyt.Data.Entities.Content
+@model BlogPost
+@{
+    ViewData["Title"] = Model.Title;
+}
+<div class="blog-hero light">
+  <div class="container">
+    <h1 class="display-6 fw-bold">@Model.Title</h1>
+    <p class="text-muted mb-0">@((Model.PublishDateUtc ?? Model.CreatedAtUtc).ToLocalTime().ToString("dd MMM yyyy"))</p>
+  </div>
+</div>
+
+<div class="container py-4">
+  <article class="blog-content card shadow-sm p-4">
+    @Html.Raw(ViewBag.ContentHtml)
+  </article>
+</div>

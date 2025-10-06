@@ -26,13 +26,13 @@ namespace Dyt.Web.Infrastructure
             var cfg = sp.GetRequiredService<IConfiguration>().GetSection("Admin"); // Admin bölümünü okuyorum
 
             var email = cfg["Email"] ?? "admin@dyt.local";               // E-posta
-            var pass = cfg["Password"] ?? "Admin!123";                  // Parola
-            var name = cfg["FullName"] ?? "Diyetisyen Admin";           // İsim
+            var pass = cfg["Password"] ?? "Admin!123";                   // Parola
+            var name = cfg["FullName"] ?? "Diyetisyen Admin";            // İsim
             var phone = cfg["Phone"] ?? "+905551112233";                 // Telefon
 
             const string roleName = "Admin";                             // Tek rol adı
 
-            if (!await roles.RoleExistsAsync(roleName))                  // Rol yoksa
+            if (!await roles.RoleExistsAsync(roleName))                   // Rol yoksa
                 await roles.CreateAsync(new AppRole { Name = roleName }); // Rolü oluşturuyorum
 
             var user = await users.FindByEmailAsync(email);              // Kullanıcı var mı bakıyorum

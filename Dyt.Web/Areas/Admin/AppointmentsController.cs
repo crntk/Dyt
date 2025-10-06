@@ -2,6 +2,7 @@
 using Dyt.Contracts.Appointments.Requests; // Sorgu isteği modelini kullanmak için ekliyorum
 using Microsoft.AspNetCore.Authorization; // Admin erişim kontrolü için ekliyorum
 using Microsoft.AspNetCore.Mvc; // MVC için ekliyorum
+using Dyt.Data.Enums; // ConfirmationState enum
 
 namespace Dyt.Web.Areas.Admin.Controllers // Admin Area controller'ları için ad alanını tanımlıyorum
 {
@@ -9,7 +10,7 @@ namespace Dyt.Web.Areas.Admin.Controllers // Admin Area controller'ları için a
     /// Admin tarafında randevu listeleme ve filtreleme ekranını sunan controller.
     /// </summary>
     [Area("Admin")] // Bu controller'ın Admin alanına ait olduğunu belirtiyorum
-    [Authorize] // Yönetici girişi gerektiren erişim kontrolü ekliyorum (rol bazlı kısıtlama ekleyebiliriz)
+    [Authorize(Roles = "Admin")] // Yönetici girişi gerektiren erişim kontrolü ve rol kısıtı
     public class AppointmentsController : Controller // MVC Controller taban sınıfından türetiyorum
     {
         private readonly IAppointmentService _appointments; // Randevu servis bağımlılığını tutmak için alan tanımlıyorum
@@ -50,6 +51,34 @@ namespace Dyt.Web.Areas.Admin.Controllers // Admin Area controller'ları için a
             var result = await _appointments.QueryAsync(req, ct); // Sorguyu business servise delege ediyorum
             ViewBag.Filters = req; // View'da formu doldurmak için filtreleri saklıyorum
             return View(result); // PagedResult<AppointmentDto> modelini view'a veriyorum
+        }
+
+        /// <summary>
+        /// Admin onay/red işlemini gerçekleştirir.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetConfirmation(int id, string state, CancellationToken ct)
+        {
+            if (!Enum.TryParse<ConfirmationState>(state, out var s))
+            {
+                TempData["Msg"] = "Geçersiz onay durumu.";
+                return RedirectToAction(nameof(Index));
+            }
+            var ok = await _appointments.AdminSetConfirmationAsync(id, s, ct);
+
+            if (ok && s == ConfirmationState.Gelmeyecek)
+            {
+                // Reddedilen danışan adını popup için sakla
+                var appt = await _appointments.GetByIdAsync(id, ct);
+                if (appt != null)
+                {
+                    TempData["RejectInfo"] = appt.ClientName;
+                }
+            }
+
+            TempData["Msg"] = ok ? "Güncellendi." : "Güncellenemedi.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

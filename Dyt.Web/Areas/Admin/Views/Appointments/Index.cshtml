@@ -10,6 +10,7 @@
     ViewData["Title"] = "Randevu Listesi";
     // Filtreleri ViewBag üzerinden geri alıyorum (Controller'da ViewBag.Filters = request yapılmıştı)
     var f = (Dyt.Contracts.Appointments.Requests.AppointmentQueryRequest)ViewBag.Filters;
+    var rejectInfo = TempData["RejectInfo"] as string;
 }
 
 <div class="container" style="max-width:1100px;margin:32px auto;">
@@ -19,11 +20,11 @@
     <form method="get" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:end;border:1px solid #e5e7eb;padding:12px;border-radius:12px;background:#fff;">
         <div>
             <label style="display:block;font-size:12px;color:#6b7280;">Başlangıç</label>
-            <input type="date" name="from" value="@(f.DateFrom?.ToString("yyyy-MM-dd"))" class="form-control" />
+            <input type="date" name="from" value="@(f.DateFrom?.ToString("yyyy-MM-dd"))" class="form-control" placeholder="gg.aa.yyyy" />
         </div>
         <div>
             <label style="display:block;font-size:12px;color:#6b7280;">Bitiş</label>
-            <input type="date" name="to" value="@(f.DateTo?.ToString("yyyy-MM-dd"))" class="form-control" />
+            <input type="date" name="to" value="@(f.DateTo?.ToString("yyyy-MM-dd"))" class="form-control" placeholder="gg.aa.yyyy" />
         </div>
         <div>
             <label style="display:block;font-size:12px;color:#6b7280;">Durum</label>
@@ -31,7 +32,8 @@
                 <option value="">Hepsi</option>
                 @foreach (var s in new[] { "Scheduled", "Canceled", "NoShow" })
                 {
-                    <option value="@s" @(f.Status == s ? "selected" : null)>@s</option>
+                    var sel = f.Status == s ? "selected" : null;
+                    <option value="@s" selected="@sel">@("Scheduled"==s?"Planlandı":("Canceled"==s?"İptal":"Gelmedi"))</option>
                 }
             </select>
         </div>
@@ -41,7 +43,8 @@
                 <option value="">Hepsi</option>
                 @foreach (var s in new[] { "Yanıtlanmadı", "Gelecek", "Gelmeyecek" })
                 {
-                    <option value="@s" @(f.ConfirmationState == s ? "selected" : null)>@s</option>
+                    var sel2 = f.ConfirmationState == s ? "selected" : null;
+                    <option value="@s" selected="@sel2">@s</option>
                 }
             </select>
         </div>
@@ -66,7 +69,7 @@
                     <th>Telefon</th>
                     <th>Durum</th>
                     <th>Onay</th>
-                    <th style="width:120px;">İşlemler</th>
+                    <th style="width:260px;">İşlemler</th>
                 </tr>
             </thead>
             <tbody>
@@ -78,6 +81,9 @@
                 {
                     foreach (var a in Model.Items)
                     {
+                        var isPending = string.Equals(a.ConfirmationState, "Yanıtlanmadı", StringComparison.OrdinalIgnoreCase);
+                        var isAccepted = string.Equals(a.ConfirmationState, "Gelecek", StringComparison.OrdinalIgnoreCase);
+                        var isDeclined = string.Equals(a.ConfirmationState, "Gelmeyecek", StringComparison.OrdinalIgnoreCase);
                         <tr>
                             <td>@a.Date.ToString("yyyy-MM-dd")</td>
                             <td>@a.StartTime.ToString("HH\\:mm") - @a.EndTime.ToString("HH\\:mm")</td>
@@ -85,9 +91,40 @@
                             <td>@a.ClientPhone</td>
                             <td>@a.Status</td>
                             <td>@a.ConfirmationState</td>
-                            <td>
-                                @* ileride: Detay / İptal / No-Show / Sil gibi butonlar gelecek *@
-                                <a class="btn btn-sm btn-outline-secondary" asp-area="Admin" asp-controller="Appointments" asp-action="Index" asp-route-search="@a.ClientPhone">Bul</a>
+                            <td class="d-flex gap-2">
+                                @if (isPending)
+                                {
+                                    <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@a.Id" />
+                                        <input type="hidden" name="state" value="Gelecek" />
+                                        <button class="btn btn-sm btn-success">Onayla</button>
+                                    </form>
+                                    <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post" onsubmit="return confirmDecline('@a.ClientName');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@a.Id" />
+                                        <input type="hidden" name="state" value="Gelmeyecek" />
+                                        <button class="btn btn-sm btn-outline-danger">Reddet</button>
+                                    </form>
+                                }
+                                else if (isAccepted)
+                                {
+                                    <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@a.Id" />
+                                        <input type="hidden" name="state" value="Gelmeyecek" />
+                                        <button class="btn btn-sm btn-outline-danger">Tercihi Değiştir (Reddet)</button>
+                                    </form>
+                                }
+                                else if (isDeclined)
+                                {
+                                    <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@a.Id" />
+                                        <input type="hidden" name="state" value="Gelecek" />
+                                        <button class="btn btn-sm btn-success">Tercihi Değiştir (Onayla)</button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }
@@ -115,3 +152,18 @@
         </ul>
     </nav>
 </div>
+
+@section Scripts {
+    <script>
+        function confirmDecline(name) {
+            return confirm(`${name} isimli danışanın randevu talebi reddedildi! Danışana red sebebi hakkında bilgi vermeyi lütfen unutmayınız!`);
+        }
+        // Eğer reddetme sonrası bilgi göstermek istenirse TempData üzerinden modal/alert:
+        (function(){
+            var info = '@(rejectInfo ?? string.Empty)';
+            if (info) {
+                alert(info + ' isimli danışanın randevu talebi reddedildi! Danışana red sebebi hakkında bilgi vermeyi lütfen unutmayınız!');
+            }
+        })();
+    </script>
+}
