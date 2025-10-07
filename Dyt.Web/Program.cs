@@ -86,6 +86,7 @@ builder.Services.AddSingleton<ISmsSender, SmsSenderMock>();                     
 builder.Services.AddSingleton<INotificationTemplateService, NotificationTemplateService>(); // SMS şablon üretimi (stateless)
 builder.Services.AddScoped<IContentSanitizer, ContentSanitizer>();                 // İçerik temizleyici (XSS'e karşı)
 builder.Services.AddSingleton<ISignedUrlService, SignedUrlService>();              // İmzalı URL üretimi (stateless)
+builder.Services.AddSingleton<IEmailSender, EmailSenderStub>();                    // E-posta gönderici stub
 builder.Services.AddHostedService<ReminderHostedService>();                        // Arka plan hatırlatma servisini ekliyorum
 
 // -----------------------------------------------------------------------------
@@ -113,15 +114,21 @@ app.UseRouting();                                            // Rota altyapısı
 app.UseAuthentication();                                     // Kimlik doğrulamayı zincire ekliyorum
 app.UseAuthorization();                                      // Yetkilendirmeyi zincire ekliyorum
 
+// Root path'i açıkça Blog/Index'e eşle
+app.MapControllerRoute(
+    name: "root",
+    pattern: string.Empty,
+    defaults: new { controller = "Blog", action = "Index" });
+
 // Area yönlendirmesi (Admin gibi alanlar için önce area route'u ekliyorum)
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
-// Varsayılan MVC rotası
+// Varsayılan MVC rotası: Misafir anasayfası Blog/Index olsun
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Blog}/{action=Index}/{id?}");
 
 // -----------------------------------------------------------------------------
 // Seed: Başlangıç admin kullanıcısını oluşturuyorum (tek seferlik)

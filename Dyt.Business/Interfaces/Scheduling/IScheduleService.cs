@@ -15,17 +15,15 @@ namespace Dyt.Business.Interfaces.Scheduling // Arayüzler için ad alanı
     /// </summary>
     public interface IScheduleService // Arayüz tanımı
     {
-        // Mevcut günlük slot hesaplama imzası zaten burada (dokunmuyorum)
-
         /// <summary>
         /// Varsayılan slot süresini dakika cinsinden döndürür.
         /// </summary>
-        int GetDefaultSlotMinutes(); // Slot süresi için yardımcı metodu bildiriyorum
+        int GetDefaultSlotMinutes();
 
         /// <summary>
         /// Verilen gün için çalışılabilir slotları hesaplar.
         /// </summary>
-        Task<IReadOnlyList<SlotDto>> GetDailySlotsAsync(DateOnly date, CancellationToken ct = default); // Günlük slotları döndüren metodu bildiriyorum
+        Task<IReadOnlyList<SlotDto>> GetDailySlotsAsync(DateOnly date, CancellationToken ct = default);
 
         /// <summary>
         /// Verilen gün için tüm slotlar ve doluluk durumlarını döner.
@@ -35,17 +33,19 @@ namespace Dyt.Business.Interfaces.Scheduling // Arayüzler için ad alanı
         /// <summary>
         /// Verilen gün ve saat aralığının uygun olup olmadığını kontrol eder.
         /// </summary>
-        Task<bool> IsSlotAvailableAsync(DateOnly date, TimeOnly start, TimeOnly end, CancellationToken ct = default); // Uygunluk kontrol metodunu bildiriyorum
-
-        // Şablon CRUD
-        Task<IReadOnlyList<WorkingHourTemplateDto>> GetTemplatesAsync(CancellationToken ct = default); // Tüm şablonları listeler
-        Task<int> UpsertTemplateAsync(WorkingHourTemplateUpsertRequest req, CancellationToken ct = default); // Ekle/Güncelle ve Id döner
-        Task<bool> DeleteTemplateAsync(int id, CancellationToken ct = default); // Satırı siler
+        Task<bool> IsSlotAvailableAsync(DateOnly date, TimeOnly start, TimeOnly end, CancellationToken ct = default);
 
         // İstisna CRUD
-        Task<IReadOnlyList<WorkingHourExceptionDto>> GetExceptionsAsync(DateOnly? from = null, DateOnly? to = null, CancellationToken ct = default); // Tarih aralığına göre listeler
-        Task<int> UpsertExceptionAsync(WorkingHourExceptionUpsertRequest req, CancellationToken ct = default); // Ekle/Güncelle ve Id döner
-        Task<bool> DeleteExceptionAsync(int id, CancellationToken ct = default); // Kaydı siler
+        Task<IReadOnlyList<Dyt.Contracts.Scheduling.Responses.WorkingHourExceptionDto>> GetExceptionsAsync(DateOnly? from = null, DateOnly? to = null, CancellationToken ct = default);
+        Task<int> UpsertExceptionAsync(Dyt.Contracts.Scheduling.Requests.WorkingHourExceptionUpsertRequest req, CancellationToken ct = default);
+        Task<bool> DeleteExceptionAsync(int id, CancellationToken ct = default);
+
+        // Slot yönetimi
+        Task<int> CloseSlotsAsync(DateOnly date, IEnumerable<TimeOnly> startTimes, CancellationToken ct = default);
+        Task<bool> UpdateClosedSlotsForDateAsync(DateOnly date, IEnumerable<TimeOnly> startTimes, CancellationToken ct = default);
+        Task<IReadOnlyList<TimeOnly>> GetClosedSlotStartsAsync(DateOnly date, CancellationToken ct = default);
+        Task<IReadOnlyList<TimeOnly>> GetReservedSlotStartsAsync(DateOnly date, bool onlyConfirmed = true, CancellationToken ct = default);
+        Task<int> OpenSlotsAsync(DateOnly date, IEnumerable<TimeOnly> startTimes, CancellationToken ct = default);
     }
 }
 

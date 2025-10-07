@@ -72,6 +72,43 @@ namespace Dyt.Business.Scheduling // Slot hesaplayıcısının bulunduğu ad ala
 
             return result.OrderBy(s => s.StartTime).ToList();
         }
+
+        /// <summary>
+        /// Slot durumları için ham slot listesi üretir. Kapalı istisnaları düşmez; yalnızca ExtraOpen pencereleri slotlara ayrılır.
+        /// Böylece kapatılmış saatler de liste içinde yer alır (durumu UI/servis belirler).
+        /// </summary>
+        public static List<SlotDto> BuildDailySlotsRaw(
+            DateOnly date,
+            IEnumerable<WorkingHourException> exceptions)
+        {
+            var result = new List<SlotDto>();
+
+            var dayExceptions = exceptions.Where(e => e.Date == date).ToList();
+
+            // Tam gün kapalı ise yine de slot üretmeyelim (tamamen kapalı gün)
+            if (dayExceptions.Any(x => x.Type == Data.Enums.WorkingExceptionType.Closed && x.StartTime == null && x.EndTime == null))
+                return result;
+
+            var baseWindows = dayExceptions
+                .Where(x => x.Type == Data.Enums.WorkingExceptionType.ExtraOpen && x.StartTime.HasValue && x.EndTime.HasValue)
+                .Select(x => (start: x.StartTime!.Value, end: x.EndTime!.Value, slot: 30))
+                .ToList();
+
+            if (baseWindows.Count == 0)
+                return result;
+
+            foreach (var (start, end, slot) in baseWindows)
+            {
+                var cursor = start;
+                while (cursor.AddMinutes(slot) <= end)
+                {
+                    var next = cursor.AddMinutes(slot);
+                    result.Add(new SlotDto { Date = date, StartTime = cursor, EndTime = next });
+                    cursor = next;
+                }
+            }
+            return result.OrderBy(s => s.StartTime).ToList();
+        }
     }
 }
 

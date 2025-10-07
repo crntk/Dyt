@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,47 +9,129 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Dyt.Web.styles.css" asp-append-version="true" />
     <style>
-        :root{
-            --brand-pink:#e91e63;
-            --brand-purple:#6f42c1;
-            --brand-bg:#faf5ff;
+        :root {
+            --brand-pink: #e91e63;
+            --brand-purple: #6f42c1;
+            --brand-bg: #faf5ff;
         }
-        body{background:var(--brand-bg);}        
-        .navbar{background:linear-gradient(90deg,var(--brand-pink),var(--brand-purple));}
-        .navbar .nav-link,.navbar .navbar-brand{color:#fff !important; font-weight:600;}
-        .navbar .nav-link:hover{opacity:.9;}
-        .blog-hero{background:linear-gradient(90deg,rgba(233,30,99,.15),rgba(111,66,193,.15));padding:40px 0;margin-bottom:16px}
-        .blog-hero.light{background:linear-gradient(90deg,rgba(233,30,99,.08),rgba(111,66,193,.08));}
-        .blog-card .card-title{color:#333}
-        .btn-primary{background:var(--brand-pink);border-color:var(--brand-pink)}
-        .btn-primary:hover{background:#c2185b;border-color:#c2185b}
-        .footer{background:#fff}
-        .hero{
-            background: radial-gradient(1000px 400px at 10% 10%, rgba(233,30,99,.20), transparent),
-                        radial-gradient(800px 300px at 80% 10%, rgba(111,66,193,.16), transparent);
+
+        body {
+            background: var(--brand-bg);
         }
-        .card{border-radius:14px}
-        .form-label{font-weight:600}
-        .notif-bell{position:relative; display:inline-block;}
-        .notif-badge{position:absolute; top:-6px; right:-8px; background:#ff4757; color:#fff; border-radius:14px; font-size:11px; padding:1px 6px; min-width:18px; text-align:center;}
+
+        .navbar {
+            background: linear-gradient(90deg, var(--brand-pink), var(--brand-purple));
+        }
+
+        .navbar .nav-link,
+        .navbar .navbar-brand {
+            color: #fff !important;
+            font-weight: 600;
+        }
+
+        .navbar .nav-link:hover {
+            opacity: .9;
+        }
+
+        .blog-hero {
+            background: linear-gradient(90deg, rgba(233, 30, 99, .15), rgba(111, 66, 193, .15));
+            padding: 40px 0;
+            margin-bottom: 16px
+        }
+
+        .blog-hero.light {
+            background: linear-gradient(90deg, rgba(233, 30, 99, .08), rgba(111, 66, 193, .08));
+        }
+
+        .blog-card .card-title {
+            color: #333
+        }
+
+        .btn-primary {
+            background: var(--brand-pink);
+            border-color: var(--brand-pink)
+        }
+
+        .btn-primary:hover {
+            background: #c2185b;
+            border-color: #c2185b
+        }
+
+        .footer {
+            background: #fff
+        }
+
+        .hero {
+            background: radial-gradient(1000px 400px at 10% 10%, rgba(233, 30, 99, .20), transparent),
+                radial-gradient(800px 300px at 80% 10%, rgba(111, 66, 193, .16), transparent);
+        }
+
+        .card {
+            border-radius: 14px
+        }
+
+        .form-label {
+            font-weight: 600
+        }
+
+        .notif-bell {
+            position: relative;
+            display: inline-block;
+        }
+
+        .notif-badge {
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            background: #ff4757;
+            color: #fff;
+            border-radius: 14px;
+            font-size: 11px;
+            padding: 1px 6px;
+            min-width: 18px;
+            text-align: center;
+        }
     </style>
 </head>
+
 <body>
+    @using Microsoft.AspNetCore.Identity
+    @inject SignInManager<Dyt.Data.Entities.Identity.AppUser> SignInManager
+
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Blog" asp-action="Index">Diyetisyen Blog</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainnav" aria-controls="mainnav" aria-expanded="false" aria-label="Menüyü Aç">
+                <a class="navbar-brand" asp-area="" asp-controller="Blog" asp-action="Index">Diyetisyen Riyaza Tair</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainnav" aria-controls="mainnav"
+                    aria-expanded="false" aria-label="Menüyü Aç">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="mainnav">
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="Create">Randevu Al</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Admin</a></li>
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+                        {
+                        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Appointments"
+                                asp-action="Index">Randevularım</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="WorkingHours"
+                                asp-action="Index">Randevu Aç</a></li>
                         <li class="nav-item d-flex align-items-center ms-2">
                             @await Component.InvokeAsync("AdminNotifications")
                         </li>
+                        <li class="nav-item ms-2">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-light">Çıkış</button>
+                            </form>
+                        </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Anasayfa</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="Create">Randevu Al</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Contact" asp-action="Index">İletişim</a></li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -61,7 +144,10 @@
     <footer class="footer border-top py-3 mt-auto">
         <div class="container d-flex justify-content-between small text-muted">
             <span>&copy; @DateTime.Now.Year - Diyetisyen</span>
-            <a asp-area="" asp-controller="Appointment" asp-action="Create">Randevu Al</a>
+            <span>
+                <a class="me-3" asp-area="" asp-controller="Appointment" asp-action="Create">Randevu Al</a>
+                <a asp-area="" asp-controller="Account" asp-action="Login" class="text-muted">Admin Girişi</a>
+            </span>
         </div>
     </footer>
 
@@ -70,4 +156,5 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

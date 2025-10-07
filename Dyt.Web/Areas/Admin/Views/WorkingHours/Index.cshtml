@@ -10,6 +10,7 @@
     ViewData["Title"] = "Çalışma Saatleri";
     var exceptions = (IReadOnlyList<WorkingHourExceptionDto>)ViewBag.Exceptions;
     var preview = ViewBag.Preview as IEnumerable<(DateOnly Date, string DayName, IReadOnlyList<SlotDto> Slots)> ?? Enumerable.Empty<(DateOnly, string, IReadOnlyList<SlotDto>)>();
+    var closedMap = ViewBag.ClosedCountMap as IDictionary<string, int> ?? new Dictionary<string, int>();
 }
 
 <div class="container py-4">
@@ -69,10 +70,8 @@
               <thead>
                 <tr>
                   <th>Tarih</th>
-                  <th>Saat</th>
-                  <th>Tip</th>
-                  <th>Not</th>
-                  <th style="width:120px;">İşlem</th>
+                  <th>Gün</th>
+                  <th style="min-width:400px;">Müsait Saatler</th>
                 </tr>
               </thead>
               <tbody>
@@ -109,36 +108,205 @@
       <div class="card shadow-sm">
         <div class="card-body">
           <h5 class="card-title">Önümüzdeki 14 Gün – Müsaitlik Önizleme</h5>
+
+          <style>
+            .slot-chip { display:inline-flex; align-items:center; gap:6px; border:1px solid #e5e7eb; border-radius:8px; padding:6px 10px; margin:3px; font-size:12px; position:relative; }
+            .slot-chip input { margin:0; }
+            .slot-free { background:#ecfdf5; border-color:#34d399; color:#065f46; }
+            .slot-busy { background:#fef2f2; border-color:#ef4444; color:#7f1d1d; }
+            .slot-closed { background:#fff7ed; border-color:#f59e0b; color:#78350f; }
+            .slot-reserved { background:#e0e7ff; border-color:#6366f1; color:#1e40af; }
+            .slot-closed .ico { margin-left:6px; }
+            .slot-reserved .ico { margin-left:6px; }
+            .slot-actions { margin-top:8px; }
+            .badge-closed { background:#ffe4e6; color:#9f1239; border:1px solid #fecdd3; border-radius:6px; padding:2px 6px; font-size:11px; }
+          </style>
+
           <div class="table-responsive">
-            <table class="table table-sm align-middle">
+            <table class="table table-sm align-middle" id="adminPreviewTable">
               <thead>
                 <tr>
-                  <th>Tarih</th>
-                  <th>Gün</th>
+                  <th style="width:160px;">Tarih</th>
+                  <th style="width:120px;">Gün</th>
                   <th>Müsait Saatler</th>
                 </tr>
               </thead>
               <tbody>
                 @foreach (var d in preview)
                 {
-                  <tr>
-                    <td>@d.Date.ToString("dd.MM.yyyy")</td>
+                  var iso = d.Date.ToString("yyyy-MM-dd");
+                  var closedCount = closedMap.TryGetValue(iso, out var c) ? c : 0;
+                  <tr data-date="@iso">
+                    <td>
+                      @d.Date.ToString("dd.MM.yyyy")
+                      @if (closedCount > 0)
+                      {
+                        <span class="ms-2 badge-closed">@closedCount kapalı</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1 js-toggle-quick-edit" data-date="@iso">Güncelle</button>
+                      }
+                    </td>
                     <td>@(new System.Globalization.CultureInfo("tr-TR").DateTimeFormat.GetDayName((System.DayOfWeek)@d.Date.DayOfWeek))</td>
                     <td>
-                      @if (d.Slots.Count == 0)
-                      {<span class="text-muted">Müsaitlik belirtilmedi</span>}
-                      else
-                      {
-                        @(string.Join(", ", d.Slots.Select(s => $"{s.StartTime:HH\\:mm}-{s.EndTime:HH\\:mm}")))
-                      }
+                      <div class="slot-admin" data-date="@iso">
+                        <div class="slot-items"></div>
+                        <div class="slot-actions d-none">
+                          <button type="button" class="btn btn-sm btn-warning me-2 js-close-selected">Seçili saatleri kapat</button>
+                          <button type="button" class="btn btn-sm btn-outline-success js-open-selected">Seçili kapalı saatleri aç</button>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
+
+          @* Antiforgery token'ı AJAX için sayfaya koyuyorum *@
+          <form id="af" method="post">@Html.AntiForgeryToken()</form>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+@section Scripts {
+<script>
+(function(){
+  const table = document.getElementById('adminPreviewTable');
+  if(!table) return;
+
+  const token = (document.querySelector('#af input[name="__RequestVerificationToken"]')||{}).value || '';
+
+  async function loadSlotStates(iso){
+    const r = await fetch(`/appointment/slot-states?date=${encodeURIComponent(iso)}`);
+    if(!r.ok) return [];
+    const j = await r.json();
+    return Array.isArray(j) ? j : [];
+  }
+  async function loadClosedStarts(iso){
+    const r = await fetch(`/Admin/WorkingHours/ClosedSlotStarts?date=${encodeURIComponent(iso)}`);
+    if(!r.ok) return [];
+    const j = await r.json();
+    return Array.isArray(j) ? j : [];
+  }
+  async function loadReservedStarts(iso){
+    const r = await fetch(`/Admin/WorkingHours/ReservedSlotStarts?date=${encodeURIComponent(iso)}&onlyConfirmed=true`);
+    if(!r.ok) return [];
+    const j = await r.json();
+    return Array.isArray(j) ? j : [];
+  }
+
+  function fmt(t){ const s = (t??'').toString(); return s.length>=5 ? s.substring(0,5) : s; }
+
+  function anyChecked(container){ return container.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)').length > 0; }
+  function updateActionsVisibility(slotAdmin){
+    const actions = slotAdmin.querySelector('.slot-actions');
+    actions.classList.toggle('d-none', !anyChecked(slotAdmin));
+  }
+
+  function bindSelectionHandlers(slotAdmin){
+    slotAdmin.addEventListener('change', (e)=>{
+      if(e.target && e.target.matches('input[type="checkbox"]')){
+        const label = e.target.closest('label');
+        const classes = label.classList;
+        if(e.target.disabled){ return; }
+        if(classes.contains('slot-closed')) classes.remove('slot-closed');
+        if(e.target.checked) classes.add('slot-closed');
+        updateActionsVisibility(slotAdmin);
+      }
+    });
+  }
+
+  async function renderRow(tr){
+    const iso = tr.getAttribute('data-date');
+    const slotAdmin = tr.querySelector('.slot-admin');
+    const items = slotAdmin.querySelector('.slot-items');
+    items.innerHTML = '<span class="text-muted">Yükleniyor...</span>';
+    const states = await loadSlotStates(iso);
+    const closedStarts = await loadClosedStarts(iso);
+    const reservedStarts = await loadReservedStarts(iso); // onaylı randevular
+    items.innerHTML = '';
+    const frag = document.createDocumentFragment();
+    for(const s of states){
+      const start = fmt(s.startTime); const end = fmt(s.endTime);
+      const isClosed = closedStarts.includes(start);
+      const isReserved = reservedStarts.includes(start);
+      const label = document.createElement('label');
+      label.className = `slot-chip ${isReserved ? 'slot-reserved' : (isClosed ? 'slot-closed' : 'slot-free')}`;
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = start;
+      cb.checked = isClosed || isReserved;
+      cb.disabled = isReserved; // onaylı randevulu slot seçilemez
+      label.appendChild(cb);
+      const span = document.createElement('span'); span.textContent = `${start}-${end}`; label.appendChild(span);
+      if(isReserved){ const ico = document.createElement('span'); ico.className='ico'; ico.textContent='🔒'; label.appendChild(ico); label.title='Onaylanmış randevu var'; }
+      if(isClosed && !isReserved){ const ico = document.createElement('span'); ico.className='ico'; ico.textContent='⛔'; label.appendChild(ico); label.title='Kapalı'; }
+      frag.appendChild(label);
+    }
+    items.appendChild(frag);
+    updateActionsVisibility(slotAdmin);
+  }
+
+  async function postForm(url, data){
+    const form = new URLSearchParams();
+    for(const [k,v] of Object.entries(data)){
+      if(Array.isArray(v)) v.forEach(x=> form.append(k, x));
+      else form.append(k, v);
+    }
+    form.append('__RequestVerificationToken', token);
+    const r = await fetch(url, { method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' }, body: form.toString() });
+    if(!r.ok) throw new Error('İstek başarısız');
+    return await r.json();
+  }
+
+  function selectedStarts(slotAdmin, selector){
+    const sel = selector || 'input[type="checkbox"]:checked:not(:disabled)';
+    return Array.from(slotAdmin.querySelectorAll(sel)).map(cb=>cb.value);
+  }
+
+  // İlk yükleme: tüm satırları doldur
+  const rows = Array.from(table.querySelectorAll('tbody tr'));
+  rows.forEach(renderRow);
+
+  // Hızlı güncelle tetikleme
+  table.addEventListener('click', async (e)=>{
+    const quick = e.target.closest('.js-toggle-quick-edit');
+    if(!quick) return;
+    const iso = quick.getAttribute('data-date');
+    const tr = table.querySelector(`tr[data-date="${iso}"]`);
+    if(tr){ tr.scrollIntoView({ behavior:'smooth', block:'center' }); const sa = tr.querySelector('.slot-admin'); sa.querySelector('.slot-actions').classList.remove('d-none'); }
+  });
+
+  // Aksiyon butonları
+  table.addEventListener('click', async (e)=>{
+    const btnClose = e.target.closest('.js-close-selected');
+    const btnOpen = e.target.closest('.js-open-selected');
+    if(!btnClose && !btnOpen) return;
+
+    const tr = e.target.closest('tr');
+    const slotAdmin = tr.querySelector('.slot-admin');
+    const iso = tr.getAttribute('data-date');
+
+    if(btnClose){
+      const starts = selectedStarts(slotAdmin, 'input[type="checkbox"]:checked:not(:disabled)');
+      if(starts.length === 0){ alert('Lütfen kapatmak için saat seçiniz.'); return; }
+      if(!confirm('Seçtiğiniz saatler kapalı yapılacak. Onaylıyor musunuz?')) return;
+      try{ await postForm('/Admin/WorkingHours/CloseSlots', { date: iso, starts }); await renderRow(tr); alert('Seçilen saatler kapatıldı.'); }catch{ alert('Hata oluştu.'); }
+      return;
+    }
+
+    if(btnOpen){
+      const starts = selectedStarts(slotAdmin, 'label.slot-closed input[type="checkbox"]:checked');
+      if(starts.length === 0){ alert('Açmak için kapalı saat seçiniz.'); return; }
+      if(!confirm('Seçtiğiniz kapalı saatler açılacak. Onaylıyor musunuz?')) return;
+      try{ await postForm('/Admin/WorkingHours/OpenSlots', { date: iso, starts }); await renderRow(tr); alert('Seçilen kapalı saatler açıldı.'); }catch{ alert('Hata oluştu.'); }
+      return;
+    }
+  });
+
+  // Seçim görünürlüğü için handler bağla
+  table.querySelectorAll('.slot-admin').forEach(bindSelectionHandlers);
+})();
+</script>
+}

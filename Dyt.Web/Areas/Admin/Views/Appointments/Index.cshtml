@@ -11,6 +11,12 @@
     // Filtreleri ViewBag üzerinden geri alıyorum (Controller'da ViewBag.Filters = request yapılmıştı)
     var f = (Dyt.Contracts.Appointments.Requests.AppointmentQueryRequest)ViewBag.Filters;
     var rejectInfo = TempData["RejectInfo"] as string;
+
+    // Yerel zamana göre geçmiş kontrolü için yardımcılar
+    var now = DateTime.Now;
+    var today = DateOnly.FromDateTime(now);
+    var nowTime = TimeOnly.FromDateTime(now);
+    var tr = new System.Globalization.CultureInfo("tr-TR");
 }
 
 <div class="container" style="max-width:1100px;margin:32px auto;">
@@ -64,6 +70,7 @@
             <thead>
                 <tr>
                     <th>Tarih</th>
+                    <th>Gün</th>
                     <th>Saat</th>
                     <th>Danışan</th>
                     <th>Telefon</th>
@@ -75,55 +82,68 @@
             <tbody>
                 @if (Model.Items.Count == 0)
                 {
-                    <tr><td colspan="7" class="text-center">Kayıt bulunamadı.</td></tr>
+                    <tr><td colspan="8" class="text-center">Kayıt bulunamadı.</td></tr>
                 }
                 else
                 {
                     foreach (var a in Model.Items)
                     {
+                        var isPast = a.Date < today || (a.Date == today && a.EndTime <= nowTime);
                         var isPending = string.Equals(a.ConfirmationState, "Yanıtlanmadı", StringComparison.OrdinalIgnoreCase);
                         var isAccepted = string.Equals(a.ConfirmationState, "Gelecek", StringComparison.OrdinalIgnoreCase);
                         var isDeclined = string.Equals(a.ConfirmationState, "Gelmeyecek", StringComparison.OrdinalIgnoreCase);
                         <tr>
-                            <td>@a.Date.ToString("yyyy-MM-dd")</td>
+                            <td>@a.Date.ToString("dd.MM.yyyy")</td>
+                            <td>@tr.DateTimeFormat.GetDayName((System.DayOfWeek)a.Date.DayOfWeek)</td>
                             <td>@a.StartTime.ToString("HH\\:mm") - @a.EndTime.ToString("HH\\:mm")</td>
                             <td>@a.ClientName</td>
                             <td>@a.ClientPhone</td>
-                            <td>@a.Status</td>
+                            <td>
+                                @a.Status
+                                @if (isPast)
+                                { <span class="badge bg-secondary ms-2">Geçmiş</span> }
+                            </td>
                             <td>@a.ConfirmationState</td>
                             <td class="d-flex gap-2">
-                                @if (isPending)
+                                @if (!isPast)
                                 {
-                                    <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@a.Id" />
-                                        <input type="hidden" name="state" value="Gelecek" />
-                                        <button class="btn btn-sm btn-success">Onayla</button>
-                                    </form>
-                                    <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post" onsubmit="return confirmDecline('@a.ClientName');">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@a.Id" />
-                                        <input type="hidden" name="state" value="Gelmeyecek" />
-                                        <button class="btn btn-sm btn-outline-danger">Reddet</button>
-                                    </form>
+                                    if (isPending)
+                                    {
+                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@a.Id" />
+                                            <input type="hidden" name="state" value="Gelecek" />
+                                            <button class="btn btn-sm btn-success">Onayla</button>
+                                        </form>
+                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post" onsubmit="return confirmDecline('@a.ClientName');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@a.Id" />
+                                            <input type="hidden" name="state" value="Gelmeyecek" />
+                                            <button class="btn btn-sm btn-outline-danger">Reddet</button>
+                                        </form>
+                                    }
+                                    else if (isAccepted)
+                                    {
+                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@a.Id" />
+                                            <input type="hidden" name="state" value="Gelmeyecek" />
+                                            <button class="btn btn-sm btn-outline-danger">Tercihi Değiştir (Reddet)</button>
+                                        </form>
+                                    }
+                                    else if (isDeclined)
+                                    {
+                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@a.Id" />
+                                            <input type="hidden" name="state" value="Gelecek" />
+                                            <button class="btn btn-sm btn-success">Tercihi Değiştir (Onayla)</button>
+                                        </form>
+                                    }
                                 }
-                                else if (isAccepted)
+                                else
                                 {
-                                    <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@a.Id" />
-                                        <input type="hidden" name="state" value="Gelmeyecek" />
-                                        <button class="btn btn-sm btn-outline-danger">Tercihi Değiştir (Reddet)</button>
-                                    </form>
-                                }
-                                else if (isDeclined)
-                                {
-                                    <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@a.Id" />
-                                        <input type="hidden" name="state" value="Gelecek" />
-                                        <button class="btn btn-sm btn-success">Tercihi Değiştir (Onayla)</button>
-                                    </form>
+                                    <span class="text-muted">Geçmiş randevu</span>
                                 }
                             </td>
                         </tr>

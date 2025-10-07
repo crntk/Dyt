@@ -1,0 +1,43 @@
+@model Dyt.Web.Controllers.ContactController.ContactForm
+@{
+    ViewData["Title"] = "Ýletiþim";
+}
+<div class="container" style="max-width:720px;">
+    <h1 class="h4 fw-bold mb-3">Ýletiþim</h1>
+
+    @if (TempData["Msg"] is string m)
+    {
+        <div class="alert alert-success">@m</div>
+    }
+
+    <form method="post" class="card shadow-sm p-3">
+        @Html.AntiForgeryToken()
+        <div class="mb-3">
+            <label class="form-label">Ad Soyad</label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">E-posta</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Konu</label>
+            <input asp-for="Subject" class="form-control" />
+            <span asp-validation-for="Subject" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Mesaj</label>
+            <textarea asp-for="Message" rows="6" class="form-control"></textarea>
+            <span asp-validation-for="Message" class="text-danger"></span>
+        </div>
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-primary">Gönder</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

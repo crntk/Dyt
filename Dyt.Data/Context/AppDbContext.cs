@@ -33,13 +33,11 @@ namespace Dyt.Data.Context // Veritabanı bağlamının bulunduğu ad alanı
         public DbSet<BlogPostMedia> BlogPostMedias => Set<BlogPostMedia>(); // Blog-medya eşleşmeleri
 
         // Zamanlama/randevu DbSet'leri
-        public DbSet<WorkingHourTemplate> WorkingHourTemplates => Set<WorkingHourTemplate>(); // Haftalık çalışma şablonları
         public DbSet<WorkingHourException> WorkingHourExceptions => Set<WorkingHourException>(); // İstisna gün/saatler
         public DbSet<Appointment> Appointments => Set<Appointment>(); // Randevular
         public DbSet<AppointmentReminderLog> AppointmentReminderLogs => Set<AppointmentReminderLog>(); // Hatırlatma logları
 
         // Ayar DbSet'leri
-        public DbSet<SmsTemplate> SmsTemplates => Set<SmsTemplate>(); // SMS şablonları
         public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>(); // Genel sistem ayarları
 
         /// <summary>

@@ -31,12 +31,17 @@ namespace Dyt.Web.Areas.Admin.Controllers           // Admin alanı controller�
             var today = DateOnly.FromDateTime(DateTime.Today);
             var days = Enumerable.Range(0, 14).Select(i => today.AddDays(i));
             var list = new List<(DateOnly Date, string DayName, IReadOnlyList<Dyt.Contracts.Appointments.Responses.SlotDto> Slots)>();
+            var closedCountMap = new Dictionary<string, int>(); // yyyy-MM-dd -> count
             foreach (var d in days)
             {
                 var slots = await _schedule.GetDailySlotsAsync(d, ct);
                 list.Add((d, d.DayOfWeek.ToString(), slots));
+
+                var closed = await _schedule.GetClosedSlotStartsAsync(d, ct);
+                closedCountMap[d.ToString("yyyy-MM-dd")] = closed.Count;
             }
             ViewBag.Preview = list;
+            ViewBag.ClosedCountMap = closedCountMap;
         }
 
         /// <summary>
@@ -83,6 +88,66 @@ namespace Dyt.Web.Areas.Admin.Controllers           // Admin alanı controller�
             await _schedule.DeleteExceptionAsync(id, ct); // Servise delege ediyorum
             TempData["Msg"] = "İstisna silindi."; // Silme mesajı
             return RedirectToAction(nameof(Index)); // Listeye dönüyorum
+        }
+
+        // Yeni: Önizlemeden slot kapatma
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CloseSlots([FromForm] DateOnly date, [FromForm] List<string> starts, CancellationToken ct)
+        {
+            var list = new List<TimeOnly>();
+            foreach (var s in starts ?? new List<string>())
+            {
+                if (TimeOnly.TryParse(s, out var t)) list.Add(t);
+            }
+            var added = await _schedule.CloseSlotsAsync(date, list, ct);
+            return Json(new { ok = true, added });
+        }
+
+        // Yeni: Önizlemeden slot açma
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> OpenSlots([FromForm] DateOnly date, [FromForm] List<string> starts, CancellationToken ct)
+        {
+            var list = new List<TimeOnly>();
+            foreach (var s in starts ?? new List<string>())
+            {
+                if (TimeOnly.TryParse(s, out var t)) list.Add(t);
+            }
+            var affected = await _schedule.OpenSlotsAsync(date, list, ct);
+            return Json(new { ok = true, affected });
+        }
+
+        // Yeni: gün için kapalı slot başlangıçları
+        [HttpGet]
+        public async Task<IActionResult> ClosedSlotStarts([FromQuery] DateOnly date, CancellationToken ct)
+        {
+            var list = await _schedule.GetClosedSlotStartsAsync(date, ct);
+            var arr = list.Select(t => t.ToString("HH:mm")).ToArray();
+            return Json(arr);
+        }
+
+        // Yeni: gün için randevulu slot başlangıçları (onaylı)
+        [HttpGet]
+        public async Task<IActionResult> ReservedSlotStarts([FromQuery] DateOnly date, [FromQuery] bool onlyConfirmed = true, CancellationToken ct = default)
+        {
+            var list = await _schedule.GetReservedSlotStartsAsync(date, onlyConfirmed, ct);
+            var arr = list.Select(t => t.ToString("HH:mm")).ToArray();
+            return Json(arr);
+        }
+
+        // Yeni: gün için kapalı slot listesini güncelle
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateClosedSlots([FromForm] DateOnly date, [FromForm] List<string> starts, CancellationToken ct)
+        {
+            var list = new List<TimeOnly>();
+            foreach (var s in starts ?? new List<string>())
+            {
+                if (TimeOnly.TryParse(s, out var t)) list.Add(t);
+            }
+            var ok = await _schedule.UpdateClosedSlotsForDateAsync(date, list, ct);
+            return Json(new { ok });
         }
     }
 }
