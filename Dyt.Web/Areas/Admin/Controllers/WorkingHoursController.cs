@@ -55,6 +55,16 @@ namespace Dyt.Web.Areas.Admin.Controllers           // Admin alanı controller�
         }
 
         /// <summary>
+        /// İstisna listesini kısmi görünüm olarak döner.
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> ExceptionsPartial(CancellationToken ct)
+        {
+            var exceptions = await _schedule.GetExceptionsAsync(null, null, ct);
+            return PartialView("_ExceptionsTable", exceptions);
+        }
+
+        /// <summary>
         /// İstisna kaydını oluşturur/günceller.
         /// </summary>
         [HttpPost, ValidateAntiForgeryToken] // CSRF korumasını ekliyorum

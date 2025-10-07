@@ -1,0 +1,32 @@
+@model IReadOnlyList<Dyt.Contracts.Scheduling.Responses.WorkingHourExceptionDto>
+<table class="table table-sm table-striped align-middle">
+  <thead>
+    <tr>
+      <th>Tarih</th>
+      <th>Saat</th>
+      <th>Tip</th>
+      <th>Not</th>
+      <th style="width:120px;">Ýþlem</th>
+    </tr>
+  </thead>
+  <tbody>
+  @foreach (var e in Model)
+  {
+    <tr>
+      <td>@e.Date.ToString("dd.MM.yyyy dddd", new System.Globalization.CultureInfo("tr-TR"))</td>
+      <td>
+        @(e.StartTime.HasValue? e.StartTime.Value.ToString("HH\\:mm") : "-") - @(e.EndTime.HasValue? e.EndTime.Value.ToString("HH\\:mm") : "-")
+      </td>
+      <td>@(e.IsClosed ? "Kapalý" : "Açýk")</td>
+      <td>@e.Note</td>
+      <td>
+        <form asp-action="DeleteException" method="post" onsubmit="return confirm('Silinsin mi?')" style="display:inline;">
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="id" value="@e.Id" />
+          <button class="btn btn-sm btn-outline-danger">Sil</button>
+        </form>
+      </td>
+    </tr>
+  }
+  </tbody>
+</table>

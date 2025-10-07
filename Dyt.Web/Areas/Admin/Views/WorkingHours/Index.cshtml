@@ -65,38 +65,8 @@
               <button class="btn btn-primary">Kaydet</button>
             </div>
           </form>
-          <div class="table-responsive mt-3">
-            <table class="table table-sm table-striped align-middle">
-              <thead>
-                <tr>
-                  <th>Tarih</th>
-                  <th>Gün</th>
-                  <th style="min-width:400px;">Müsait Saatler</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach (var e in exceptions)
-                {
-                  <tr>
-                    <td>@e.Date.ToString("dd.MM.yyyy dddd", new System.Globalization.CultureInfo("tr-TR"))</td>
-                    <td>
-                      @(e.StartTime.HasValue? e.StartTime.Value.ToString("HH\\:mm") : "-")
-                      -
-                      @(e.EndTime.HasValue? e.EndTime.Value.ToString("HH\\:mm") : "-")
-                    </td>
-                    <td>@(e.IsClosed ? "Kapalı" : "Açık")</td>
-                    <td>@e.Note</td>
-                    <td>
-                      <form asp-action="DeleteException" method="post" onsubmit="return confirm('Silinsin mi?')" style="display:inline;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@e.Id" />
-                        <button class="btn btn-sm btn-outline-danger">Sil</button>
-                      </form>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
+          <div id="exceptionsWrap" class="table-responsive mt-3">
+            @await Html.PartialAsync("_ExceptionsTable", exceptions)
           </div>
         </div>
       </div>
@@ -196,6 +166,14 @@
     return Array.isArray(j) ? j : [];
   }
 
+  async function refreshExceptions(){
+    const wrap = document.getElementById('exceptionsWrap');
+    if(!wrap) return;
+    const r = await fetch(`/Admin/WorkingHours/ExceptionsPartial`);
+    if(!r.ok) return;
+    wrap.innerHTML = await r.text();
+  }
+
   function fmt(t){ const s = (t??'').toString(); return s.length>=5 ? s.substring(0,5) : s; }
 
   function anyChecked(container){ return container.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)').length > 0; }
@@ -224,7 +202,7 @@
     items.innerHTML = '<span class="text-muted">Yükleniyor...</span>';
     const states = await loadSlotStates(iso);
     const closedStarts = await loadClosedStarts(iso);
-    const reservedStarts = await loadReservedStarts(iso); // onaylı randevular
+    const reservedStarts = await loadReservedStarts(iso);
     items.innerHTML = '';
     const frag = document.createDocumentFragment();
     for(const s of states){
@@ -237,7 +215,7 @@
       cb.type = 'checkbox';
       cb.value = start;
       cb.checked = isClosed || isReserved;
-      cb.disabled = isReserved; // onaylı randevulu slot seçilemez
+      cb.disabled = isReserved;
       label.appendChild(cb);
       const span = document.createElement('span'); span.textContent = `${start}-${end}`; label.appendChild(span);
       if(isReserved){ const ico = document.createElement('span'); ico.className='ico'; ico.textContent='🔒'; label.appendChild(ico); label.title='Onaylanmış randevu var'; }
@@ -265,11 +243,9 @@
     return Array.from(slotAdmin.querySelectorAll(sel)).map(cb=>cb.value);
   }
 
-  // İlk yükleme: tüm satırları doldur
   const rows = Array.from(table.querySelectorAll('tbody tr'));
   rows.forEach(renderRow);
 
-  // Hızlı güncelle tetikleme
   table.addEventListener('click', async (e)=>{
     const quick = e.target.closest('.js-toggle-quick-edit');
     if(!quick) return;
@@ -278,7 +254,6 @@
     if(tr){ tr.scrollIntoView({ behavior:'smooth', block:'center' }); const sa = tr.querySelector('.slot-admin'); sa.querySelector('.slot-actions').classList.remove('d-none'); }
   });
 
-  // Aksiyon butonları
   table.addEventListener('click', async (e)=>{
     const btnClose = e.target.closest('.js-close-selected');
     const btnOpen = e.target.closest('.js-open-selected');
@@ -292,7 +267,7 @@
       const starts = selectedStarts(slotAdmin, 'input[type="checkbox"]:checked:not(:disabled)');
       if(starts.length === 0){ alert('Lütfen kapatmak için saat seçiniz.'); return; }
       if(!confirm('Seçtiğiniz saatler kapalı yapılacak. Onaylıyor musunuz?')) return;
-      try{ await postForm('/Admin/WorkingHours/CloseSlots', { date: iso, starts }); await renderRow(tr); alert('Seçilen saatler kapatıldı.'); }catch{ alert('Hata oluştu.'); }
+      try{ await postForm('/Admin/WorkingHours/CloseSlots', { date: iso, starts }); await renderRow(tr); await refreshExceptions(); alert('Seçilen saatler kapatıldı.'); }catch{ alert('Hata oluştu.'); }
       return;
     }
 
@@ -300,12 +275,11 @@
       const starts = selectedStarts(slotAdmin, 'label.slot-closed input[type="checkbox"]:checked');
       if(starts.length === 0){ alert('Açmak için kapalı saat seçiniz.'); return; }
       if(!confirm('Seçtiğiniz kapalı saatler açılacak. Onaylıyor musunuz?')) return;
-      try{ await postForm('/Admin/WorkingHours/OpenSlots', { date: iso, starts }); await renderRow(tr); alert('Seçilen kapalı saatler açıldı.'); }catch{ alert('Hata oluştu.'); }
+      try{ await postForm('/Admin/WorkingHours/OpenSlots', { date: iso, starts }); await renderRow(tr); await refreshExceptions(); alert('Seçilen kapalı saatler açıldı.'); }catch{ alert('Hata oluştu.'); }
       return;
     }
   });
 
-  // Seçim görünürlüğü için handler bağla
   table.querySelectorAll('.slot-admin').forEach(bindSelectionHandlers);
 })();
 </script>
