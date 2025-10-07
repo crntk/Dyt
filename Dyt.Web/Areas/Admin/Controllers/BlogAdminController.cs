@@ -26,13 +26,14 @@ namespace Dyt.Web.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(CancellationToken ct)
+        public async Task<IActionResult> Index(int? open, CancellationToken ct)
         {
             var latest = await _db.BlogPosts.AsNoTracking()
                 .OrderByDescending(x => x.PublishDateUtc ?? x.CreatedAtUtc)
                 .Take(8)
                 .Include(x => x.Media).ThenInclude(m => m.MediaFile)
                 .ToListAsync(ct);
+            ViewBag.OpenPostId = open;
             return View(latest);
         }
 

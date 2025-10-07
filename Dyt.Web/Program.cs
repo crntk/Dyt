@@ -114,21 +114,21 @@ app.UseRouting();                                            // Rota altyapısı
 app.UseAuthentication();                                     // Kimlik doğrulamayı zincire ekliyorum
 app.UseAuthorization();                                      // Yetkilendirmeyi zincire ekliyorum
 
-// Root path'i açıkça Blog/Index'e eşle
+// Root path artık Home/Index
 app.MapControllerRoute(
     name: "root",
     pattern: string.Empty,
-    defaults: new { controller = "Blog", action = "Index" });
+    defaults: new { controller = "Home", action = "Index" });
 
 // Area yönlendirmesi (Admin gibi alanlar için önce area route'u ekliyorum)
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
-// Varsayılan MVC rotası: Misafir anasayfası Blog/Index olsun
+// Varsayılan MVC rotası: Misafir anasayfası Home/Index olsun
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Blog}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // -----------------------------------------------------------------------------
 // Seed: Başlangıç admin kullanıcısını oluşturuyorum (tek seferlik)

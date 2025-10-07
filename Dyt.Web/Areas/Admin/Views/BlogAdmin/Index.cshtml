@@ -8,6 +8,15 @@
 .progress-bar{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#22c55e,#3b82f6);transition:width .1s ease}
 .toast{position:fixed;right:16px;top:16px;background:#111827;color:#fff;padding:10px 14px;border-radius:10px;opacity:.95;display:none}
 .preview-img{max-width:100%;border-radius:10px;border:1px solid #e5e7eb}
+/* Lightbox */
+.lb{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:1060; }
+.lb.open{ display:flex; }
+.lb-dialog{ position:relative; background:#fff; border-radius:14px; max-width:min(900px,95vw); max-height:90vh; width:auto; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,.25); display:flex; flex-direction:column; }
+.lb-body{ padding:16px; display:flex; flex-direction:column; align-items:center; overflow:auto; }
+.lb-img{ width:auto; height:auto; max-width:calc(95vw - 48px); max-height:calc(85vh - 80px); object-fit:contain; display:block; border-radius:10px; }
+.lb-title{ font-weight:600; margin:10px 0 6px; align-self:flex-start; }
+.lb-text{ color:#374151; white-space:pre-wrap; max-width:calc(95vw - 48px); }
+.lb-close{ position:absolute; top:8px; right:10px; border:0; background:transparent; font-size:22px; line-height:1; }
 </style>
 <div class="container py-4">
   <h1 class="h4 fw-bold mb-3">Blog Paylaş</h1>
@@ -47,18 +56,42 @@
   <h5 class="mt-4">Son Paylaşımlar</h5>
   <div class="row g-3">
     @foreach(var p in Model){
+      var isPhoto = string.IsNullOrEmpty(p.Title);
+      var cover = p.Media.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
       <div class="col-md-4">
-        <div class="card shadow-sm h-100">
+        <div class="card shadow-sm h-100 position-relative js-admin-post-card" data-id="@p.Id" data-type="@(isPhoto?"photo":"article")" data-img="@cover" data-title="@p.Title" data-summary="@(string.IsNullOrEmpty(p.Summary) ? p.ContentMarkdown : p.Summary)" data-slug="@p.Slug">
           <div class="card-body">
-            <div class="small text-muted">@((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy HH:mm"))</div>
-            <div class="fw-semibold mb-1">@p.Title</div>
-            <div class="text-truncate">@p.Summary</div>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="small text-muted">@((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy HH:mm"))</div>
+              <span class="badge @(isPhoto ? "bg-info" : "bg-secondary")">@(isPhoto ? "Görsel" : "Makale")</span>
+            </div>
+            @if(!string.IsNullOrEmpty(p.Title)){
+              <div class="fw-semibold mb-1">@p.Title</div>
+            }
+            <div class="text-truncate">@(string.IsNullOrEmpty(p.Summary) ? p.ContentMarkdown : p.Summary)</div>
+            <a class="stretched-link" asp-area="Admin" asp-controller="BlogAdmin" asp-action="Index" asp-route-open="@p.Id"></a>
           </div>
         </div>
       </div>
     }
   </div>
 </div>
+
+<!-- Lightbox for admin -->
+<div class="lb" id="adminPostLightbox" aria-hidden="true">
+  <div class="lb-dialog" role="dialog" aria-modal="true">
+    <button class="lb-close" type="button" aria-label="Kapat">×</button>
+    <div class="lb-body">
+      <img class="lb-img" alt="Paylaşım görseli" style="display:none" />
+      <div class="lb-article" style="display:none; width:100%;">
+        <div class="lb-title"></div>
+        <div class="lb-text"></div>
+        <div class="mt-2 align-self-start"><a target="_blank" class="btn btn-sm btn-outline-primary lb-view-public" href="#">Sitede Gör</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast">Paylaşıldı ✅</div>
 @section Scripts{
 <script>
@@ -97,6 +130,53 @@
   }
   submitWithProgress(document.getElementById('formPhoto'), '/Admin/BlogAdmin/SharePhoto');
   submitWithProgress(document.getElementById('formArticle'), '/Admin/BlogAdmin/ShareArticle');
+
+  // Lightbox behavior
+  const lb = document.getElementById('adminPostLightbox');
+  const img = lb.querySelector('.lb-img');
+  const articleBox = lb.querySelector('.lb-article');
+  const titleEl = lb.querySelector('.lb-title');
+  const textEl = lb.querySelector('.lb-text');
+  const viewBtn = lb.querySelector('.lb-view-public');
+  function openPhoto(src, text){
+    articleBox.style.display='none';
+    img.style.display='block';
+    img.src = src; img.alt = text || '';
+    lb.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function openArticle(title, text, slug, cover){
+    img.style.display='none';
+    if(cover){ img.src = cover; img.style.display='block'; }
+    titleEl.textContent = title || '';
+    textEl.textContent = text || '';
+    viewBtn.href = '/blog/' + slug;
+    articleBox.style.display='block';
+    lb.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeLb(){
+    lb.classList.remove('open');
+    document.body.style.overflow='';
+    img.removeAttribute('src');
+  }
+  lb.addEventListener('click', function(e){ if(e.target === lb) closeLb(); });
+  lb.querySelector('.lb-close').addEventListener('click', closeLb);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLb(); });
+
+  // Auto-open when query has open=id (server passes ViewBag)
+  const openId = '@(ViewBag.OpenPostId ?? "")';
+  if(openId){
+    const card = document.querySelector('.js-admin-post-card[data-id="' + openId + '"]');
+    if(card){
+      const type = card.getAttribute('data-type');
+      if(type==='photo'){
+        openPhoto(card.getAttribute('data-img'), card.getAttribute('data-summary'));
+      } else {
+        openArticle(card.getAttribute('data-title'), card.getAttribute('data-summary'), card.getAttribute('data-slug'), card.getAttribute('data-img'));
+      }
+    }
+  }
 })();
 </script>
 }

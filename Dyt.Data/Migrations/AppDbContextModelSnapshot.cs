@@ -78,7 +78,7 @@ namespace Dyt.Data.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("BlogPosts");
+                    b.ToTable("BlogPosts", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Content.BlogPostMedia", b =>
@@ -106,7 +106,7 @@ namespace Dyt.Data.Migrations
 
                     b.HasIndex("MediaFileId");
 
-                    b.ToTable("BlogPostMedias");
+                    b.ToTable("BlogPostMedias", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Content.BlogPostTag", b =>
@@ -121,7 +121,7 @@ namespace Dyt.Data.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("BlogPostTags");
+                    b.ToTable("BlogPostTags", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Content.DietitianProfile", b =>
@@ -181,7 +181,7 @@ namespace Dyt.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DietitianProfiles");
+                    b.ToTable("DietitianProfiles", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Content.MediaFile", b =>
@@ -239,7 +239,7 @@ namespace Dyt.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MediaFiles");
+                    b.ToTable("MediaFiles", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Content.Tag", b =>
@@ -280,7 +280,7 @@ namespace Dyt.Data.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Identity.AppRole", b =>
@@ -479,7 +479,7 @@ namespace Dyt.Data.Migrations
                     b.HasIndex("AppointmentDate", "StartTime")
                         .IsUnique();
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Scheduling.AppointmentReminderLog", b =>
@@ -537,7 +537,7 @@ namespace Dyt.Data.Migrations
 
                     b.HasIndex("AppointmentId");
 
-                    b.ToTable("AppointmentReminderLogs");
+                    b.ToTable("AppointmentReminderLogs", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Scheduling.WorkingHourException", b =>
@@ -584,7 +584,7 @@ namespace Dyt.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WorkingHourExceptions");
+                    b.ToTable("WorkingHourExceptions", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Scheduling.WorkingHourTemplate", b =>
@@ -632,7 +632,7 @@ namespace Dyt.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WorkingHourTemplates");
+                    b.ToTable("WorkingHourTemplates", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Settings.SmsTemplate", b =>
@@ -675,7 +675,7 @@ namespace Dyt.Data.Migrations
                     b.HasIndex("TemplateKey")
                         .IsUnique();
 
-                    b.ToTable("SmsTemplates");
+                    b.ToTable("SmsTemplates", (string)null);
                 });
 
             modelBuilder.Entity("Dyt.Data.Entities.Settings.SystemSetting", b =>
@@ -718,7 +718,7 @@ namespace Dyt.Data.Migrations
                     b.HasIndex("Key")
                         .IsUnique();
 
-                    b.ToTable("SystemSettings");
+                    b.ToTable("SystemSettings", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

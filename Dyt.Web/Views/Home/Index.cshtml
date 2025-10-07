@@ -3,48 +3,115 @@
 @{
     ViewData["Title"] = "Anasayfa";
 }
-<section class="hero py-5">
+<style>
+  /* Section backgrounds */
+  .hero-gradient{background:radial-gradient(1200px 500px at 20% -10%, rgba(233,30,99,.25), transparent),radial-gradient(1000px 400px at 90% -10%, rgba(111,66,193,.25), transparent);}
+  .section{padding:64px 0}
+  .glass{background: rgba(255,255,255,.65); backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,.6); border-radius:18px;}
+  .avatar{width:140px;height:140px;border-radius:50%;object-fit:cover;box-shadow:0 10px 30px rgba(0,0,0,.12);}
+  .timeline{position:relative;padding-left:26px}
+  .timeline:before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#e91e63,#6f42c1)}
+  .timeline-item{position:relative;margin-bottom:24px}
+  .timeline-item:before{content:"";position:absolute;left:-18px;top:4px;width:12px;height:12px;border-radius:50%;background:#e91e63;box-shadow:0 0 0 3px rgba(233,30,99,.2)}
+  .cert-card{border-radius:16px;border:1px solid #eee;box-shadow:0 10px 30px rgba(0,0,0,.06)}
+  .cert-badge{background:linear-gradient(90deg,#e91e63,#6f42c1);color:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600}
+</style>
+
+<!-- Hero -->
+<section class="hero-gradient section text-dark">
   <div class="container">
-    <div class="row align-items-center">
+    <div class="row align-items-center g-4">
       <div class="col-lg-7">
-        <h1 class="display-5 fw-bold mb-3">Sağlıklı Beslenme Yolculuğuna Hoş Geldiniz</h1>
-        <p class="lead text-secondary">Güncel makaleler, pratik öneriler ve kişisel randevu planlama.</p>
-        <div class="mt-3">
-          <a class="btn btn-lg btn-primary me-2" asp-controller="Appointment" asp-action="Create">Randevu Al</a>
-          <a class="btn btn-lg btn-outline-secondary" asp-controller="Blog" asp-action="Index">Bloğu Gör</a>
+        <h1 class="display-4 fw-bold mb-3">Merhaba, ben Diyetisyen <span style="color:#e91e63">Riyaza Tair</span></h1>
+        <p class="lead mb-4">Bilimsel yaklaşımla kişiye özel beslenme planları. Sağlıklı yaşam yolculuğunuzda yanınızdayım.</p>
+        <div>
+          <a asp-controller="Appointment" asp-action="Create" class="btn btn-lg btn-primary me-2">Randevu Al</a>
+          <a asp-controller="Blog" asp-action="Index" class="btn btn-lg btn-outline-secondary">Blog</a>
         </div>
       </div>
       <div class="col-lg-5">
-        <div class="card shadow-sm p-4">
-          <h5 class="mb-3">Hızlı Randevu</h5>
-          <p class="text-muted mb-2">Uygun tarih ve saatleri anında görüp randevunuzu oluşturun.</p>
-          <a class="btn btn-primary" asp-controller="Appointment" asp-action="Create">Randevu Oluştur</a>
+        <div class="glass p-4 d-flex align-items-center gap-3">
+          <img src="/images/profile-placeholder.jpg" alt="profil" class="avatar" onerror="this.style.display='none'" />
+          <div>
+            <div class="fw-semibold">Uzmanlık Alanları</div>
+            <ul class="mb-0 small text-muted">
+              <li>Kilo yönetimi ve vücut kompozisyonu</li>
+              <li>Sporcu beslenmesi</li>
+              <li>Metabolik hastalıklarda beslenme</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
-<section class="container py-4">
-  <h3 class="mb-3">Son Paylaşımlar</h3>
-  <div class="row g-4">
-    @foreach (var p in Model.Take(6))
-    {
-      var cover = p.Media.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
-      <div class="col-md-6 col-lg-4">
-        <div class="card h-100 shadow-sm">
-          @if(!string.IsNullOrWhiteSpace(cover)){
-            <img src="@cover" class="card-img-top" alt="@p.Title" />
-          }
-          <div class="card-body d-flex flex-column">
-            <div class="small text-muted mb-1">@((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy"))</div>
-            <div class="fw-semibold">@p.Title</div>
-            <div class="text-muted small mb-2">@p.Summary</div>
-            <div class="mt-auto">
-              <a class="btn btn-sm btn-primary" asp-controller="Blog" asp-action="Post" asp-route-slug="@p.Slug">Oku</a>
+
+<!-- Ben Kimim -->
+<section class="section">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <div class="glass p-4 h-100">
+          <h2 class="h3 fw-bold mb-3">Ben Kimim?</h2>
+          <p class="mb-3">Beslenme ve diyetetik alanında eğitimimi tamamladıktan sonra klinik ve bireysel danışmanlıkta deneyim kazandım. Her danışanımın yaşam tarzına uygun, sürdürülebilir planlar oluşturmayı hedefliyorum.</p>
+          <p class="mb-0">Amaç: kısa vadeli sonuçlar değil; uzun vadeli sağlıklı alışkanlıklar.</p>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <div class="glass p-4 h-100">
+          <h2 class="h3 fw-bold mb-3">Özgeçmiş</h2>
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="fw-semibold">Diyetisyen – Özel Klinik</div>
+              <div class="text-muted small">2022 - Günümüz</div>
+              <p class="mb-2">Bireysel beslenme danışmanlığı, sporcu ve kurumsal programlar.</p>
+            </div>
+            <div class="timeline-item">
+              <div class="fw-semibold">Beslenme ve Diyetetik – Lisans</div>
+              <div class="text-muted small">2018 - 2022</div>
+              <p class="mb-2">Araştırma projeleri ve saha çalışmaları.</p>
+            </div>
+            <div class="timeline-item">
+              <div class="fw-semibold">Staj – Hastane</div>
+              <div class="text-muted small">2021</div>
+              <p class="mb-0">Klinik beslenme, menü planlama, hasta takibi.</p>
             </div>
           </div>
         </div>
       </div>
-    }
+    </div>
+  </div>
+</section>
+
+<!-- Sertifikalar -->
+<section class="section" style="background:#fff;">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h2 class="h3 fw-bold mb-0">Sertifikalarım</h2>
+      <span class="cert-badge">Güncel Eğitimler</span>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="cert-card p-4 h-100">
+          <div class="fw-semibold mb-1">Sporcu Beslenmesi</div>
+          <div class="text-muted small mb-2">2023 • ABC Akademi</div>
+          <p class="mb-0">Performans ve toparlanma odaklı programlama.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="cert-card p-4 h-100">
+          <div class="fw-semibold mb-1">Klinik Beslenme</div>
+          <div class="text-muted small mb-2">2022 • Sağlık Enstitüsü</div>
+          <p class="mb-0">Metabolik hastalıklarda kanıta dayalı beslenme.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="cert-card p-4 h-100">
+          <div class="fw-semibold mb-1">Davranışsal Beslenme</div>
+          <div class="text-muted small mb-2">2021 • Wellbeing Center</div>
+          <p class="mb-0">Sürdürülebilir alışkanlık geliştirme yaklaşımları.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
