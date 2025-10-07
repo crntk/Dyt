@@ -2,7 +2,25 @@
 @model List<BlogPost>
 @{
     ViewData["Title"] = "Blog";
+    var articles = ViewBag.Articles as List<BlogPost> ?? new List<BlogPost>();
+    var atotal = (int)(ViewBag.ArticleTotal ?? 0);
+    var apage = (int)(ViewBag.ArticlePage ?? 1);
+    var asize = (int)(ViewBag.ArticlePageSize ?? 10);
+    var apages = (int)Math.Ceiling(atotal / (double)asize);
 }
+
+<style>
+  .blog-card .card-img-top{ width:100%; height:auto; display:block; }
+  .blog-card .card-body{ min-height:0; }
+  .js-photo-card{ cursor: pointer; }
+  .lb{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:1050; }
+  .lb.open{ display:flex; }
+  .lb-dialog{ position:relative; background:#fff; border-radius:14px; max-width:95vw; width:auto; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,.25); transform:translateY(10px) scale(.98); transition:transform .15s ease; }
+  .lb.open .lb-dialog{ transform:translateY(0) scale(1); }
+  .lb-body{ padding:16px; display:flex; flex-direction:column; align-items:center; }
+  .lb-img{ width:auto; height:auto; max-width:90vw; display:block; border-radius:10px; }
+  .lb-caption{ margin-top:10px; color:#374151; max-width:90vw; }
+</style>
 
 <div class="blog-hero">
   <div class="container">
@@ -13,38 +31,141 @@
 
 <div class="container py-4">
   <div class="row g-4">
-    @foreach (var p in Model)
-    {
-      <div class="col-md-6 col-lg-4">
-        <div class="card blog-card h-100 shadow-sm">
-          <div class="card-body d-flex flex-column">
-            <h5 class="card-title mb-2">@p.Title</h5>
-            <p class="card-text text-muted small mb-3">@p.Summary</p>
-            <div class="mt-auto d-flex justify-content-between align-items-center">
-              <span class="text-secondary small">@((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM yyyy"))</span>
-              <a asp-controller="Blog" asp-action="Post" asp-route-slug="@p.Slug" class="btn btn-sm btn-primary">Oku</a>
+    <div class="col-lg-8">
+      <div class="row g-4">
+        @foreach (var p in Model)
+        {
+          var cover = p.Media.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
+          var isPhoto = string.IsNullOrWhiteSpace(p.Title);
+          <div class="col-md-6">
+            <div class="card blog-card shadow-sm @(isPhoto?"js-photo-card":"")" data-img="@cover" data-summary="@p.Summary">
+              @if (!string.IsNullOrWhiteSpace(cover))
+              {
+                <img src="@cover" class="card-img-top" alt="@(!string.IsNullOrWhiteSpace(p.Title)?p.Title:p.Summary)" />
+              }
+              <div class="card-body d-flex flex-column">
+                @if(!string.IsNullOrWhiteSpace(p.Title))
+                {
+                  <h5 class="card-title mb-2">@p.Title</h5>
+                }
+                <p class="card-text text-muted small mb-3">@p.Summary</p>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                  <span class="text-secondary small">@((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM yyyy"))</span>
+                  @if(!string.IsNullOrWhiteSpace(p.Title))
+                  {
+                    <a asp-controller="Blog" asp-action="Post" asp-route-slug="@p.Slug" class="btn btn-sm btn-primary">Oku</a>
+                  }
+                </div>
+              </div>
             </div>
           </div>
+        }
+      </div>
+
+      @{
+        var total = (int)(ViewBag.Total ?? 0);
+        var page = (int)(ViewBag.Page ?? 1);
+        var size = (int)(ViewBag.PageSize ?? 10);
+        var pageCount = (int)Math.Ceiling(total / (double)size);
+      }
+      @if (pageCount > 1)
+      {
+        <nav class="mt-4">
+          <ul class="pagination justify-content-center">
+            @for (var i = 1; i <= pageCount; i++)
+            {
+              <li class="page-item @(i==page?"active":"")"><a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-pageSize="@size" asp-route-apage="@apage" asp-route-apageSize="@asize">@i</a></li>
+            }
+          </ul>
+        </nav>
+      }
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Yazýlar ve Makaleler</h5>
+          <div class="list-group list-group-flush">
+            @if(articles.Count==0){
+              <div class="text-muted small">Henüz makale yok.</div>
+            } else {
+              foreach(var a in articles){
+                <a class="list-group-item list-group-item-action" asp-controller="Blog" asp-action="Post" asp-route-slug="@a.Slug">
+                  <div class="fw-semibold">@a.Title</div>
+                  <div class="small text-muted">@((a.PublishDateUtc ?? a.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy"))</div>
+                </a>
+              }
+            }
+          </div>
+          @if(apages > 1){
+            <nav class="mt-3">
+              <ul class="pagination pagination-sm mb-0 justify-content-center">
+                <li class="page-item @(apage==1?"disabled":"")">
+                  <a class="page-link" asp-action="Index" asp-route-apage="@(apage-1)" asp-route-apageSize="@asize" asp-route-page="@((int)(ViewBag.Page ?? 1))" asp-route-pageSize="@((int)(ViewBag.PageSize ?? 10))">Önceki</a>
+                </li>
+                @for(int i=1;i<=apages;i++){
+                  <li class="page-item @(i==apage?"active":"")"><a class="page-link" asp-action="Index" asp-route-apage="@i" asp-route-apageSize="@asize" asp-route-page="@((int)(ViewBag.Page ?? 1))" asp-route-pageSize="@((int)(ViewBag.PageSize ?? 10))">@i</a></li>
+                }
+                <li class="page-item @(apage==apages?"disabled":"")">
+                  <a class="page-link" asp-action="Index" asp-route-apage="@(apage+1)" asp-route-apageSize="@asize" asp-route-page="@((int)(ViewBag.Page ?? 1))" asp-route-pageSize="@((int)(ViewBag.PageSize ?? 10))">Sonraki</a>
+                </li>
+              </ul>
+            </nav>
+          }
         </div>
       </div>
-    }
+    </div>
   </div>
-
-  @{
-    var total = (int)(ViewBag.Total ?? 0);
-    var page = (int)(ViewBag.Page ?? 1);
-    var size = (int)(ViewBag.PageSize ?? 10);
-    var pageCount = (int)Math.Ceiling(total / (double)size);
-  }
-  @if (pageCount > 1)
-  {
-    <nav class="mt-4">
-      <ul class="pagination justify-content-center">
-        @for (var i = 1; i <= pageCount; i++)
-        {
-          <li class="page-item @(i==page?"active":"")"><a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-pageSize="@size">@i</a></li>
-        }
-      </ul>
-    </nav>
-  }
 </div>
+
+<!-- Lightbox markup -->
+<div class="lb" id="photoLightbox" aria-hidden="true">
+  <div class="lb-dialog" role="dialog" aria-modal="true">
+    <div class="lb-body">
+      <img class="lb-img" alt="Paylaþým görseli" />
+      <div class="lb-caption"></div>
+    </div>
+  </div>
+</div>
+
+@section Scripts{
+<script>
+(function(){
+  const lb = document.getElementById('photoLightbox');
+  if(!lb) return;
+  const dialog = lb.querySelector('.lb-dialog');
+  const img = lb.querySelector('.lb-img');
+  const caption = lb.querySelector('.lb-caption');
+  let open = false;
+
+  function adjustSize(){
+    if(!open) return;
+    const vw = Math.min(window.innerWidth * 0.9, 900);
+    dialog.style.maxWidth = vw + 'px';
+    const verticalPadding = 16*2 + 20;
+    const captionH = caption.textContent ? Math.min(caption.scrollHeight, 200) : 0;
+    const maxImgH = window.innerHeight - verticalPadding - captionH - 40;
+    img.style.maxHeight = Math.max(100, maxImgH) + 'px';
+    img.style.maxWidth = vw - 32 + 'px';
+  }
+
+  function openLightbox(src, text){
+    if(!src) return;
+    img.src = src; caption.textContent = text || '';
+    lb.classList.add('open'); lb.style.display='flex'; document.body.style.overflow='hidden';
+    open = true; setTimeout(adjustSize, 0);
+  }
+  function closeLightbox(){
+    open = false; lb.classList.remove('open'); lb.style.display='none'; document.body.style.overflow=''; img.removeAttribute('src');
+  }
+
+  document.addEventListener('click', function(e){
+    const card = e.target.closest('.js-photo-card');
+    if(card){ e.preventDefault(); openLightbox(card.getAttribute('data-img'), card.getAttribute('data-summary')); }
+  });
+  lb.addEventListener('click', function(e){ if(e.target === lb) closeLightbox(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeLightbox(); });
+  window.addEventListener('resize', adjustSize);
+})();
+</script>
+}

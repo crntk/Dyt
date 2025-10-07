@@ -1,6 +1,8 @@
-using Microsoft.AspNetCore.Mvc; // MVC attribute ve türleri için ekliyorum
+using Dyt.Data.Context;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace Dyt.Web.Controllers // Web katmaný controller'larý için ad alanýný tanýmlýyorum
+namespace Dyt.Web.Controllers
 {
     /// <summary>
     /// Genel web sayfalarýný yöneten controller.
@@ -8,12 +10,25 @@ namespace Dyt.Web.Controllers // Web katmaný controller'larý için ad alanýný tan
     /// </summary>
     public class HomeController : Controller // MVC Controller taban sýnýfýndan türetiyorum
     {
+        private readonly AppDbContext _db;
+        public HomeController(AppDbContext db)
+        {
+            _db = db;
+        }
+
         /// <summary>
         /// Ana sayfaya gelen ziyaretçiyi randevu oluþturma sayfasýna yönlendirir.
         /// </summary>
-        public IActionResult Index() // GET /Home/Index veya / isteði için action'ý tanýmlýyorum
+        public async Task<IActionResult> Index(CancellationToken ct) // GET /Home/Index veya / isteði için action'ý tanýmlýyorum
         {
-            return RedirectToAction("Create", "Appointment"); // Randevu formuna yönlendiriyorum
+            var now = DateTime.UtcNow;
+            var latest = await _db.BlogPosts.AsNoTracking()
+                .Where(p => p.IsPublished && (p.PublishDateUtc == null || p.PublishDateUtc <= now))
+                .Include(p => p.Media).ThenInclude(m => m.MediaFile)
+                .OrderByDescending(p => p.PublishDateUtc ?? p.CreatedAtUtc)
+                .Take(6)
+                .ToListAsync(ct);
+            return View(latest);
         }
 
         /// <summary>

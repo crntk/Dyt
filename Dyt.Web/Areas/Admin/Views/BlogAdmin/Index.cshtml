@@ -1,0 +1,102 @@
+﻿@model List<Dyt.Data.Entities.Content.BlogPost>
+@{
+    ViewData["Title"] = "Blog Paylaş";
+}
+<style>
+.share-card{border:1px solid #e5e7eb;border-radius:14px;padding:16px;background:#fff}
+.progress-wrap{position:relative;height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden;margin-top:8px}
+.progress-bar{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#22c55e,#3b82f6);transition:width .1s ease}
+.toast{position:fixed;right:16px;top:16px;background:#111827;color:#fff;padding:10px 14px;border-radius:10px;opacity:.95;display:none}
+.preview-img{max-width:100%;border-radius:10px;border:1px solid #e5e7eb}
+</style>
+<div class="container py-4">
+  <h1 class="h4 fw-bold mb-3">Blog Paylaş</h1>
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="share-card shadow-sm">
+        <h5 class="mb-3">Fotoğraf Paylaş (Twitter/Instagram tarzı)</h5>
+        <form id="formPhoto" enctype="multipart/form-data">
+          @Html.AntiForgeryToken()
+          <div class="mb-2">
+            <input type="file" name="image" accept="image/*" class="form-control" />
+          </div>
+          <div class="mb-2">
+            <textarea name="caption" rows="3" class="form-control" placeholder="Açıklama..."></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Paylaş</button>
+          <div class="progress-wrap d-none"><div class="progress-bar"></div></div>
+        </form>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="share-card shadow-sm">
+        <h5 class="mb-3">Makale Paylaş</h5>
+        <form id="formArticle" enctype="multipart/form-data">
+          @Html.AntiForgeryToken()
+          <div class="mb-2"><input name="title" class="form-control" placeholder="Başlık" /></div>
+          <div class="mb-2"><input name="summary" class="form-control" placeholder="Kısa özet" /></div>
+          <div class="mb-2"><textarea name="contentMarkdown" rows="8" class="form-control" placeholder="İçerik (Markdown)"></textarea></div>
+          <div class="mb-2"><input type="file" name="cover" accept="image/*" class="form-control" /></div>
+          <button class="btn btn-primary" type="submit">Yayınla</button>
+          <div class="progress-wrap d-none"><div class="progress-bar"></div></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <h5 class="mt-4">Son Paylaşımlar</h5>
+  <div class="row g-3">
+    @foreach(var p in Model){
+      <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <div class="small text-muted">@((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy HH:mm"))</div>
+            <div class="fw-semibold mb-1">@p.Title</div>
+            <div class="text-truncate">@p.Summary</div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+<div class="toast" id="toast">Paylaşıldı ✅</div>
+@section Scripts{
+<script>
+(function(){
+  function submitWithProgress(form, url){
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      const fd = new FormData(form);
+      const wrap = form.querySelector('.progress-wrap');
+      const bar = form.querySelector('.progress-bar');
+      wrap.classList.remove('d-none');
+      bar.style.width = '0%';
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url);
+      xhr.upload.onprogress = function(ev){
+        if(ev.lengthComputable){
+          const percent = Math.round(ev.loaded / ev.total * 100);
+          bar.style.width = percent + '%';
+        }
+      };
+      xhr.onreadystatechange = function(){
+        if(xhr.readyState === 4){
+          try{ const resp = JSON.parse(xhr.responseText||'{}'); if(resp.ok){
+            bar.style.width = '100%'; showToast(); setTimeout(()=>{ window.location.href = resp.redirect || window.location.href; }, 500);
+          } else { alert(resp.message || 'Hata'); }
+          }catch{ alert('Hata oluştu'); }
+        }
+      };
+      xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
+      xhr.send(fd);
+    });
+  }
+  function showToast(){
+    const t=document.getElementById('toast'); t.style.display='block'; setTimeout(()=>{t.style.display='none';},1500);
+  }
+  submitWithProgress(document.getElementById('formPhoto'), '/Admin/BlogAdmin/SharePhoto');
+  submitWithProgress(document.getElementById('formArticle'), '/Admin/BlogAdmin/ShareArticle');
+})();
+</script>
+}

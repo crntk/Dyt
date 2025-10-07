@@ -24,25 +24,48 @@ namespace Dyt.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, CancellationToken ct = default)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, int apage = 1, int apageSize = 10, CancellationToken ct = default)
         {
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 10;
             pageSize = Math.Min(pageSize, 20);
 
+            if (apage < 1) apage = 1;
+            if (apageSize < 1) apageSize = 10;
+            apageSize = Math.Min(apageSize, 50);
+
             var now = DateTime.UtcNow;
-            var query = _db.BlogPosts.AsNoTracking()
+            var baseQuery = _db.BlogPosts.AsNoTracking()
                 .Where(p => p.IsPublished && (p.PublishDateUtc == null || p.PublishDateUtc <= now))
+                .Include(p => p.Media)
+                    .ThenInclude(m => m.MediaFile);
+
+            // Sol grid (fotoðraf gönderileri): baþlýðý olmayanlar
+            var photosQuery = baseQuery
+                .Where(p => string.IsNullOrEmpty(p.Title))
                 .OrderByDescending(p => p.PublishDateUtc ?? p.CreatedAtUtc);
 
-            var total = await query.CountAsync(ct);
-            var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+            var totalPhotos = await photosQuery.CountAsync(ct);
+            var photos = await photosQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
 
-            ViewBag.Total = total;
+            // Sað sütun (yazýlar ve makaleler): baþlýðý olanlar
+            var articlesQuery = baseQuery
+                .Where(p => !string.IsNullOrEmpty(p.Title))
+                .OrderByDescending(p => p.PublishDateUtc ?? p.CreatedAtUtc);
+
+            var totalArticles = await articlesQuery.CountAsync(ct);
+            var articles = await articlesQuery.Skip((apage - 1) * apageSize).Take(apageSize).ToListAsync(ct);
+
+            ViewBag.Articles = articles;
+            ViewBag.ArticleTotal = totalArticles;
+            ViewBag.ArticlePage = apage;
+            ViewBag.ArticlePageSize = apageSize;
+
+            ViewBag.Total = totalPhotos;
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
 
-            return View(items);
+            return View(photos);
         }
 
         [HttpGet("/blog/{slug}")]
@@ -50,6 +73,8 @@ namespace Dyt.Web.Controllers
         {
             var now = DateTime.UtcNow;
             var post = await _db.BlogPosts.AsNoTracking()
+                .Include(p => p.Media)
+                    .ThenInclude(m => m.MediaFile)
                 .FirstOrDefaultAsync(p => p.Slug == slug && p.IsPublished && (p.PublishDateUtc == null || p.PublishDateUtc <= now), ct);
             if (post == null) return NotFound();
 
