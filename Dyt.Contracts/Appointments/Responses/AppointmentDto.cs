@@ -18,6 +18,7 @@ namespace Dyt.Contracts.Appointments.Responses
         public string? ClientEmail { get; set; }
         public string Status { get; set; } = "Scheduled";
         public string ConfirmationState { get; set; } = "Yanıtlanmadı";
+        public string Channel { get; set; } = string.Empty; // Online | Yüzyüze
     }
 }
 

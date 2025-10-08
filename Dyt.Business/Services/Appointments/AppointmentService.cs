@@ -98,13 +98,14 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
                 ClientPhone = request.ClientPhone.Trim(), // Telefon bilgisini kırpıp set ediyorum
                 ClientEmail = request.ClientEmail?.Trim(), // E-posta varsa kırpıp set ediyorum
                 Status = AppointmentStatus.Scheduled,         // Başlangıç durumunu planlandı yapıyorum
-                ConfirmationState = ConfirmationState.Yanıtlanmadı // Onay durumunu yanıtlanmadı yapıyorum
+                ConfirmationState = ConfirmationState.Yanıtlanmadı, // Onay durumunu yanıtlanmadı yapıyorum
+                Channel = request.Channel?.Trim() ?? string.Empty
             };
 
             await _db.Appointments.AddAsync(entity, ct); // Kaydı bağlama ekliyorum
             await _db.SaveChangesAsync(ct);              // Veritabanına yazıyorum
 
-            _log.LogInformation("Randevu oluşturuldu: {Id} {Date} {Start}", entity.Id, entity.AppointmentDate, entity.StartTime); // Bilgi logu yazıyorum
+            _log.LogInformation("Randevu oluşturuldu: {Id} {Date} {Start} Channel={Channel}", entity.Id, entity.AppointmentDate, entity.StartTime, entity.Channel); // Bilgi logu yazıyorum
 
             return new Dyt.Contracts.Appointments.Responses.AppointmentDto // DTO hazırlayıp döndürüyorum
             {
@@ -116,7 +117,8 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
                 ClientPhone = entity.ClientPhone,       // Telefon set ediyorum
                 ClientEmail = entity.ClientEmail,       // E-posta set ediyorum
                 Status = MapStatus(entity.Status),      // Durumu metin olarak set ediyorum
-                ConfirmationState = MapConfirmation(entity.ConfirmationState) // Onay durumunu metin olarak set ediyorum
+                ConfirmationState = MapConfirmation(entity.ConfirmationState), // Onay durumunu metin olarak set ediyorum
+                Channel = entity.Channel
             };
         }
 
@@ -139,7 +141,8 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
                 ClientPhone = a.ClientPhone,        // Telefon set ediyorum
                 ClientEmail = a.ClientEmail,        // E-posta set ediyorum
                 Status = MapStatus(a.Status),       // Durumu set ediyorum
-                ConfirmationState = MapConfirmation(a.ConfirmationState) // Onay durumunu set ediyorum
+                ConfirmationState = MapConfirmation(a.ConfirmationState), // Onay durumunu set ediyorum
+                Channel = a.Channel
             };
         }
 
@@ -266,7 +269,8 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
                     ClientPhone = a.ClientPhone, // Telefon
                     ClientEmail = a.ClientEmail, // E-posta
                     Status = MapStatus(a.Status), // Durum
-                    ConfirmationState = MapConfirmation(a.ConfirmationState) // Onay durumu
+                    ConfirmationState = MapConfirmation(a.ConfirmationState), // Onay durumu
+                    Channel = a.Channel
                 })
                 .ToListAsync(ct); // Listeye çeviriyorum
 

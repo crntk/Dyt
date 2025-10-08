@@ -1,95 +1,213 @@
-﻿@* 
-  Create.cshtml
-  Ziyaretçinin randevu oluşturduğu form. Tarih seçildiğinde uygun saatler otomatik gelir.
-  Controller: AppointmentController.Create (GET/POST)
-  Model: AppointmentCreateVm
-*@
-@model Dyt.Web.ViewModels.AppointmentCreateVm
-
+﻿@model Dyt.Web.ViewModels.AppointmentCreateVm
 @{
-    // Sayfa başlığını ayarlıyorum; _Layout varsa <title> içinde görünecek
     ViewData["Title"] = "Randevu Oluştur";
 }
 
 <style>
-    /* Slot seçim kutuları için basit stiller */
-    .slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
-    .slot-item { position: relative; display: flex; align-items: center; justify-content: center; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; cursor: pointer; user-select: none; transition: .15s ease; }
-    .slot-item input { position: absolute; opacity: 0; pointer-events: none; }
-    .slot-free { background: #e8f5e9; border-color: #34d399; color: #065f46; }
-    .slot-busy { background: #ffebee; border-color: #ef4444; color: #7f1d1d; cursor: not-allowed; }
-    .slot-free:hover { filter: brightness(0.98); }
-    .slot-selected { background: #e3f2fd; border-color: #2563eb; color: #1e3a8a; }
-    .slot-time { font-variant-numeric: tabular-nums; }
+  :root{ --pink:#e91e63; --purple:#ffffff; --bg:#fffafc; }
+  .appt-hero{background:radial-gradient(1200px 500px at 15% -10%, rgba(233,30,99,.25), transparent),radial-gradient(900px 350px at 85% -10%, rgba(255,255,255,.22), transparent); padding:42px 0 22px;}
+  .stepper{display:flex;gap:14px;align-items:center;margin:8px 0 16px}
+  .step{display:flex;align-items:center;gap:8px}
+  .step .dot{width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#e5e7eb;color:#374151;font-weight:700}
+  .step.active .dot{background:linear-gradient(90deg,var(--pink),var(--purple));color:#fff}
+  .step .label{font-weight:600;color:#6b7280}
+  .step.active .label{color:#111827}
 
-    /* Mini (önizleme) grid */
-    .slot-mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 4px; }
-    .slot-mini-item { display: flex; align-items: center; justify-content: center; padding: 6px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 12px; line-height: 1; white-space: nowrap; }
-    .slot-mini-free { background: #ecfdf5; border-color: #34d399; color: #065f46; }
-    .slot-mini-busy { background: #fef2f2; border-color: #ef4444; color: #7f1d1d; }
+  .progress-wrap{height:8px;background:#f1f5f9;border-radius:10px;overflow:hidden}
+  .progress-bar{height:8px;background:linear-gradient(90deg,var(--pink),var(--purple));width:0}
+
+  .slot-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(120px,1fr));gap:10px}
+  .slot-item{position:relative;display:flex;align-items:center;justify-content:center;padding:10px;border:1px solid #d1d5db;border-radius:10px;font-size:14px;cursor:pointer;user-select:none;transition:.15s ease;background:#fff}
+  .slot-item input{position:absolute;opacity:0;pointer-events:none}
+  .slot-free{background:#ecfdf5;border-color:#34d399;color:#065f46}
+  .slot-busy{background:#fef2f2;border-color:#ef4444;color:#7f1d1d;cursor:not-allowed}
+  .slot-free:hover{filter:brightness(.98)}
+  .slot-selected{background:#fde7ef;border-color:#e91e63;color:#9c1c48}
+  .slot-legend .badge{font-weight:600}
+
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid rgba(233,30,99,.35);background:rgba(233,30,99,.08);cursor:pointer;font-weight:600;color:#e91e63}
+  .chip.active{background:#e91e63;border-color:#e91e63;color:#fff}
+
+  .summary-card{position:sticky;top:16px}
+  .summary-row{display:flex;justify-content:space-between;gap:10px;font-size:14px}
+  .summary-row + .summary-row{margin-top:6px}
+  .trust{display:flex;gap:10px;flex-wrap:wrap}
+  .trust .badge{background:#e91e63;color:#fff}
+
+  .slot-mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px, 1fr));gap:4px}
+  .slot-mini-item{display:flex;align-items:center;justify-content:center;padding:6px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;line-height:1;white-space:nowrap}
+  .slot-mini-free{background:#ecfdf5;border-color:#34d399;color:#065f46}
+  .slot-mini-busy{background:#fef2f2;border-color:#ef4444;color:#7f1d1d}
+
+  .channel-card{display:flex;gap:10px}
+  .channel-card .opt{flex:1;border:1px solid #e5e7eb;border-radius:12px;padding:12px;cursor:pointer;transition:box-shadow .15s ease, transform .1s ease}
+  .channel-card .opt:hover{box-shadow:0 10px 30px rgba(0,0,0,.06); transform: translateY(-1px)}
+  .channel-card .opt.active{border-color:#e91e63;background:#fff0f5}
 </style>
 
-<div class="container" style="max-width:720px;margin:40px auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">
-    <h1 style="font-size:22px;margin:0 0 16px 0;">Randevu Oluştur</h1>
-
-    @* Doğrulama özetini gösteriyorum *@
-    <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:12px;"></div>
-
-    @* Formu başlatıyorum; antiforgery token otomatik eklenecek *@
-    <form asp-action="Create" method="post">
-        @Html.AntiForgeryToken() @* CSRF koruması için *@
-
-        @* Tarih alanı *@
-        <div class="mb-3">
-            <label class="form-label">Tarih</label>
-            <input asp-for="Date" type="date" class="form-control" />
-            <span asp-validation-for="Date" class="text-danger"></span>
-        </div>
-
-        @* Saat seçimi: Tarih seçildiğinde checkbox grid olarak dolacak *@
-        <div class="mb-3">
-            <label class="form-label">Saat</label>
-            <div id="slotGrid" class="slot-grid"></div>
-            @* Hidden alan: seçilen saati TimeOnly'e bağlayacağım *@
-            <input asp-for="StartTime" type="hidden" />
-            <span asp-validation-for="StartTime" class="text-danger"></span>
-        </div>
-
-        @* Ad Soyad *@
-        <div class="mb-3">
-            <label class="form-label">Ad Soyad</label>
-            <input asp-for="ClientName" class="form-control" />
-            <span asp-validation-for="ClientName" class="text-danger"></span>
-        </div>
-
-        @* Telefon *@
-        <div class="mb-3">
-            <label class="form-label">Telefon</label>
-            <input asp-for="ClientPhone" class="form-control" placeholder="+90..." />
-            <span asp-validation-for="ClientPhone" class="text-danger"></span>
-        </div>
-
-        @* E-posta (opsiyonel) *@
-        <div class="mb-3">
-            <label class="form-label">E-posta (opsiyonel)</label>
-            <input asp-for="ClientEmail" class="form-control" />
-            <span asp-validation-for="ClientEmail" class="text-danger"></span>
-        </div>
-
-        @* Not (opsiyonel) *@
-        <div class="mb-3">
-            <label class="form-label">Not (opsiyonel)</label>
-            <textarea asp-for="Note" rows="3" class="form-control"></textarea>
-            <span asp-validation-for="Note" class="text-danger"></span>
-        </div>
-
-        @* Gönder butonu *@
-        <button type="submit" class="btn btn-primary">Randevuyu Oluştur</button>
-    </form>
+<div class="appt-hero">
+  <div class="container">
+    <h1 class="display-6 fw-bold mb-1">Randevu Oluştur</h1>
+    <p class="text-muted mb-0">Tarih ve saat seçin, bilgilerinizi bırakın. Onay SMS’i hemen gelir.</p>
+  </div>
 </div>
 
-@* 14 günlük müsaitlik önizleme tablosu *@
-<div class="container" style="max-width:900px;margin:0 auto 40px auto;">
+<div class="container py-4">
+  <div class="row g-4">
+    <!-- Form -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="stepper">
+            <div class="step step-1 active"><span class="dot">1</span><span class="label">Tarih & Saat</span></div>
+            <div class="step step-2"><span class="dot">2</span><span class="label">Bilgiler</span></div>
+            <div class="step step-3"><span class="dot">3</span><span class="label">Onay</span></div>
+          </div>
+          <div class="progress-wrap mb-3"><div id="progressBar" class="progress-bar"></div></div>
+
+          <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+          <form asp-action="Create" method="post" id="apptForm">
+            @Html.AntiForgeryToken()
+
+            <!-- Tarih -->
+            <div class="mb-3">
+              <label class="form-label">Tarih</label>
+              <input asp-for="Date" type="date" class="form-control" />
+              <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+
+            <!-- Saat filtreleri -->
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <span class="small text-muted">Günün bölümü:</span>
+              <button type="button" class="chip active" data-part="all">Hepsi</button>
+              <button type="button" class="chip" data-part="morning">Sabah</button>
+              <button type="button" class="chip" data-part="noon">Öğlen</button>
+              <button type="button" class="chip" data-part="evening">Akşam</button>
+            </div>
+
+            <!-- Saat grid -->
+            <div class="mb-1"><small class="text-muted">Uygun saatler aşağıda listelenir.</small></div>
+            <div id="slotGrid" class="slot-grid"></div>
+            <div class="slot-legend mt-2 mb-3">
+              <span class="badge bg-success">Müsait</span>
+              <span class="badge bg-danger ms-2">Dolu</span>
+              <span class="badge bg-primary ms-2">Seçili</span>
+            </div>
+
+            <input asp-for="StartTime" type="hidden" />
+            <span asp-validation-for="StartTime" class="text-danger"></span>
+
+            <hr />
+
+            <!-- Görüşme Türü -->
+            <div class="mb-3">
+              <label class="form-label">Görüşme Türü</label>
+              <div class="channel-card">
+                <label class="opt" id="optOnline">
+                  <input type="radio" name="Channel" value="Online" class="form-check-input d-none" />
+                  <div class="fw-semibold">Online</div>
+                  <div class="text-muted small">Görüntülü arama ile</div>
+                </label>
+                <label class="opt" id="optF2F">
+                  <input type="radio" name="Channel" value="Yüzyüze" class="form-check-input d-none" />
+                  <div class="fw-semibold">Yüzyüze</div>
+                  <div class="text-muted small">Kliniğimizde</div>
+                </label>
+              </div>
+              <span asp-validation-for="Channel" class="text-danger"></span>
+            </div>
+
+            <!-- İletişim bilgileri -->
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Ad Soyad</label>
+                <input asp-for="ClientName" class="form-control" placeholder="Adınız Soyadınız" />
+                <span asp-validation-for="ClientName" class="text-danger"></span>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Telefon</label>
+                <input asp-for="ClientPhone" class="form-control" placeholder="+90…" />
+                <span asp-validation-for="ClientPhone" class="text-danger"></span>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">E-posta (opsiyonel)</label>
+                <input asp-for="ClientEmail" class="form-control" placeholder="mail@ornek.com" />
+                <span asp-validation-for="ClientEmail" class="text-danger"></span>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Not (opsiyonel)</label>
+                <textarea asp-for="Note" rows="3" class="form-control" placeholder="Kısa bir not bırakabilirsiniz"></textarea>
+                <span asp-validation-for="Note" class="text-danger"></span>
+              </div>
+            </div>
+
+            <div class="form-check mt-3 mb-2">
+              <input class="form-check-input" type="checkbox" id="kvkk" />
+              <label class="form-check-label" for="kvkk">KVKK metnini okudum, bilgilendirildim.</label>
+            </div>
+
+            <button id="submitBtn" type="submit" class="btn btn-primary" disabled>Randevuyu Oluştur</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sağ panel -->
+    <div class="col-lg-5">
+      <div class="summary-card">
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <h5 class="card-title mb-0">Seçiminiz</h5>
+              <span class="badge" style="background:linear-gradient(90deg,var(--pink),var(--purple));color:#fff">30 dk</span>
+            </div>
+            <div class="summary-row"><span class="text-muted">Tarih</span><span id="sumDate">—</span></div>
+            <div class="summary-row"><span class="text-muted">Saat</span><span id="sumTime">—</span></div>
+            <div class="summary-row"><span class="text-muted">Tür</span><span id="sumChannel">—</span></div>
+            <div class="summary-row"><span class="text-muted">Ad Soyad</span><span id="sumName">—</span></div>
+            <div class="summary-row"><span class="text-muted">Telefon</span><span id="sumPhone">—</span></div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Neden Biz?</h5>
+            <ul class="mb-2 small text-muted">
+              <li>Bilimsel ve kişiye özel yaklaşım</li>
+              <li>Online/yerinde esnek görüşmeler</li>
+              <li>Haftalık takip ve motivasyon</li>
+            </ul>
+            <div class="trust">
+              <span class="badge">Gizlilik</span>
+              <span class="badge">Güvenli</span>
+              <span class="badge">Esnek İptal</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Sık Sorulanlar</h5>
+            <div class="accordion" id="faq">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="q1"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#a1">Görüşme süresi nedir?</button></h2>
+                <div id="a1" class="accordion-collapse collapse show" data-bs-parent="#faq"><div class="accordion-body small">Ortalama 30 dakika sürer; ilk görüşme 45 dakikaya çıkabilir.</div></div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="q2"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2">Online görüşme var mı?</button></h2>
+                <div id="a2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body small">Evet, görüntülü platformlar üzerinden yapılabilir.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 14 günlük müsaitlik önizleme -->
+<div class="container pb-4">
   <div class="card shadow-sm">
     <div class="card-body">
       <h5 class="card-title">Önümüzdeki 14 Gün – Müsaitlik</h5>
@@ -109,148 +227,144 @@
   </div>
 </div>
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const dateInput = document.querySelector('input[name="Date"]');
-            const slotGrid = document.getElementById('slotGrid');
-            const startTimeHidden = document.querySelector('input[name="StartTime"]');
+@section Scripts{
+<script>
+(function(){
+  const form = document.getElementById('apptForm');
+  const dateInput = form.querySelector('input[name="Date"]');
+  const slotGrid = document.getElementById('slotGrid');
+  const startTimeHidden = form.querySelector('input[name="StartTime"]');
+  const chips = Array.from(document.querySelectorAll('.chip[data-part]'));
+  const progressBar = document.getElementById('progressBar');
+  const submitBtn = document.getElementById('submitBtn');
+  const kvkk = document.getElementById('kvkk');
 
-            // Yardımcı: saat biçimleme HH:mm
-            function fmt(t) {
-                const s = (t ?? '').toString();
-                return s.length >= 5 ? s.substring(0, 5) : s;
-            }
-            // Yardımcı: yyyy-MM-dd -> dd.MM.yyyy (TR)
-            function fmtDateTR(iso) {
-                if (!iso) return '';
-                const [y, m, d] = iso.split('-');
-                return `${d}.${m}.${y}`;
-            }
+  // Channel toggle
+  const optOnline = document.getElementById('optOnline');
+  const optF2F = document.getElementById('optF2F');
+  const channelInputs = form.querySelectorAll('input[name="Channel"]');
 
-            // Tek seçim kuralı: bir checkbox seçildiğinde diğerlerini kaldır
-            function enforceSingleSelection(changed) {
-                const boxes = slotGrid.querySelectorAll('input[type="checkbox"][data-available="true"]');
-                boxes.forEach(cb => {
-                    const label = cb.closest('label');
-                    if (cb !== changed) {
-                        cb.checked = false;
-                        label.classList.remove('slot-selected');
-                    }
-                });
-            }
+  // Summary elements
+  const sumDate = document.getElementById('sumDate');
+  const sumTime = document.getElementById('sumTime');
+  const sumChannel = document.getElementById('sumChannel');
+  const sumName = document.getElementById('sumName');
+  const sumPhone = document.getElementById('sumPhone');
 
-            // Grid'i verilen tarih için doldur
-            async function renderSlotGrid(isoDate) {
-                slotGrid.innerHTML = '';
-                startTimeHidden.value = '';
-                if (!isoDate) return;
-                const resp = await fetch(`/appointment/slot-states?date=${encodeURIComponent(isoDate)}`);
-                if (!resp.ok) { slotGrid.innerHTML = '<div class="text-muted">Uygun saat bulunamadı</div>'; return; }
-                const data = await resp.json();
-                if (!Array.isArray(data) || data.length === 0) { slotGrid.innerHTML = '<div class="text-muted">Uygun saat bulunamadı</div>'; return; }
+  function fmt(t){ const s=(t??'').toString(); return s.length>=5? s.substring(0,5): s; }
+  function fmtDateTR(iso){ if(!iso) return ''; const d=new Date(iso+"T00:00:00"); return d.toLocaleDateString('tr-TR', { day:'2-digit', month:'long', year:'numeric', weekday:'long' }); }
 
-                const frag = document.createDocumentFragment();
-                for (const s of data) {
-                    const start = fmt(s.startTime);
-                    const end = fmt(s.endTime);
-                    const available = !!s.isAvailable;
+  function markSteps(){
+    const s1 = !!dateInput.value && !!startTimeHidden.value; // tarih+slot
+    const s2 = !!form.ClientName.value && !!form.ClientPhone.value; // bilgiler
+    document.querySelector('.step-1').classList.toggle('active', true);
+    document.querySelector('.step-2').classList.toggle('active', s2);
+    document.querySelector('.step-3').classList.toggle('active', s1 && s2 && kvkk.checked);
+  }
 
-                    const label = document.createElement('label');
-                    label.className = `slot-item ${available ? 'slot-free' : 'slot-busy'}`;
-                    label.title = available ? 'Müsait' : 'Dolu';
+  function updateProgress(){
+    let p = 10;
+    if(dateInput.value) p += 20;
+    if(startTimeHidden.value) p += 30;
+    if(form.ClientName.value) p += 10;
+    if(form.ClientPhone.value) p += 10;
+    if(form.Channel.value) p += 15;
+    if(kvkk.checked) p += 5;
+    progressBar.style.width = Math.min(100,p) + '%';
+    const ready = !!dateInput.value && !!startTimeHidden.value && !!form.ClientName.value && !!form.ClientPhone.value && !!form.Channel.value && kvkk.checked;
+    submitBtn.disabled = !ready;
+  }
 
-                    const cb = document.createElement('input');
-                    cb.type = 'checkbox';
-                    cb.value = start; // HH:mm
-                    cb.disabled = !available;
-                    cb.setAttribute('data-available', available ? 'true' : 'false');
+  function updateSummary(){
+    sumDate.textContent = fmtDateTR(dateInput.value) || '—';
+    sumTime.textContent = startTimeHidden.value || '—';
+    sumChannel.textContent = form.Channel.value || '—';
+    sumName.textContent = form.ClientName.value || '—';
+    sumPhone.textContent = form.ClientPhone.value || '—';
+  }
 
-                    const span = document.createElement('span');
-                    span.className = 'slot-time';
-                    span.textContent = `${start} - ${end}`;
+  function setChannel(val){
+    channelInputs.forEach(x=>{ x.checked = x.value === val; });
+    optOnline.classList.toggle('active', val==='Online');
+    optF2F.classList.toggle('active', val==='Yüzyüze');
+    form.Channel.value = val; // for validation binding
+    updateSummary();
+    updateProgress();
+  }
 
-                    label.appendChild(cb);
-                    label.appendChild(span);
+  optOnline.addEventListener('click', ()=> setChannel('Online'));
+  optF2F.addEventListener('click', ()=> setChannel('Yüzyüze'));
 
-                    if (available) {
-                        label.addEventListener('click', function (e) {
-                            if (cb.disabled) return;
-                            setTimeout(() => {
-                                if (cb.checked) {
-                                    enforceSingleSelection(cb);
-                                    label.classList.add('slot-selected');
-                                    startTimeHidden.value = cb.value;
-                                } else {
-                                    label.classList.remove('slot-selected');
-                                    if (startTimeHidden.value === cb.value) startTimeHidden.value = '';
-                                }
-                            }, 0);
-                        });
-                    }
+  function enforceSingleSelection(changed){
+    const boxes = slotGrid.querySelectorAll('input[type="checkbox"][data-available="true"]');
+    boxes.forEach(cb=>{ const label=cb.closest('label'); if(cb!==changed){ cb.checked=false; label.classList.remove('slot-selected'); } });
+  }
 
-                    frag.appendChild(label);
-                }
-                slotGrid.appendChild(frag);
-            }
+  async function renderSlotGrid(isoDate){
+    slotGrid.innerHTML=''; startTimeHidden.value=''; updateSummary(); updateProgress();
+    if(!isoDate) return;
+    const resp = await fetch(`/appointment/slot-states?date=${encodeURIComponent(isoDate)}`);
+    if(!resp.ok){ slotGrid.innerHTML='<div class="text-muted">Uygun saat bulunamadı</div>'; return; }
+    const data = await resp.json();
+    if(!Array.isArray(data) || data.length===0){ slotGrid.innerHTML='<div class="text-muted">Uygun saat bulunamadı</div>'; return; }
 
-            // Tarih değişimi -> grid doldur
-            dateInput.addEventListener('change', function () {
-                const iso = dateInput.value; // yyyy-MM-dd
-                renderSlotGrid(iso);
-            });
+    const frag = document.createDocumentFragment();
+    for(const s of data){
+      const start = (s.startTime||'').toString().substring(0,5);
+      const end = (s.endTime||'').toString().substring(0,5);
+      const available = !!s.isAvailable;
+      const hour = parseInt(start.split(':')[0]||'0',10);
+      const part = hour < 12? 'morning' : (hour < 17? 'noon' : 'evening');
+      const label = document.createElement('label');
+      label.className = `slot-item ${available? 'slot-free' : 'slot-busy'}`; label.title = available? 'Müsait' : 'Dolu';
+      label.setAttribute('data-part', part);
+      const cb = document.createElement('input'); cb.type='checkbox'; cb.value=start; cb.disabled=!available; cb.setAttribute('data-available', available? 'true':'false');
+      const span = document.createElement('span'); span.className='slot-time'; span.textContent = `${start} - ${end}`;
+      label.appendChild(cb); label.appendChild(span);
+      if(available){ label.addEventListener('click', function(){ if(cb.disabled) return; setTimeout(()=>{ if(cb.checked){ enforceSingleSelection(cb); label.classList.add('slot-selected'); startTimeHidden.value = cb.value; } else { label.classList.remove('slot-selected'); if(startTimeHidden.value===cb.value) startTimeHidden.value=''; } updateSummary(); updateProgress(); },0); }); }
+      frag.appendChild(label);
+    }
+    slotGrid.appendChild(frag);
+    applyPartFilter();
+  }
 
-            // Önizleme için slot durumlarını yükleme
-            async function loadSlotStatesForDate(iso) {
-                const resp = await fetch(`/appointment/slot-states?date=${encodeURIComponent(iso)}`);
-                if (!resp.ok) return [];
-                const list = await resp.json();
-                return Array.isArray(list) ? list : [];
-            }
+  function applyPartFilter(){
+    const active = document.querySelector('.chip[data-part].active')?.getAttribute('data-part') || 'all';
+    slotGrid.querySelectorAll('.slot-item').forEach(el=>{
+      const p = el.getAttribute('data-part');
+      el.style.display = (active==='all' || active===p) ? '' : 'none';
+    });
+  }
 
-            // 14 günlük önizleme tablosu
-            const tbody = document.querySelector('#previewTable tbody');
-            const dayNames = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
-            const today = new Date();
-            async function buildPreview() {
-                for (let i = 0; i < 14; i++) {
-                    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
-                    const yyyy = d.getFullYear();
-                    const mm = String(d.getMonth() + 1).padStart(2, '0');
-                    const dd = String(d.getDate()).padStart(2, '0');
-                    const iso = `${yyyy}-${mm}-${dd}`;
-                    const states = await loadSlotStatesForDate(iso);
+  dateInput.addEventListener('change', ()=>{ renderSlotGrid(dateInput.value); updateSummary(); updateProgress(); });
+  form.ClientName.addEventListener('input', ()=>{ updateSummary(); updateProgress(); });
+  form.ClientPhone.addEventListener('input', ()=>{ updateSummary(); updateProgress(); });
+  document.querySelectorAll('.chip[data-part]').forEach(c=> c.addEventListener('click', function(){ document.querySelectorAll('.chip[data-part]').forEach(x=>x.classList.remove('active')); this.classList.add('active'); applyPartFilter(); }));
+  document.getElementById('kvkk').addEventListener('change', updateProgress);
 
-                    const tr = document.createElement('tr');
-                    const td1 = document.createElement('td');
-                    const a = document.createElement('a');
-                    a.href = '#'; a.textContent = fmtDateTR(iso); a.addEventListener('click', (e) => { e.preventDefault(); dateInput.value = iso; renderSlotGrid(iso); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-                    td1.appendChild(a);
-                    const td2 = document.createElement('td');
-                    td2.textContent = dayNames[d.getDay()];
-                    const td3 = document.createElement('td');
+  // ---- Availability preview (14 days) ----
+  async function loadSlotStatesForDate(iso){ const r = await fetch(`/appointment/slot-states?date=${encodeURIComponent(iso)}`); if(!r.ok) return []; const j=await r.json(); return Array.isArray(j)? j: []; }
+  const tbody = document.querySelector('#previewTable tbody');
+  const dayNames = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+  const today = new Date();
+  function ymd(d){ const yyyy=d.getFullYear(); const mm=String(d.getMonth()+1).padStart(2,'0'); const dd=String(d.getDate()).padStart(2,'0'); return `${yyyy}-${mm}-${dd}`; }
+  function fmtDateShortTR(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}.${m}.${y}`; }
+  (async function buildPreview(){
+    for(let i=0;i<14;i++){
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate()+i);
+      const iso = ymd(d); const states = await loadSlotStatesForDate(iso);
+      const tr = document.createElement('tr');
+      const td1 = document.createElement('td'); const a = document.createElement('a'); a.href='#'; a.textContent=fmtDateShortTR(iso); a.addEventListener('click', e=>{ e.preventDefault(); dateInput.value = iso; renderSlotGrid(iso); window.scrollTo({top:0,behavior:'smooth'}); }); td1.appendChild(a);
+      const td2 = document.createElement('td'); td2.textContent = dayNames[d.getDay()];
+      const td3 = document.createElement('td');
+      if(!states.length){ td3.innerHTML = '<span class="text-muted">Müsaitlik belirtilmedi</span>'; }
+      else { const grid = document.createElement('div'); grid.className='slot-mini-grid'; states.forEach(s=>{ const div=document.createElement('div'); div.className=`slot-mini-item ${s.isAvailable? 'slot-mini-free':'slot-mini-busy'}`; div.textContent = `${(s.startTime||'').toString().substring(0,5)}-${(s.endTime||'').toString().substring(0,5)}`; grid.appendChild(div); }); td3.appendChild(grid); }
+      tr.append(td1,td2,td3); tbody.appendChild(tr);
+    }
+  })();
 
-                    if (!Array.isArray(states) || states.length === 0) {
-                        td3.innerHTML = '<span class="text-muted">Müsaitlik belirtilmedi</span>';
-                    } else {
-                        const grid = document.createElement('div');
-                        grid.className = 'slot-mini-grid';
-                        for (const s of states) {
-                            const start = fmt(s.startTime);
-                            const end = fmt(s.endTime);
-                            const div = document.createElement('div');
-                            div.className = `slot-mini-item ${s.isAvailable ? 'slot-mini-free' : 'slot-mini-busy'}`;
-                            div.textContent = `${start}-${end}`;
-                            grid.appendChild(div);
-                        }
-                        td3.appendChild(grid);
-                    }
-
-                    tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3);
-                    tbody.appendChild(tr);
-                }
-            }
-            buildPreview();
-        });
-    </script>
+  // initial state
+  updateProgress(); updateSummary();
+})();
+</script>
 }

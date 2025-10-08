@@ -10,38 +10,78 @@
 }
 
 <style>
+  /* Hero */
+  .blog-hero{background:radial-gradient(1200px 500px at 15% -10%, rgba(233,30,99,.25), transparent),radial-gradient(900px 350px at 85% -10%, rgba(255,255,255,.25), transparent); padding:48px 0 36px;}
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid rgba(233,30,99,.35);background:rgba(233,30,99,.08);cursor:pointer;font-weight:600;color:#e91e63}
+  .chip.active{background:#e91e63;border-color:#e91e63;color:#fff}
+  .search-wrap{position:relative}
+  .search-wrap .form-control{padding-left:40px;border-radius:12px}
+  .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.6}
+
+  /* Cards */
+  .blog-card{transition:transform .15s ease, box-shadow .15s ease; border-radius:16px; overflow:hidden}
+  .blog-card:hover{transform:translateY(-4px); box-shadow:0 18px 40px rgba(0,0,0,.12)}
   .blog-card .card-img-top{ width:100%; height:auto; display:block; }
   .blog-card .card-body{ min-height:0; }
-  .js-photo-card{ cursor: pointer; }
+  .card-badge{position:absolute;left:12px;top:12px;background:#e91e63;color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:4px 10px}
+  .card-date{position:absolute;right:12px;top:12px;background:#fff;border-radius:10px;padding:4px 8px;font-size:12px;color:#6b7280}
+
+  /* Sidebar list as mini cards */
+  .article-mini{display:flex;gap:12px;padding:10px;border-radius:12px;border:1px solid #eee;margin-bottom:10px;background:#fff;transition:transform .12s ease, box-shadow .12s ease}
+  .article-mini:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.08)}
+  .article-mini img{width:64px;height:64px;border-radius:10px;object-fit:cover}
+
+  /* Newsletter */
+  .newsletter{border-radius:16px;background:linear-gradient(90deg, rgba(233,30,99,.1), rgba(255,255,255,.1));border:1px dashed rgba(233,30,99,.35)}
+
+  /* Lightbox */
   .lb{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:1050; }
   .lb.open{ display:flex; }
-  .lb-dialog{ position:relative; background:#fff; border-radius:14px; max-width:95vw; width:auto; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,.25); transform:translateY(10px) scale(.98); transition:transform .15s ease; }
-  .lb.open .lb-dialog{ transform:translateY(0) scale(1); }
-  .lb-body{ padding:16px; display:flex; flex-direction:column; align-items:center; }
-  .lb-img{ width:auto; height:auto; max-width:90vw; display:block; border-radius:10px; }
+  .lb-dialog{ position:relative; background:#fff; border-radius:14px; max-width:min(900px,95vw); max-height:90vh; width:auto; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,.25); }
+  .lb-body{ padding:16px; display:flex; flex-direction:column; align-items:center; overflow:auto; }
+  .lb-img{ width:auto; height:auto; max-width:calc(95vw - 48px); max-height:calc(85vh - 80px); object-fit:contain; display:block; border-radius:10px; }
   .lb-caption{ margin-top:10px; color:#374151; max-width:90vw; }
 </style>
 
 <div class="blog-hero">
   <div class="container">
-    <h1 class="display-5 fw-bold">Blog</h1>
-    <p class="lead">Beslenme, saðlýk ve yaþam tarzý üzerine yazýlar</p>
+    <div class="row align-items-end g-3">
+      <div class="col-md-7">
+        <h1 class="display-5 fw-bold mb-1">Blog</h1>
+        <p class="lead mb-0">Beslenme, saðlýk ve yaþam tarzý üzerine paylaþýmlar</p>
+      </div>
+      <div class="col-md-5">
+        <div class="search-wrap">
+          <span class="search-icon">??</span>
+          <input id="blogSearch" class="form-control" placeholder="Ara: baþlýk, özet, açýklama..." />
+        </div>
+      </div>
+    </div>
+    <div class="mt-3 d-flex gap-2">
+      <button class="chip active" data-filter="all">Hepsi</button>
+      <button class="chip" data-filter="photo">Görseller</button>
+      <button class="chip" data-filter="article">Makaleler</button>
+    </div>
   </div>
 </div>
 
 <div class="container py-4">
   <div class="row g-4">
     <div class="col-lg-8">
-      <div class="row g-4">
+      <div class="row g-4" id="photoGrid">
         @foreach (var p in Model)
         {
           var cover = p.Media.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
           var isPhoto = string.IsNullOrWhiteSpace(p.Title);
-          <div class="col-md-6">
+          <div class="col-md-6 blog-item" data-type="photo" data-text="@((p.Title + " " + p.Summary).Trim())">
             <div class="card blog-card shadow-sm @(isPhoto?"js-photo-card":"")" data-img="@cover" data-summary="@p.Summary">
               @if (!string.IsNullOrWhiteSpace(cover))
               {
-                <img src="@cover" class="card-img-top" alt="@(!string.IsNullOrWhiteSpace(p.Title)?p.Title:p.Summary)" />
+                <div class="position-relative">
+                  <img src="@cover" class="card-img-top" alt="@(!string.IsNullOrWhiteSpace(p.Title)?p.Title:p.Summary)" />
+                  <span class="card-badge">Görsel</span>
+                  <span class="card-date">@((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM"))</span>
+                </div>
               }
               <div class="card-body d-flex flex-column">
                 @if(!string.IsNullOrWhiteSpace(p.Title))
@@ -70,7 +110,7 @@
       }
       @if (pageCount > 1)
       {
-        <nav class="mt-4">
+        <nav class="mt-2">
           <ul class="pagination justify-content-center">
             @for (var i = 1; i <= pageCount; i++)
             {
@@ -82,17 +122,36 @@
     </div>
 
     <div class="col-lg-4">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Yazar Hakkýnda</h5>
+          <div class="d-flex align-items-center gap-3">
+            <img src="/images/profile-placeholder.jpg" class="rounded-circle" style="width:56px;height:56px;object-fit:cover" onerror="this.style.display='none'" />
+            <div>
+              <div class="fw-semibold">Diyetisyen Riyaza Tair</div>
+              <div class="text-muted small">Bilimsel yaklaþým, kiþiye özel planlar.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-3">
         <div class="card-body">
           <h5 class="card-title">Yazýlar ve Makaleler</h5>
-          <div class="list-group list-group-flush">
+          <div id="articleList">
             @if(articles.Count==0){
               <div class="text-muted small">Henüz makale yok.</div>
             } else {
               foreach(var a in articles){
-                <a class="list-group-item list-group-item-action" asp-controller="Blog" asp-action="Post" asp-route-slug="@a.Slug">
-                  <div class="fw-semibold">@a.Title</div>
-                  <div class="small text-muted">@((a.PublishDateUtc ?? a.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy"))</div>
+                var aCover = a.Media.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
+                <a class="article-mini d-block text-reset text-decoration-none blog-item" data-type="article" data-text="@a.Title @a.Summary" asp-controller="Blog" asp-action="Post" asp-route-slug="@a.Slug">
+                  @if(!string.IsNullOrWhiteSpace(aCover)){
+                    <img src="@aCover" alt="@a.Title" />
+                  }
+                  <div>
+                    <div class="fw-semibold">@a.Title</div>
+                    <div class="text-muted small">@((a.PublishDateUtc ?? a.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy"))</div>
+                  </div>
                 </a>
               }
             }
@@ -114,6 +173,30 @@
           }
         </div>
       </div>
+
+      <div class="card shadow-sm mb-3 newsletter">
+        <div class="card-body">
+          <h5 class="card-title">Bültene Katýl</h5>
+          <p class="text-muted small">Yeni yazýlardan haberdar olmak için e-posta adresinizi býrakýn.</p>
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="mail@ornek.com" />
+            <button class="btn btn-primary" type="button" onclick="alert('Kayýt alýndý (örnek).')">Abone Ol</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Popüler Etiketler</h5>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="#" class="chip" data-tag="beslenme">#beslenme</a>
+            <a href="#" class="chip" data-tag="kilo">#kilo</a>
+            <a href="#" class="chip" data-tag="spor">#spor</a>
+            <a href="#" class="chip" data-tag="saðlýk">#saðlýk</a>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -131,41 +214,47 @@
 @section Scripts{
 <script>
 (function(){
+  // Lightbox
   const lb = document.getElementById('photoLightbox');
-  if(!lb) return;
-  const dialog = lb.querySelector('.lb-dialog');
-  const img = lb.querySelector('.lb-img');
-  const caption = lb.querySelector('.lb-caption');
-  let open = false;
-
-  function adjustSize(){
-    if(!open) return;
-    const vw = Math.min(window.innerWidth * 0.9, 900);
-    dialog.style.maxWidth = vw + 'px';
-    const verticalPadding = 16*2 + 20;
-    const captionH = caption.textContent ? Math.min(caption.scrollHeight, 200) : 0;
-    const maxImgH = window.innerHeight - verticalPadding - captionH - 40;
-    img.style.maxHeight = Math.max(100, maxImgH) + 'px';
-    img.style.maxWidth = vw - 32 + 'px';
+  if(lb){
+    const dialog = lb.querySelector('.lb-dialog');
+    const img = lb.querySelector('.lb-img');
+    const caption = lb.querySelector('.lb-caption');
+    let open = false;
+    function adjust(){ if(!open) return; const vw = Math.min(window.innerWidth*0.95, 900); dialog.style.maxWidth = vw+'px'; }
+    function openLb(src, text){ if(!src) return; img.src=src; caption.textContent=text||''; lb.classList.add('open'); lb.style.display='flex'; document.body.style.overflow='hidden'; open=true; adjust(); }
+    function closeLb(){ open=false; lb.classList.remove('open'); lb.style.display='none'; document.body.style.overflow=''; img.removeAttribute('src'); }
+    document.addEventListener('click', function(e){ const card = e.target.closest('.js-photo-card'); if(card){ e.preventDefault(); openLb(card.getAttribute('data-img'), card.getAttribute('data-summary')); }});
+    lb.addEventListener('click', function(e){ if(e.target === lb) closeLb(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLb(); });
+    window.addEventListener('resize', adjust);
   }
 
-  function openLightbox(src, text){
-    if(!src) return;
-    img.src = src; caption.textContent = text || '';
-    lb.classList.add('open'); lb.style.display='flex'; document.body.style.overflow='hidden';
-    open = true; setTimeout(adjustSize, 0);
+  // Search + filter
+  const search = document.getElementById('blogSearch');
+  const chips = Array.from(document.querySelectorAll('.chip[data-filter]'));
+  function applyFilter(){
+    const q = (search?.value || '').toLowerCase();
+    const active = chips.find(c=>c.classList.contains('active'))?.getAttribute('data-filter') || 'all';
+    const items = Array.from(document.querySelectorAll('.blog-item'));
+    items.forEach(el=>{
+      const text = (el.getAttribute('data-text')||'').toLowerCase();
+      const type = el.getAttribute('data-type');
+      const matchesQ = !q || text.includes(q);
+      const matchesType = active==='all' || active===type;
+      el.style.display = (matchesQ && matchesType) ? '' : 'none';
+    });
+    // toggle photo grid visibility when filtering to articles only
+    const grid = document.getElementById('photoGrid');
+    if(active==='article') grid?.classList.add('d-none'); else grid?.classList.remove('d-none');
   }
-  function closeLightbox(){
-    open = false; lb.classList.remove('open'); lb.style.display='none'; document.body.style.overflow=''; img.removeAttribute('src');
-  }
+  chips.forEach(c=>c.addEventListener('click', function(){ chips.forEach(x=>x.classList.remove('active')); this.classList.add('active'); applyFilter(); }));
+  search?.addEventListener('input', applyFilter);
 
-  document.addEventListener('click', function(e){
-    const card = e.target.closest('.js-photo-card');
-    if(card){ e.preventDefault(); openLightbox(card.getAttribute('data-img'), card.getAttribute('data-summary')); }
+  // Tag chips simply put text to search
+  document.querySelectorAll('.chip[data-tag]').forEach(tag=>{
+    tag.addEventListener('click', function(e){ e.preventDefault(); const t=this.getAttribute('data-tag')||''; const input=document.getElementById('blogSearch'); if(input){ input.value=t; input.dispatchEvent(new Event('input')); } });
   });
-  lb.addEventListener('click', function(e){ if(e.target === lb) closeLightbox(); });
-  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeLightbox(); });
-  window.addEventListener('resize', adjustSize);
 })();
 </script>
 }

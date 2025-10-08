@@ -5,18 +5,21 @@
 <style>
 .share-card{border:1px solid #e5e7eb;border-radius:14px;padding:16px;background:#fff}
 .progress-wrap{position:relative;height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden;margin-top:8px}
-.progress-bar{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#22c55e,#3b82f6);transition:width .1s ease}
+.progress-bar{position:absolute;left:0;top:0;bottom:0;width:0;background:#e91e63;transition:width .1s ease}
 .toast{position:fixed;right:16px;top:16px;background:#111827;color:#fff;padding:10px 14px;border-radius:10px;opacity:.95;display:none}
 .preview-img{max-width:100%;border-radius:10px;border:1px solid #e5e7eb}
 /* Lightbox */
 .lb{ position:fixed; inset:0; background:rgba(0,0,0,.6); display:none; align-items:center; justify-content:center; z-index:1060; }
 .lb.open{ display:flex; }
-.lb-dialog{ position:relative; background:#fff; border-radius:14px; max-width:min(900px,95vw); max-height:90vh; width:auto; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,.25); display:flex; flex-direction:column; }
-.lb-body{ padding:16px; display:flex; flex-direction:column; align-items:center; overflow:auto; }
-.lb-img{ width:auto; height:auto; max-width:calc(95vw - 48px); max-height:calc(85vh - 80px); object-fit:contain; display:block; border-radius:10px; }
-.lb-title{ font-weight:600; margin:10px 0 6px; align-self:flex-start; }
-.lb-text{ color:#374151; white-space:pre-wrap; max-width:calc(95vw - 48px); }
+.lb-dialog{ position:relative; background:#fff; border-radius:14px; max-width:min(900px,95vw); max-height:90vh; width:auto; overflow:hidden; box-shadow:0 10px 40px rgba(0,0,0,.25); }
+.lb-body{ padding:16px; display:flex; flex-direction:column; align-items:center; }
+.lb-img{ width:auto; height:auto; max-width:90vw; border-radius:10px; }
+.lb-title{ font-weight:600; margin-bottom:6px; }
+.lb-text{ color:#374151; white-space:pre-wrap; max-width:85vw; }
 .lb-close{ position:absolute; top:8px; right:10px; border:0; background:transparent; font-size:22px; line-height:1; }
+.badge { background:#e91e63; }
+.btn-primary{ background:#e91e63; border-color:#e91e63 }
+.btn-primary:hover{ background:#c2185b; border-color:#c2185b }
 </style>
 <div class="container py-4">
   <h1 class="h4 fw-bold mb-3">Blog Paylaş</h1>
@@ -63,7 +66,7 @@
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center">
               <div class="small text-muted">@((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy HH:mm"))</div>
-              <span class="badge @(isPhoto ? "bg-info" : "bg-secondary")">@(isPhoto ? "Görsel" : "Makale")</span>
+              <span class="badge">@(isPhoto ? "Görsel" : "Makale")</span>
             </div>
             @if(!string.IsNullOrEmpty(p.Title)){
               <div class="fw-semibold mb-1">@p.Title</div>

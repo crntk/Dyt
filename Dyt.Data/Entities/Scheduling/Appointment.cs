@@ -33,5 +33,7 @@ namespace Dyt.Data.Entities.Scheduling // Randevu ve zamanlama varlıkları içi
         public bool TwoHourNoResponseAlertShown { get; set; } // 2 saat kala yanıt yok uyarısı gösterildi mi
 
         public string? Notes { get; set; } // Diyetisyenin randevuya özel notu (opsiyonel)
+
+        public string Channel { get; set; } = string.Empty; // Online | Yüzyüze
     }
 }

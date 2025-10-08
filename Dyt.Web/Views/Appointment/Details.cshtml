@@ -24,6 +24,9 @@
         <dt>Bitiş</dt>
         <dd>@Model.EndTime.ToString("HH\\:mm")</dd>
 
+        <dt>Görüşme Türü</dt>
+        <dd>@(string.IsNullOrWhiteSpace(Model.Channel) ? "—" : Model.Channel)</dd>
+
         <dt>Danışan</dt>
         <dd>@Model.ClientName</dd>
 

@@ -25,5 +25,9 @@ namespace Dyt.Web.ViewModels // Web katmanına özgü ViewModel'ler için ad ala
 
         [StringLength(250)] // Not alanına üst sınır koyuyorum
         public string? Note { get; set; } // Opsiyonel not bilgisini tutuyorum
+
+        [Required(ErrorMessage = "Lütfen görüşme türünü seçiniz (Online / Yüzyüze)")] // Görüşme türü zorunlu
+        [RegularExpression("^(Online|Yüzyüze)$", ErrorMessage = "Geçerli bir görüşme türü seçiniz.")]
+        public string Channel { get; set; } = string.Empty; // Online veya Yüzyüze
     }
 }

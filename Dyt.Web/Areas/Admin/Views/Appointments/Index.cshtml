@@ -72,6 +72,7 @@
                     <th>Tarih</th>
                     <th>Gün</th>
                     <th>Saat</th>
+                    <th>Tür</th>
                     <th>Danışan</th>
                     <th>Telefon</th>
                     <th>Durum</th>
@@ -82,7 +83,7 @@
             <tbody>
                 @if (Model.Items.Count == 0)
                 {
-                    <tr><td colspan="8" class="text-center">Kayıt bulunamadı.</td></tr>
+                    <tr><td colspan="9" class="text-center">Kayıt bulunamadı.</td></tr>
                 }
                 else
                 {
@@ -96,6 +97,12 @@
                             <td>@a.Date.ToString("dd.MM.yyyy")</td>
                             <td>@tr.DateTimeFormat.GetDayName((System.DayOfWeek)a.Date.DayOfWeek)</td>
                             <td>@a.StartTime.ToString("HH\\:mm") - @a.EndTime.ToString("HH\\:mm")</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(a.Channel))
+                                {
+                                    <span class="badge bg-secondary">@a.Channel</span>
+                                }
+                            </td>
                             <td>@a.ClientName</td>
                             <td>@a.ClientPhone</td>
                             <td>

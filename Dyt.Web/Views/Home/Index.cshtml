@@ -5,16 +5,22 @@
 }
 <style>
   /* Section backgrounds */
-  .hero-gradient{background:radial-gradient(1200px 500px at 20% -10%, rgba(233,30,99,.25), transparent),radial-gradient(1000px 400px at 90% -10%, rgba(111,66,193,.25), transparent);}
+  .hero-gradient{background:radial-gradient(1200px 500px at 20% -10%, rgba(233,30,99,.25), transparent),radial-gradient(1000px 400px at 90% -10%, rgba(255,255,255,.25), transparent);} 
   .section{padding:64px 0}
   .glass{background: rgba(255,255,255,.65); backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,.6); border-radius:18px;}
-  .avatar{width:140px;height:140px;border-radius:50%;object-fit:cover;box-shadow:0 10px 30px rgba(0,0,0,.12);}
+  .avatar{width:140px;height:140px;border-radius:50%;object-fit:cover;box-shadow:0 10px 30px rgba(0,0,0,.12);} 
   .timeline{position:relative;padding-left:26px}
-  .timeline:before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#e91e63,#6f42c1)}
+  .timeline:before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,#e91e63,#ffffff)}
   .timeline-item{position:relative;margin-bottom:24px}
-  .timeline-item:before{content:"";position:absolute;left:-18px;top:4px;width:12px;height:12px;border-radius:50%;background:#e91e63;box-shadow:0 0 0 3px rgba(233,30,99,.2)}
+  .timeline-item:before{content:"";position:absolute;left:-18px;top=4px;width:12px;height:12px;border-radius:50%;background:#e91e63;box-shadow:0 0 0 3px rgba(233,30,99,.2)}
   .cert-card{border-radius:16px;border:1px solid #eee;box-shadow:0 10px 30px rgba(0,0,0,.06)}
-  .cert-badge{background:linear-gradient(90deg,#e91e63,#6f42c1);color:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600}
+  .cert-badge{background:linear-gradient(90deg,#e91e63,#ff7aa5);color:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600}
+  /* New */
+  .icon-lg{width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e91e63,#ff9fbd);color:#fff;box-shadow:0 8px 20px rgba(233,30,99,.25)}
+  .stats-card{border-radius:16px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.06);padding:18px}
+  .service-card{border-radius:16px;border:1px solid #eee;background:#fff;transition:transform .15s ease, box-shadow .15s ease}
+  .service-card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.08)}
+  .cta{background:linear-gradient(90deg, rgba(233,30,99,.15), rgba(255,255,255,.15)); border:1px dashed rgba(233,30,99,.35); border-radius:18px}
 </style>
 
 <!-- Hero -->
@@ -39,6 +45,37 @@
               <li>Sporcu beslenmesi</li>
               <li>Metabolik hastalıklarda beslenme</li>
             </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hızlı İstatistikler -->
+    <div class="row g-3 mt-4">
+      <div class="col-md-4">
+        <div class="stats-card d-flex align-items-center gap-3">
+          <div class="icon-lg">🏆</div>
+          <div>
+            <div class="h4 mb-0">+300</div>
+            <div class="text-muted small">Mutlu danışan</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stats-card d-flex align-items-center gap-3">
+          <div class="icon-lg">📈</div>
+          <div>
+            <div class="h4 mb-0">%92</div>
+            <div class="text-muted small">Hedefe ulaşma oranı</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="stats-card d-flex align-items-center gap-3">
+          <div class="icon-lg">⏱️</div>
+          <div>
+            <div class="h4 mb-0">30-60 dk</div>
+            <div class="text-muted small">Esnek seans seçenekleri</div>
           </div>
         </div>
       </div>
@@ -83,8 +120,62 @@
   </div>
 </section>
 
-<!-- Sertifikalar -->
+<!-- Hizmetlerim -->
 <section class="section" style="background:#fff;">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h2 class="h3 fw-bold mb-0">Hizmetlerim</h2>
+      <a class="btn btn-sm btn-outline-secondary" asp-controller="Appointment" asp-action="Create">Ön Görüşme Planla</a>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="service-card p-4 h-100">
+          <div class="icon-lg mb-2">🍽️</div>
+          <div class="fw-semibold mb-1">Kilo Yönetimi</div>
+          <div class="text-muted small">Kişiye özel kalori ve makro dağılımı ile sürdürülebilir kilo kaybı.</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="service-card p-4 h-100">
+          <div class="icon-lg mb-2">🏃‍♀️</div>
+          <div class="fw-semibold mb-1">Sporcu Beslenmesi</div>
+          <div class="text-muted small">Performans hedeflerine göre peri-yemek planlaması.</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="service-card p-4 h-100">
+          <div class="icon-lg mb-2">🩺</div>
+          <div class="fw-semibold mb-1">Klinik Beslenme</div>
+          <div class="text-muted small">DM, HT, hiperlipidemi gibi durumlarda kanıta dayalı protokoller.</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="service-card p-4 h-100">
+          <div class="icon-lg mb-2">👨‍👩‍👧‍👦</div>
+          <div class="fw-semibold mb-1">Aile/Çocuk Beslenmesi</div>
+          <div class="text-muted small">Çocuk ve ergenlerde büyüme odaklı planlama.</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="service-card p-4 h-100">
+          <div class="icon-lg mb-2">🥗</div>
+          <div class="fw-semibold mb-1">Kurumsal Programlar</div>
+          <div class="text-muted small">Ofis wellness ve toplu beslenme danışmanlığı.</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="service-card p-4 h-100">
+          <div class="icon-lg mb-2">💬</div>
+          <div class="fw-semibold mb-1">Online Danışmanlık</div>
+          <div class="text-muted small">Evden çıkmadan görüntülü görüşme ve takip.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Sertifikalar -->
+<section class="section" style="background:#fdf7fb;">
   <div class="container">
     <div class="d-flex align-items-center justify-content-between mb-3">
       <h2 class="h3 fw-bold mb-0">Sertifikalarım</h2>
@@ -112,6 +203,77 @@
           <p class="mb-0">Sürdürülebilir alışkanlık geliştirme yaklaşımları.</p>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- Danışan Yorumları -->
+<section class="section">
+  <div class="container">
+    <h2 class="h3 fw-bold mb-3">Danışan Yorumları</h2>
+    <div id="testiCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <div class="glass p-4">
+            <p class="mb-2">“3 ayda 8 kilo verdim ve enerji seviyem arttı. Planlar çok uygulanabilir ve esnek.”</p>
+            <div class="text-muted small">— A. K.</div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="glass p-4">
+            <p class="mb-2">“Sporcu beslenmesi programı ile rekorumu geliştirdim. Her ayrıntı düşünülmüş.”</p>
+            <div class="text-muted small">— B. D.</div>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <div class="glass p-4">
+            <p class="mb-2">“Online takip çok pratik. Haftalık geri bildirimlerle motivasyon kaybolmuyor.”</p>
+            <div class="text-muted small">— C. Y.</div>
+          </div>
+        </div>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#testiCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Önceki</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#testiCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Sonraki</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- SSS -->
+<section class="section" style="background:#fff;">
+  <div class="container">
+    <h2 class="h3 fw-bold mb-3">Sık Sorulan Sorular</h2>
+    <div class="accordion" id="faq">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="q1"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#a1">Seanslar nasıl ilerliyor?</button></h2>
+        <div id="a1" class="accordion-collapse collapse show" data-bs-parent="#faq"><div class="accordion-body">İlk görüşmede hedef belirliyoruz, haftalık/iki haftalık takipler ile ilerliyoruz.</div></div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="q2"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2">Online hizmet veriyor musunuz?</button></h2>
+        <div id="a2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">Evet, görüntülü görüşme ve mesajlaşma ile düzenli takip yapıyorum.</div></div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="q3"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3">Ödeme ve iptal koşulları?</button></h2>
+        <div id="a3" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">Ödemeler seans öncesi alınır; 24 saat önce haber verilirse ücretsiz erteleme yapılır.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section">
+  <div class="container">
+    <div class="cta p-4 p-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between">
+      <div class="mb-3 mb-md-0">
+        <div class="h3 fw-bold mb-1">Hedeflerinizi birlikte planlayalım</div>
+        <div class="text-muted">Ücretsiz ön görüşme randevunuzu hemen oluşturun.</div>
+      </div>
+      <a class="btn btn-lg btn-primary" asp-controller="Appointment" asp-action="Create">Randevu Al</a>
     </div>
   </div>
 </section>

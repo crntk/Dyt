@@ -3,7 +3,7 @@ using Dyt.Contracts.Appointments.Requests;                 // Business'a gidecek
 using Dyt.Web.ViewModels;                                  // UI ViewModel'ini kullanmak için ekliyorum
 using Microsoft.AspNetCore.Mvc;                            // MVC altyapısı için ekliyorum
 
-namespace Dyt.Web.Controllers                               // Web katmanı controller'ları için ad alanını belirliyorum
+namespace Dyt.Web.Controllers                               // Web katmanı controller'ları için ad alanını belirtiyorum
 {
     /// <summary>
     /// Kamuya açık randevu uçlarını barındıran controller.
@@ -54,7 +54,8 @@ namespace Dyt.Web.Controllers                               // Web katmanı cont
                 ClientName = vm.ClientName.Trim(), // Adı kırpıp set ediyorum
                 ClientPhone = vm.ClientPhone.Trim(), // Telefonu kırpıp set ediyorum
                 ClientEmail = string.IsNullOrWhiteSpace(vm.ClientEmail) ? null : vm.ClientEmail.Trim(), // E-posta boşsa null, değilse kırpıp set ediyorum
-                Note = string.IsNullOrWhiteSpace(vm.Note) ? null : vm.Note.Trim() // Not için de aynı işlemi yapıyorum
+                Note = string.IsNullOrWhiteSpace(vm.Note) ? null : vm.Note.Trim(), // Not için de aynı işlemi yapıyorum
+                Channel = vm.Channel
             };
 
             var created = await _appointments.CreateAsync(dto, ct); // Randevu oluşturmayı Business servisine delege ediyorum

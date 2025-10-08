@@ -15,6 +15,7 @@ namespace Dyt.Contracts.Appointments.Requests
         public string ClientPhone { get; set; } = string.Empty;
         public string? ClientEmail { get; set; }
         public string? Note { get; set; }
+        public string Channel { get; set; } = string.Empty; // Online | Yüzyüze
     }
 }
 
