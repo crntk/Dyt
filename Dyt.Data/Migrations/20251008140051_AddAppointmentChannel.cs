@@ -11,6 +11,12 @@ namespace Dyt.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Ensure Channel column exists on Appointments (older DBs won't have it)
+            migrationBuilder.Sql(@"IF COL_LENGTH('Appointments','Channel') IS NULL 
+ALTER TABLE [Appointments] ADD [Channel] nvarchar(max) NOT NULL CONSTRAINT DF_Appointments_Channel DEFAULT('');
+IF COL_LENGTH('Appointments','Channel') IS NOT NULL 
+    ALTER TABLE [Appointments] DROP CONSTRAINT DF_Appointments_Channel;", suppressTransaction: false);
+
             migrationBuilder.DropTable(
                 name: "WorkingHourTemplates");
 
@@ -27,6 +33,7 @@ namespace Dyt.Data.Migrations
                 table: "SmsTemplate",
                 newName: "IX_SmsTemplate_TemplateKey");
 
+            // Keep column as nvarchar(max); if it already existed with nvarchar(20), widen it
             migrationBuilder.AlterColumn<string>(
                 name: "Channel",
                 table: "Appointments",
@@ -58,14 +65,11 @@ namespace Dyt.Data.Migrations
                 table: "SmsTemplates",
                 newName: "IX_SmsTemplates_TemplateKey");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Channel",
-                table: "Appointments",
-                type: "nvarchar(20)",
-                maxLength: 20,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
+            // If you actually revert, try to narrow type back. If column doesn't exist, skip via raw SQL.
+            migrationBuilder.Sql(@"IF COL_LENGTH('Appointments','Channel') IS NOT NULL 
+BEGIN
+    ALTER TABLE [Appointments] ALTER COLUMN [Channel] nvarchar(20) NOT NULL;
+END");
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_SmsTemplates",
