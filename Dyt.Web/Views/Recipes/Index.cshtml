@@ -1,0 +1,59 @@
+@model IEnumerable<Dyt.Web.Controllers.RecipesController.RecipeVm>
+@{
+    ViewData["Title"] = "Tarifler";
+}
+<style>
+  .recipes-hero{background:radial-gradient(1200px 480px at 10% -10%, rgba(233,30,99,.18), transparent),radial-gradient(900px 360px at 90% -10%, rgba(255,255,255,.25), transparent);padding:48px 0 36px}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+  .rcard{position:relative;grid-column:span 6;border-radius:16px;background:#fff;overflow:hidden;border:1px solid #eee;box-shadow:0 14px 40px rgba(0,0,0,.08);transition:transform .18s ease, box-shadow .18s ease}
+  .rcard:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.12)}
+  .rcard .cover{height:180px;background:linear-gradient(135deg,#ffe4ec,#fff)}
+  .rcard .body{padding:16px}
+  .tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(233,30,99,.08);border:1px solid rgba(233,30,99,.25);color:#e91e63;font-weight:600;font-size:12px}
+  .badge-pill{border-radius:999px;padding:4px 10px;font-size:12px;background:#f3f4f6}
+  .steps{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+  .steps li{background:#fafafa;border:1px solid #eee;border-radius:10px;padding:8px;list-style:none}
+  .ingredients{display:flex;flex-wrap:wrap;gap:8px}
+  .ingredients .badge-pill{background:rgba(233,30,99,.08);border:1px solid rgba(233,30,99,.2);color:#e91e63}
+</style>
+<style>
+@* keep separate style block to escape Razor *@
+@@media (max-width: 992px){ .rcard{grid-column:span 12} .steps{grid-template-columns:1fr} }
+</style>
+
+<div class="recipes-hero">
+  <div class="container">
+    <h1 class="display-5 fw-bold mb-2">Tarifler</h1>
+    <p class="lead mb-0">Pratik, dengeli ve lezzetli tarifler.</p>
+  </div>
+</div>
+
+<div class="container py-4">
+  <div class="grid">
+    @foreach(var r in Model){
+      <article class="rcard">
+        <div class="cover" aria-hidden="true"></div>
+        <div class="body">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <h3 class="h5 mb-0">@r.Title</h3>
+            <span class="badge-pill">@r.PrepTime</span>
+          </div>
+          <div class="text-muted mb-2">@r.Summary</div>
+          <div class="d-flex gap-2 mb-2">
+            <span class="badge-pill">@r.Calories</span>
+            <span class="badge-pill">@r.Difficulty</span>
+          </div>
+          <div class="mb-2">
+            @foreach(var t in r.Tags){ <span class="tag me-1">#@t</span> }
+          </div>
+          <div class="ingredients mb-2">
+            @foreach(var ing in r.Ingredients){ <span class="badge-pill">@ing</span> }
+          </div>
+          <ol class="steps mb-0">
+            @foreach(var s in r.Steps){ <li>@s</li> }
+          </ol>
+        </div>
+      </article>
+    }
+  </div>
+</div>

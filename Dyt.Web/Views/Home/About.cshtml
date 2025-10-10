@@ -1,0 +1,73 @@
+@{
+    ViewData["Title"] = "Hakkýmda";
+}
+<style>
+  .about-hero{background:radial-gradient(1200px 480px at 10% -10%, rgba(233,30,99,.18), transparent),radial-gradient(900px 360px at 90% -10%, rgba(255,255,255,.25), transparent);padding:48px 0 36px}
+  .about-card{border-radius:16px;border:1px solid #eee;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.06)}
+  .timeline{position:relative; --pad:64px; --line-x:28px; --dot:16px; padding-left:var(--pad)}
+  .timeline:before{content:"";position:absolute;left:var(--line-x);top:0;bottom:0;width:2px;background:linear-gradient(180deg, rgba(233,30,99,.35), rgba(233,30,99,.12));}
+  .timeline-item{position:relative;margin:0 0 26px;min-height:34px}
+  .timeline-item:before{content:"";position:absolute;left:calc(var(--line-x) - var(--pad) - (var(--dot) / 2));top:8px;width:var(--dot);height:var(--dot);border-radius:50%;background:#e91e63;border:2px solid #fff;box-shadow:0 0 0 6px rgba(233,30,99,.18)}
+  .skill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eee;border-radius:999px;margin:4px;background:#fff}
+</style>
+
+<div class="about-hero">
+  <div class="container">
+    <h1 class="display-5 fw-bold mb-3">Hakkýmda</h1>
+    <p class="lead mb-0">Bilimsel yaklaþým, kiþiye özel planlar ve sürdürülebilir alýþkanlýklar.</p>
+  </div>
+</div>
+
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="about-card p-4 h-100">
+        <h2 class="h4 fw-bold mb-3">Ben Kimim?</h2>
+        <p>Beslenme ve diyetetik alanýnda eðitimimi tamamladýktan sonra klinik ve bireysel danýþmanlýkta deneyim kazandým. Her danýþanýmýn yaþam tarzýna uygun, sürdürülebilir planlar oluþturmayý hedefliyorum.</p>
+        <p>Yaklaþýmým kanýta dayalýdýr; kýsa vadeli sonuçlardan çok uzun vadeli alýþkanlýk deðiþimini hedefler.</p>
+        <div class="mt-3">
+          <div class="fw-semibold mb-2">Uzmanlýklar</div>
+          <div>
+            <span class="skill">Kilo Yönetimi</span>
+            <span class="skill">Sporcu Beslenmesi</span>
+            <span class="skill">Metabolik Hastalýklar</span>
+            <span class="skill">Kurumsal Programlar</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-7">
+      <div class="about-card p-4 h-100">
+        <h2 class="h4 fw-bold mb-3">Özgeçmiþ</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="fw-semibold">Diyetisyen – Özel Klinik</div>
+            <div class="text-muted small">2022 - Günümüz</div>
+            <p class="mb-2">Bireysel beslenme danýþmanlýðý, sporcu ve kurumsal programlar.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="fw-semibold">Beslenme ve Diyetetik – Lisans</div>
+            <div class="text-muted small">2018 - 2022</div>
+            <p class="mb-2">Araþtýrma projeleri ve saha çalýþmalarý.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="fw-semibold">Staj – Hastane</div>
+            <div class="text-muted small">2021</div>
+            <p class="mb-0">Klinik beslenme, menü planlama, hasta takibi.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-card p-4 mt-4">
+    <h2 class="h4 fw-bold mb-3">Yaklaþým ve Felsefe</h2>
+    <p>Danýþan odaklý ve esnek planlama: bireyin sosyal yaþamý, çalýþma düzeni ve sevdiði yiyecekler dikkate alýnarak planlar oluþturulur. Haftalýk/iki haftalýk takiplerle ilerleme deðerlendirilir.</p>
+    <ul>
+      <li>Kýsa ve uzun vadeli hedef belirleme</li>
+      <li>Vücut kompozisyonu takibi</li>
+      <li>Davranýþsal beslenme teknikleri</li>
+      <li>Kan bulgularýna göre kiþiselleþtirme</li>
+    </ul>
+  </div>
+</div>

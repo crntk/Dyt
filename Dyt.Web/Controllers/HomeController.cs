@@ -32,6 +32,15 @@ namespace Dyt.Web.Controllers
         }
 
         /// <summary>
+        /// Hakkýmda sayfasý
+        /// </summary>
+        [HttpGet]
+        public IActionResult About()
+        {
+            return View();
+        }
+
+        /// <summary>
         /// Gizlilik sayfasýný gösterir (þimdilik þablon).
         /// </summary>
         public IActionResult Privacy() // GET /Home/Privacy action'ýný tanýmlýyorum

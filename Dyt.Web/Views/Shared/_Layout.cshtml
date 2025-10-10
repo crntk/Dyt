@@ -59,6 +59,8 @@
                         @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {
                             <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Anasayfa</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">Hakkımda</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Recipes" asp-action="Index">Tarifler</a></li>
                             <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a></li>
                             <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="BlogAdmin" asp-action="Index">Blog Paylaş</a></li>
                             <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Appointments" asp-action="Index">Randevularım</a></li>
@@ -67,7 +69,7 @@
                                 @await Component.InvokeAsync("AdminNotifications")
                             </li>
                             <li class="nav-item ms-2">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="btn btn-sm btn-light">Çıkış</button>
                                 </form>
@@ -76,6 +78,8 @@
                         else
                         {
                             <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Anasayfa</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">Hakkımda</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Recipes" asp-action="Index">Tarifler</a></li>
                             <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a></li>
                             <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="Create">Randevu Al</a></li>
                             <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Contact" asp-action="Index">İletişim</a></li>

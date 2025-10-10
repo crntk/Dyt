@@ -129,6 +129,10 @@
   .deck-nav.next{right:calc(50% - 380px)}
   @@media (max-width: 992px){ .deck-nav.prev{left:8px} .deck-nav.next{right:8px} }
   @@media (max-width: 576px){ .deck-nav{display:none} }
+  /* Recipe teaser cards */
+  .recipe-card{border-radius:16px; overflow:hidden}
+  .recipe-card.border-glow{border-radius:16px}
+  .recipe-cover{display:block;width:100%;height:140px;border-top-left-radius:inherit;border-top-right-radius:inherit}
 </style>
 
 <div id="scrollProgress" aria-hidden="true"></div>
@@ -188,6 +192,9 @@
           <h2 class="h3 fw-bold mb-3">Ben Kimim?</h2>
           <p class="mb-3">Beslenme ve diyetetik alanında eğitimimi tamamladıktan sonra klinik ve bireysel danışmanlıkta deneyim kazandım. Her danışanımın yaşam tarzına uygun, sürdürülebilir planlar oluşturmayı hedefliyorum.</p>
           <p class="mb-0">Amaç: kısa vadeli sonuçlar değil; uzun vadeli sağlıklı alışkanlıklar.</p>
+          <div class="mt-3">
+            <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="About">Daha Fazla</a>
+          </div>
         </div>
       </div>
       <div class="col-lg-7" data-animate>
@@ -333,7 +340,58 @@
   </div>
 </section>
 
-<!-- NEW: Collage of latest posts -->
+<!-- NEW: Recipes teaser on homepage -->
+<section class="section" style="background:#fff;">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-3" data-animate>
+      <h2 class="h3 fw-bold mb-0">Tarifler</h2>
+      <a class="btn btn-sm btn-outline-secondary" asp-controller="Recipes" asp-action="Index">Tüm Tarifler</a>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4" data-animate>
+        <div class="card shadow-sm border-glow recipe-card h-100">
+          <div class="recipe-cover" style="background:linear-gradient(135deg,#ffe4ec,#fff)" aria-hidden="true"></div>
+          <div class="card-body d-flex flex-column">
+            <div class="fw-semibold mb-1">Yulaflı Meyveli Kahvaltı Kasesi</div>
+            <div class="text-muted small mb-2">10 dk • 320 kcal • Kolay</div>
+            <p class="small text-muted mb-3">Lif zengini, hızlı ve doyurucu kahvaltı.</p>
+            <div class="mt-auto">
+              <a class="btn btn-sm btn-outline-secondary" asp-controller="Recipes" asp-action="Index">Daha Fazla</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4" data-animate>
+        <div class="card shadow-sm border-glow recipe-card h-100">
+          <div class="recipe-cover" style="background:linear-gradient(135deg,#ffd7e5,#fff)" aria-hidden="true"></div>
+          <div class="card-body d-flex flex-column">
+            <div class="fw-semibold mb-1">Izgara Tavuklu Fit Salata</div>
+            <div class="text-muted small mb-2">15 dk • 380 kcal • Kolay</div>
+            <p class="small text-muted mb-3">Protein dengeli, pratik öğle yemeği.</p>
+            <div class="mt-auto">
+              <a class="btn btn-sm btn-outline-secondary" asp-controller="Recipes" asp-action="Index">Daha Fazla</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4" data-animate>
+        <div class="card shadow-sm border-glow recipe-card h-100">
+          <div class="recipe-cover" style="background:linear-gradient(135deg,#ffeef5,#fff)" aria-hidden="true"></div>
+          <div class="card-body d-flex flex-column">
+            <div class="fw-semibold mb-1">Fırında Sebzeli Somon</div>
+            <div class="text-muted small mb-2">20 dk • 420 kcal • Orta</div>
+            <p class="small text-muted mb-3">Omega-3 kaynağı, akşam yemeği.</p>
+            <div class="mt-auto">
+              <a class="btn btn-sm btn-outline-secondary" asp-controller="Recipes" asp-action="Index">Daha Fazla</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEW: collage grid -->
 <section class="section" style="background:#fef2f7;">
   <div class="container">
     <div class="d-flex align-items-center justify-content-between mb-3" data-animate>
