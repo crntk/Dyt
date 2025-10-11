@@ -72,7 +72,7 @@
   .border-glow{position:relative;border:1px solid transparent;background:
       linear-gradient(#fff,#fff) padding-box,
       linear-gradient(135deg, rgba(233,30,99,.6), rgba(255,143,177,.6)) border-box;box-shadow:0 6px 24px rgba(233,30,99,.12)}
-  .border-glow:after{content:"";position:absolute;inset:-2px;border-radius:inherit;background:radial-gradient(600px 120px at var(--x,50%) var(--y,50%), rgba(233,30,99,.25), transparent 60%);opacity:.6;transition:opacity .3s ease}
+  .border-glow:after{content:"";position:absolute;inset:-2px;border-radius:inherit;background:radial-gradient(600px 120px at var(--x,50%) var(--y,50%), rgba(233,30,99,.25), transparent 60%);opacity:.6;transition:opacity .3s ease;pointer-events:none}
   .border-glow:hover:after{opacity:.9}
 
   .btn-bling{position:relative;overflow:hidden}
@@ -356,7 +356,13 @@
             <div class="text-muted small mb-2">10 dk • 320 kcal • Kolay</div>
             <p class="small text-muted mb-3">Lif zengini, hızlı ve doyurucu kahvaltı.</p>
             <div class="mt-auto">
-              <a class="btn btn-sm btn-outline-secondary" asp-controller="Recipes" asp-action="Index">Daha Fazla</a>
+              <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
+                 data-title="Yulaflı Meyveli Kahvaltı Kasesi"
+                 data-prep="10 dk" data-cal="320 kcal" data-diff="Kolay"
+                 data-summary="Lif zengini, hızlı ve doyurucu kahvaltı."
+                 data-tags="kahvaltı|lif|vegan"
+                 data-ingredients="1/2 su bardağı yulaf|1/2 su bardağı süt/yoğurt|1/2 muz|Çilek/ yaban mersini|1 yk ceviz|Tarçın veya bal"
+                 data-steps="Yulafı süt/yoğurtla karıştırın.|Üzerine meyve ve kuruyemiş ekleyin.|Bal veya tarçın ile tatlandırın.">Daha Fazla</a>
             </div>
           </div>
         </div>
@@ -369,7 +375,13 @@
             <div class="text-muted small mb-2">15 dk • 380 kcal • Kolay</div>
             <p class="small text-muted mb-3">Protein dengeli, pratik öğle yemeği.</p>
             <div class="mt-auto">
-              <a class="btn btn-sm btn-outline-secondary" asp-controller="Recipes" asp-action="Index">Daha Fazla</a>
+              <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
+                 data-title="Izgara Tavuklu Fit Salata"
+                 data-prep="15 dk" data-cal="380 kcal" data-diff="Kolay"
+                 data-summary="Protein dengeli, pratik öğle yemeği."
+                 data-tags="öğle|protein|glutensiz"
+                 data-ingredients="120 g tavuk göğüs|Karışık yeşillik|Cherry domates|1/2 avokado|1 yk zeytinyağı|1/2 limon"
+                 data-steps="Tavuğu zeytinyağı ve baharatla marine edin.|Izgarada pişirin ve dilimleyin.|Yeşilliklerle karıştırıp soslayın.">Daha Fazla</a>
             </div>
           </div>
         </div>
@@ -382,7 +394,13 @@
             <div class="text-muted small mb-2">20 dk • 420 kcal • Orta</div>
             <p class="small text-muted mb-3">Omega-3 kaynağı, akşam yemeği.</p>
             <div class="mt-auto">
-              <a class="btn btn-sm btn-outline-secondary" asp-controller="Recipes" asp-action="Index">Daha Fazla</a>
+              <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
+                 data-title="Fırında Sebzeli Somon"
+                 data-prep="20 dk" data-cal="420 kcal" data-diff="Orta"
+                 data-summary="Omega-3 kaynağı, akşam yemeği."
+                 data-tags="akşam|omega-3|düşük-karbonhidrat"
+                 data-ingredients="1 dilim somon|Brokoli, havuç, kabak|1 yk zeytinyağı|Limon, tuz, karabiber"
+                 data-steps="Somonu limon ve baharatla ovun.|Sebzeleri doğrayıp tepsiye dizin.|200°C fırında 15-18 dk pişirin.">Daha Fazla</a>
             </div>
           </div>
         </div>
@@ -535,6 +553,103 @@
     next?.addEventListener('click',()=>{ i=mod(i+1, slides.length); render(); });
     deck.addEventListener('keydown',(e)=>{ if(e.key==='ArrowLeft'){ prev?.click(); } else if(e.key==='ArrowRight'){ next?.click(); }});
     render();
+  })();
+
+  // Recipe popup (homepage)
+  (function(){
+    // Inject lightbox markup once
+    const tpl = `
+    <div class="lb-recipes" id="recipeLb" aria-hidden="true">
+      <div class="lb-backdrop"></div>
+      <div class="lb-dialog" role="dialog" aria-modal="true">
+        <button class="lb-close" aria-label="Kapat">×</button>
+        <div class="lb-header">
+          <div class="lb-title"></div>
+          <div class="lb-meta"></div>
+        </div>
+        <div class="lb-body">
+          <p class="lb-summary"></p>
+          <div class="lb-tags"></div>
+          <h6>Malzemeler</h6>
+          <div class="lb-ings"></div>
+          <h6 class="mt-3">Adımlar</h6>
+          <ol class="lb-steps"></ol>
+          <div class="mt-3 text-end">
+            <a class="btn btn-sm btn-primary" href="/Recipes">Tüm Tarifler</a>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+    if(!document.getElementById('recipeLb')){
+      const wrap=document.createElement('div');
+      wrap.innerHTML=tpl; document.body.appendChild(wrap.firstElementChild);
+    }
+
+    // Styles for popup
+    const style = document.createElement('style');
+    style.textContent = `
+    .lb-recipes{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:1055}
+    .lb-recipes.open{display:flex}
+    .lb-recipes .lb-backdrop{position:absolute;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(4px);opacity:0;animation:lbFade .25s ease forwards}
+    .lb-dialog{position:relative;max-width:min(900px,94vw);width:100%;max-height:88vh;overflow:hidden;border-radius:18px;background:#fff;border:1px solid rgba(233,30,99,.25);box-shadow:0 30px 80px rgba(0,0,0,.35);transform:translateY(12px) scale(.98);opacity:.0;animation:lbIn .28s ease forwards}
+    .lb-header{padding:14px 18px 8px;background:linear-gradient(90deg, rgba(233,30,99,.10), rgba(255,255,255,.10));border-bottom:1px solid #f1f5f9}
+    .lb-title{font-size:20px;font-weight:800}
+    .lb-meta{font-size:12px;color:#6b7280}
+    .lb-body{padding:16px;overflow:auto;max-height:calc(88vh - 70px)}
+    .lb-tags{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
+    .lb-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(233,30,99,.08);border:1px solid rgba(233,30,99,.25);color:#e91e63;font-weight:600;font-size:12px}
+    .lb-ings{display:flex;flex-wrap:wrap;gap:8px}
+    .lb-ings .chip{border-radius:10px;border:1px solid #eee;background:#fafafa;padding:6px 10px;font-size:12px}
+    .lb-steps{margin:0;padding-left:18px}
+    .lb-close{position:absolute;right:10px;top:8px;width:34px;height:34px;border-radius:50%;border:0;background:#111827;color:#fff;opacity:.9}
+    .lb-close:hover{opacity:1}
+    @@keyframes lbIn{to{opacity:1;transform:translateY(0) scale(1)}}
+    @@keyframes lbFade{to{opacity:1}}
+    `;
+    if(!document.getElementById('recipeLbStyles')){ style.id='recipeLbStyles'; document.head.appendChild(style); }
+
+    const box = document.getElementById('recipeLb');
+    const title = box.querySelector('.lb-title');
+    const meta = box.querySelector('.lb-meta');
+    const summary = box.querySelector('.lb-summary');
+    const tags = box.querySelector('.lb-tags');
+    const ings = box.querySelector('.lb-ings');
+    const steps = box.querySelector('.lb-steps');
+
+    function open(data){
+      title.textContent = data.title;
+      meta.textContent = `${data.prep} • ${data.cal} • ${data.diff}`;
+      summary.textContent = data.summary || '';
+      tags.innerHTML = (data.tags||[]).map(t=>`<span class="lb-tag">#${t}</span>`).join('');
+      ings.innerHTML = (data.ingredients||[]).map(i=>`<span class="chip">${i}</span>`).join('');
+      steps.innerHTML = (data.steps||[]).map(s=>`<li>${s}</li>`).join('');
+      box.classList.add('open');
+      document.body.style.overflow='hidden';
+    }
+    function close(){ box.classList.remove('open'); document.body.style.overflow=''; }
+
+    box.addEventListener('click', (e)=>{ if(e.target===box || e.target.classList.contains('lb-backdrop')) close(); });
+    box.querySelector('.lb-close').addEventListener('click', close);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+
+    document.querySelectorAll('.js-recipe-open').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        const el = e.currentTarget;
+        const toArr=(s)=> (s||'').split('|').map(x=>x.trim()).filter(Boolean);
+        open({
+          title: el.getAttribute('data-title')||'',
+          prep: el.getAttribute('data-prep')||'',
+          cal: el.getAttribute('data-cal')||'',
+          diff: el.getAttribute('data-diff')||'',
+          summary: el.getAttribute('data-summary')||'',
+          tags: toArr(el.getAttribute('data-tags')),
+          ingredients: toArr(el.getAttribute('data-ingredients')),
+          steps: toArr(el.getAttribute('data-steps'))
+        });
+      });
+    });
   })();
 
   // Scroll progress bar
