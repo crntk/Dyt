@@ -1,32 +1,475 @@
-﻿@* Basit giriş formu – e-posta/parola *@
+﻿@* Modern & Canlı Giriş Sayfası *@
 @{
     ViewData["Title"] = "Giriş";
     var returnUrl = (string?)ViewData["ReturnUrl"];
 }
-<div class="container" style="max-width:520px">
-  <div class="card shadow-sm" style="border-radius:14px; margin:40px auto;">
-    <div class="card-body p-4">
-      <h1 class="h4 mb-3">Yönetici Girişi</h1>
-      <p class="text-muted">Bu panel yalnızca site sahibi diyetisyen için tasarlanmıştır.</p>
-      <form asp-action="Login" method="post">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="returnUrl" value="@returnUrl" />
-        <div class="mb-3">
-          <label class="form-label">E-posta</label>
-          <input type="email" name="email" class="form-control" required />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Parola</label>
-          <input type="password" name="password" class="form-control" required />
-        </div>
-        <div class="text-danger mb-2">
-          @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-          {
-              <div>@e.ErrorMessage</div>
+
+<style>
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  
+  /* Login Hero */
+  .login-hero{
+    position:relative;
+    overflow:hidden;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+    radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+      radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+  }
+  .login-hero:before{
+    content:"";
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+    radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size:32px 32px, 64px 64px;
+    background-position:0 0, 16px 16px;
+    opacity:.4;
+    animation:dotMove 25s linear infinite;
+}
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
+  
+  /* Login Container */
+  .login-container{
+    position:relative;
+ z-index:1;
+ max-width:480px;
+    width:100%;
+    padding:0 20px;
+  }
+  
+  /* Login Card */
+  .login-card{
+    background:#fff;
+  border-radius:24px;
+    box-shadow:0 20px 60px rgba(0,0,0,.12);
+    overflow:hidden;
+    border:1px solid rgba(76,175,80,.2);
+    animation:slideUp 0.6s ease;
+  }
+  
+  @@keyframes slideUp{
+    from{
+      opacity:0;
+      transform:translateY(30px);
+    }
+    to{
+    opacity:1;
+      transform:translateY(0);
+    }
+  }
+  
+  /* Header with gradient */
+  .login-header{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    padding:40px 30px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .login-header:before{
+    content:"";
+    position:absolute;
+  inset:0;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0L60 30L30 60L0 30Z' fill='rgba(255,255,255,.05)'/%3E%3C/svg%3E");
+    animation:bgSlide 20s linear infinite;
+  }
+  @@keyframes bgSlide{
+    from{transform:translateX(0) translateY(0)}
+    to{transform:translateX(60px) translateY(60px)}
+  }
+  
+  .login-icon{
+    width:80px;
+    height:80px;
+    background:rgba(255,255,255,.2);
+    backdrop-filter:blur(10px);
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-size:40px;
+    margin-bottom:16px;
+    animation:bounce 2s ease infinite;
+    box-shadow:0 8px 24px rgba(0,0,0,.15);
+  }
+  
+  @@keyframes bounce{
+    0%, 100%{transform:translateY(0)}
+    50%{transform:translateY(-10px)}
+  }
+  
+  .login-title{
+ color:#fff;
+    font-size:28px;
+    font-weight:700;
+    margin:0 0 8px;
+    position:relative;
+    z-index:1;
+  }
+  
+  .login-subtitle{
+    color:rgba(255,255,255,.9);
+    font-size:14px;
+    margin:0;
+    position:relative;
+    z-index:1;
+  }
+
+  /* Form Body */
+  .login-body{
+    padding:40px 30px;
+  }
+  
+  /* Form Groups */
+  .form-group{
+    position:relative;
+    margin-bottom:24px;
+  }
+  
+  .form-group label{
+    font-weight:600;
+    color:#333;
+    margin-bottom:8px;
+ display:block;
+    font-size:14px;
+  }
+  
+  .form-group .input-wrapper{
+    position:relative;
+  }
+  
+  .form-group .input-icon{
+    position:absolute;
+    left:14px;
+top:50%;
+  transform:translateY(-50%);
+    color:#4CAF50;
+    font-size:18px;
+    transition:all .3s ease;
+  }
+  
+  .form-group input{
+    width:100%;
+    padding:14px 14px 14px 45px;
+    border:2px solid rgba(76,175,80,.2);
+    border-radius:12px;
+font-size:15px;
+    transition:all .3s ease;
+    background:#fff;
+  }
+  
+  .form-group input:focus{
+    outline:none;
+    border-color:#4CAF50;
+    box-shadow:0 0 0 4px rgba(76,175,80,.1);
+  }
+  
+  .form-group input:focus + .input-icon{
+    color:#2e7d32;
+    transform:translateY(-50%) scale(1.1);
+  }
+  
+  /* Password Toggle */
+  .password-toggle{
+    position:absolute;
+    right:14px;
+    top:50%;
+    transform:translateY(-50%);
+    background:none;
+    border:none;
+    color:#999;
+    cursor:pointer;
+    font-size:18px;
+    padding:4px;
+    transition:color .3s ease;
+  }
+  .password-toggle:hover{
+  color:#4CAF50;
+  }
+  
+  /* Error Messages */
+  .error-message{
+    background:linear-gradient(135deg, rgba(239,68,68,.1), rgba(220,38,38,.05));
+  border:1px solid rgba(239,68,68,.3);
+    border-radius:10px;
+    padding:12px 16px;
+    margin-bottom:20px;
+    color:#dc2626;
+    font-size:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    animation:shake 0.5s ease;
+  }
+  
+  @@keyframes shake{
+  0%, 100%{transform:translateX(0)}
+    25%{transform:translateX(-10px)}
+    75%{transform:translateX(10px)}
+  }
+  
+  /* Submit Button */
+  .btn-login{
+    width:100%;
+    padding:14px;
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    border:none;
+    border-radius:12px;
+    color:#fff;
+    font-weight:600;
+    font-size:16px;
+    cursor:pointer;
+    transition:all .3s ease;
+  position:relative;
+    overflow:hidden;
+    box-shadow:0 4px 12px rgba(76,175,80,.3);
+  }
+  
+  .btn-login:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg, transparent, rgba(255,255,255,.2), transparent);
+    transform:translateX(-100%);
+    transition:transform .6s ease;
+  }
+  
+  .btn-login:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px rgba(76,175,80,.4);
+  }
+  
+  .btn-login:hover:before{
+    transform:translateX(100%);
+  }
+  
+  .btn-login:active{
+    transform:translateY(0);
+  }
+  
+  .btn-login .spinner{
+    display:none;
+    width:20px;
+    height:20px;
+    border:3px solid rgba(255,255,255,.3);
+    border-top-color:#fff;
+    border-radius:50%;
+    animation:spin 0.8s linear infinite;
+    margin-right:8px;
+  }
+  
+  @@keyframes spin{
+    to{transform:rotate(360deg)}
+  }
+  
+  .btn-login.loading .spinner{
+    display:inline-block;
+  }
+  
+  /* Footer Info */
+  .login-footer{
+    text-align:center;
+    padding:20px 30px;
+    background:rgba(76,175,80,.05);
+    border-top:1px solid rgba(76,175,80,.1);
+  }
+  
+  .login-footer-text{
+    font-size:13px;
+    color:#666;
+    margin:0;
+  }
+  
+  .login-footer-link{
+    color:#4CAF50;
+    text-decoration:none;
+  font-weight:600;
+    transition:color .3s ease;
+  }
+  
+  .login-footer-link:hover{
+    color:#2e7d32;
+  }
+  
+  /* Security Badge */
+  .security-badge{
+    display:inline-flex;
+    align-items:center;
+ gap:6px;
+    background:rgba(76,175,80,.1);
+    padding:8px 12px;
+    border-radius:20px;
+    font-size:12px;
+  color:#2e7d32;
+    font-weight:600;
+    margin-top:16px;
+  }
+  
+  /* Responsive */
+  @@media (max-width: 576px){
+    .login-header{
+      padding:30px 20px;
+    }
+    .login-body{
+      padding:30px 20px;
+    }
+    .login-icon{
+    width:60px;
+      height:60px;
+ font-size:30px;
+    }
+    .login-title{
+      font-size:24px;
+    }
+  }
+</style>
+
+<div class="login-hero fv-nobg">
+  <div class="login-container">
+    <div class="login-card">
+      <!-- Header -->
+      <div class="login-header">
+        <div class="login-icon">&#128100;</div>
+        <h1 class="login-title">Yönetici Girişi</h1>
+        <p class="login-subtitle">Hoş geldiniz! Lütfen bilgilerinizi girin.</p>
+      </div>
+    
+      <!-- Form Body -->
+      <div class="login-body">
+        <form asp-action="Login" method="post" id="loginForm">
+          @Html.AntiForgeryToken()
+<input type="hidden" name="returnUrl" value="@returnUrl" />
+          
+       <!-- Email Field -->
+   <div class="form-group">
+    <label for="email">E-posta Adresi</label>
+    <div class="input-wrapper">
+   <input 
+   type="email" 
+        id="email" 
+                name="email" 
+              class="form-control" 
+                placeholder="ornek@email.com"
+        required 
+           autocomplete="username"
+      />
+       <span class="input-icon">&#128231;</span>
+     </div>
+      </div>
+          
+  <!-- Password Field -->
+          <div class="form-group">
+            <label for="password">Parola</label>
+         <div class="input-wrapper">
+        <input 
+     type="password" 
+           id="password" 
+  name="password" 
+           class="form-control" 
+      placeholder="••••••••"
+    required 
+                autocomplete="current-password"
+       />
+              <span class="input-icon">&#128274;</span>
+       <button type="button" class="password-toggle" id="togglePassword">
+        &#128065;
+    </button>
+     </div>
+ </div>
+          
+          <!-- Error Messages -->
+     @if (ViewData.ModelState.Values.Any(v => v.Errors.Any()))
+    {
+         <div class="error-message">
+    <span>&#9888;</span>
+          <div>
+     @foreach (var e in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+      {
+      <div>@e.ErrorMessage</div>
+      }
+    </div>
+     </div>
           }
-        </div>
-        <button type="submit" class="btn btn-primary">Giriş Yap</button>
-      </form>
+ 
+          <!-- Submit Button -->
+ <button type="submit" class="btn-login" id="btnLogin">
+            <span class="spinner"></span>
+ <span class="btn-text">Giriş Yap</span>
+      </button>
+     
+   <!-- Security Badge -->
+    <div class="text-center">
+       <span class="security-badge">
+       &#128274; Güvenli Bağlantı
+     </span>
+     </div>
+        </form>
+      </div>
+      
+      <!-- Footer -->
+      <div class="login-footer">
+    <p class="login-footer-text">
+   Bu panel yalnızca <strong>site yöneticisi</strong> için tasarlanmıştır.<br>
+        </p>
+      </div>
     </div>
   </div>
 </div>
+
+@section Scripts{
+<script>
+(function(){
+  // Password Toggle
+  const passwordInput = document.getElementById('password');
+  const toggleBtn = document.getElementById('togglePassword');
+  const eyeOpen = '&#128065;';
+  const eyeClosed = '&#128586;
+  
+  toggleBtn?.addEventListener('click', function(){
+    const type = passwordInput.type === 'password' ? 'text' : 'password';
+    passwordInput.type = type;
+    this.innerHTML = type === 'password' ? eyeOpen : eyeClosed;
+  });
+  
+  // Form Submit Animation
+  const form = document.getElementById('loginForm');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnText = btnLogin?.querySelector('.btn-text');
+  
+  form?.addEventListener('submit', function(){
+    if(btnLogin){
+      btnLogin.classList.add('loading');
+      btnLogin.disabled = true;
+      if(btnText) btnText.textContent = 'Giriş yapılıyor...';
+    }
+  });
+  
+// Input Focus Animation
+  const inputs = document.querySelectorAll('.form-group input');
+  inputs.forEach(input => {
+    input.addEventListener('focus', function(){
+      this.parentElement?.classList.add('focused');
+    });
+  input.addEventListener('blur', function(){
+this.parentElement?.classList.remove('focused');
+    });
+  });
+  
+  // Auto-hide error after 5 seconds
+  const errorMsg = document.querySelector('.error-message');
+  if(errorMsg){
+    setTimeout(() => {
+      errorMsg.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+      errorMsg.style.opacity = '0';
+    errorMsg.style.transform = 'translateY(-10px)';
+      setTimeout(() => errorMsg.remove(), 500);
+  }, 5000);
+  }
+})();
+</script>
+}

@@ -2,72 +2,421 @@
     ViewData["Title"] = "Hakkýmda";
 }
 <style>
-  .about-hero{background:radial-gradient(1200px 480px at 10% -10%, rgba(233,30,99,.18), transparent),radial-gradient(900px 360px at 90% -10%, rgba(255,255,255,.25), transparent);padding:48px 0 36px}
-  .about-card{border-radius:16px;border:1px solid #eee;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.06)}
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800; --pink:#e91e63 }
+  
+  /* Hero section with animated gradient */
+  .about-hero{
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 480px at 20% -10%, rgba(76,175,80,.18), transparent),
+   radial-gradient(900px 360px at 80% -10%, rgba(255,152,0,.15), transparent);
+    padding:64px 0 48px;
+  }
+  .about-hero:before{
+    content:"";
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+      radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size:32px 32px, 64px 64px;
+    background-position:0 0, 16px 16px;
+    opacity:.4;
+    animation:dotMove 25s linear infinite;
+  }
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
+  
+  /* Cards */
+  .about-card{
+    border-radius:18px;
+    border:1px solid rgba(76,175,80,.2);
+    background:#fff;
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+    transition:transform .3s ease, box-shadow .3s ease;
+  }
+  .about-card:hover{transform:translateY(-5px);box-shadow:0 18px 50px rgba(0,0,0,.12)}
+  
+  /* Timeline */
   .timeline{position:relative; --pad:64px; --line-x:28px; --dot:16px; padding-left:var(--pad)}
-  .timeline:before{content:"";position:absolute;left:var(--line-x);top:0;bottom:0;width:2px;background:linear-gradient(180deg, rgba(233,30,99,.35), rgba(233,30,99,.12));}
-  .timeline-item{position:relative;margin:0 0 26px;min-height:34px}
-  .timeline-item:before{content:"";position:absolute;left:calc(var(--line-x) - var(--pad) - (var(--dot) / 2));top:8px;width:var(--dot);height:var(--dot);border-radius:50%;background:#e91e63;border:2px solid #fff;box-shadow:0 0 0 6px rgba(233,30,99,.18)}
-  .skill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eee;border-radius:999px;margin:4px;background:#fff}
+  .timeline:before{
+ content:"";
+    position:absolute;
+    left:var(--line-x);
+    top:0;
+    bottom:0;
+    width:3px;
+    background:linear-gradient(180deg, rgba(76,175,80,.6), rgba(255,152,0,.4));
+    border-radius:999px;
+  }
+  .timeline-item{position:relative;margin:0 0 32px;min-height:34px}
+  .timeline-item:before{
+  content:"";
+    position:absolute;
+    left:calc(var(--line-x) - var(--pad) - (var(--dot) / 2));
+    top:8px;
+    width:var(--dot);
+    height:var(--dot);
+    border-radius:50%;
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+ border:3px solid #fff;
+    box-shadow:0 0 0 8px rgba(76,175,80,.15), 0 4px 12px rgba(76,175,80,.25);
+  }
+  .timeline-item:last-child{margin-bottom:0}
+  
+  /* Badges with hover */
+  .skill-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 16px;
+    border:1px solid rgba(76,175,80,.3);
+    border-radius:999px;
+    margin:6px 4px;
+    background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.06));
+  font-weight:600;
+    transition:all .3s ease;
+    cursor:pointer;
+  }
+  .skill-badge:hover{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    color:#fff;
+    transform:translateY(-3px) scale(1.05);
+    box-shadow:0 8px 20px rgba(76,175,80,.35);
+  }
+  
+  /* Stats cards */
+  .stat-card{
+    text-align:center;
+  padding:24px 16px;
+    border-radius:16px;
+background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+    border:1px solid rgba(76,175,80,.2);
+    transition:all .3s ease;
+  }
+  .stat-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 12px 30px rgba(76,175,80,.2);
+  }
+  .stat-number{
+    font-size:42px;
+    font-weight:800;
+    background:linear-gradient(90deg, #4CAF50, #81C784, #FF9800);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    line-height:1;
+  }
+  .stat-label{font-size:14px;color:#666;margin-top:8px;font-weight:600}
+  
+  /* Value cards */
+  .value-card{
+    padding:24px;
+    border-radius:16px;
+    border:1px solid rgba(76,175,80,.25);
+    background:#fff;
+    transition:all .3s ease;
+    height:100%;
+  }
+.value-card:hover{
+    transform:translateY(-5px);
+box-shadow:0 12px 30px rgba(76,175,80,.15);
+    border-color:var(--brand);
+  }
+  .value-icon{
+    width:56px;
+    height:56px;
+    border-radius:14px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    color:#fff;
+    font-size:28px;
+  margin-bottom:16px;
+    box-shadow:0 8px 20px rgba(76,175,80,.3);
+  }
+  
+  /* Reveal animations */
+  [data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-reveal].in{opacity:1;transform:translateY(0)}
+  
+  /* Quote section */
+  .quote-section{
+    position:relative;
+    padding:40px;
+border-radius:18px;
+    background:linear-gradient(135deg, rgba(76,175,80,.12), rgba(255,152,0,.1));
+    border-left:5px solid var(--brand);
+  font-style:italic;
+    font-size:18px;
+    color:#333;
+  }
+  .quote-section:before{
+    content:'"';
+    position:absolute;
+    top:10px;
+    left:20px;
+    font-size:80px;
+    color:rgba(76,175,80,.25);
+    font-family:Georgia, serif;
+    line-height:1;
+  }
+  
+  /* Profile image */
+  .profile-img{
+    width:100%;
+    max-width:280px;
+    height:280px;
+    border-radius:20px;
+    object-fit:cover;
+box-shadow:0 15px 40px rgba(0,0,0,.15);
+    border:4px solid #fff;
+  }
+  
+  /* Achievement badge */
+  .achievement{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 18px;
+    border-radius:12px;
+ background:linear-gradient(135deg, #4CAF50, #81C784);
+    color:#fff;
+    font-weight:700;
+    box-shadow:0 8px 20px rgba(76,175,80,.3);
+    margin:8px 4px;
+  }
+.achievement-icon{font-size:24px}
 </style>
 
-<div class="about-hero">
+<!-- Hero -->
+<section class="about-hero fv-nobg">
+  <div class="container position-relative" style="z-index:1">
+    <div class="text-center fv-text" data-reveal>
+    <h1 class="display-4 fw-bold mb-3">Hakkýmda</h1>
+      <p class="lead mb-0">Bilimsel yaklaþým, kiþiye özel planlar ve sürdürülebilir alýþkanlýklar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<section class="py-4 fv-nobg" style="background:transparent">
   <div class="container">
-    <h1 class="display-5 fw-bold mb-3">Hakkýmda</h1>
-    <p class="lead mb-0">Bilimsel yaklaþým, kiþiye özel planlar ve sürdürülebilir alýþkanlýklar.</p>
+  <div class="row g-3" data-reveal>
+      <div class="col-6 col-md-3">
+ <div class="stat-card fv-surface">
+ <div class="stat-number">500+</div>
+          <div class="stat-label fv-text">Mutlu Danýþan</div>
+    </div>
+   </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card fv-surface">
+        <div class="stat-number">5+</div>
+          <div class="stat-label fv-text">Yýl Deneyim</div>
   </div>
-</div>
-
-<div class="container py-4">
-  <div class="row g-4">
-    <div class="col-lg-5">
-      <div class="about-card p-4 h-100">
-        <h2 class="h4 fw-bold mb-3">Ben Kimim?</h2>
-        <p>Beslenme ve diyetetik alanýnda eðitimimi tamamladýktan sonra klinik ve bireysel danýþmanlýkta deneyim kazandým. Her danýþanýmýn yaþam tarzýna uygun, sürdürülebilir planlar oluþturmayý hedefliyorum.</p>
-        <p>Yaklaþýmým kanýta dayalýdýr; kýsa vadeli sonuçlardan çok uzun vadeli alýþkanlýk deðiþimini hedefler.</p>
-        <div class="mt-3">
-          <div class="fw-semibold mb-2">Uzmanlýklar</div>
-          <div>
-            <span class="skill">Kilo Yönetimi</span>
-            <span class="skill">Sporcu Beslenmesi</span>
-            <span class="skill">Metabolik Hastalýklar</span>
-            <span class="skill">Kurumsal Programlar</span>
-          </div>
-        </div>
+    </div>
+    <div class="col-6 col-md-3">
+   <div class="stat-card fv-surface">
+          <div class="stat-number">98%</div>
+          <div class="stat-label fv-text">Baþarý Oraný</div>
+    </div>
+   </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card fv-surface">
+      <div class="stat-number">20+</div>
+          <div class="stat-label fv-text">Kurumsal Ýþbirliði</div>
+  </div>
       </div>
     </div>
-    <div class="col-lg-7">
-      <div class="about-card p-4 h-100">
-        <h2 class="h4 fw-bold mb-3">Özgeçmiþ</h2>
+  </div>
+</section>
+
+<!-- Main content -->
+<div class="container py-5">
+<div class="row g-4 mb-5">
+    <div class="col-lg-5" data-reveal>
+      <div class="about-card p-4 h-100 fv-surface-strong fv-text">
+ <h2 class="h3 fw-bold mb-4 text-center">Ben Kimim?</h2>
+        <div class="text-center mb-4">
+          <img src="/images/profile-placeholder.jpg" alt="Diyetisyen Riyaza Tair" class="profile-img" onerror="this.style.display='none'" />
+        </div>
+   <p>Beslenme ve diyetetik alanýnda eðitimimi tamamladýktan sonra klinik ve bireysel danýþmanlýkta deneyim kazandým. Her danýþanýmýn yaþam tarzýna uygun, sürdürülebilir planlar oluþturmayý hedefliyorum.</p>
+        <p class="mb-4">Yaklaþýmým kanýta dayalýdýr; kýsa vadeli sonuçlardan çok uzun vadeli alýþkanlýk deðiþimini hedefler.</p>
+ 
+        <h5 class="fw-bold mb-3">&#127919; Uzmanlýk Alanlarý</h5>
+      <div>
+        <span class="skill-badge">&#127869; Kilo Yönetimi</span>
+ <span class="skill-badge">&#127939;&#8205;&#9792;&#65039; Sporcu Beslenmesi</span>
+   <span class="skill-badge">&#129658; Metabolik Hastalýklar</span>
+   <span class="skill-badge">&#127970; Kurumsal Programlar</span>
+     <span class="skill-badge">&#128104;&#8205;&#128105;&#8205;&#128103;&#8205;&#128102; Aile Beslenmesi</span>
+    <span class="skill-badge">&#128172; Online Danýþmanlýk</span>
+  </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-7" data-reveal>
+      <div class="about-card p-4 h-100 fv-surface-strong fv-text">
+<h2 class="h3 fw-bold mb-4 text-center">Özgeçmiþ & Deneyim</h2>
         <div class="timeline">
-          <div class="timeline-item">
-            <div class="fw-semibold">Diyetisyen – Özel Klinik</div>
-            <div class="text-muted small">2022 - Günümüz</div>
-            <p class="mb-2">Bireysel beslenme danýþmanlýðý, sporcu ve kurumsal programlar.</p>
+     <div class="timeline-item">
+   <div class="fw-bold h5">Diyetisyen – Özel Klinik</div>
+   <div class="text-muted small mb-2">&#128197; 2022 - Günümüz</div>
+  <p class="mb-0">Bireysel beslenme danýþmanlýðý, sporcu programlarý ve kurumsal wellness hizmetleri. 500+ danýþan ile çalýþtým.</p>
+      </div>
+      <div class="timeline-item">
+    <div class="fw-bold h5">Beslenme ve Diyetetik – Lisans</div>
+  <div class="text-muted small mb-2">&#128197; 2018 - 2022</div>
+   <p class="mb-0">Araþtýrma projeleri, saha çalýþmalarý ve klinik uygulamalar. Onur derecesi ile mezuniyet.</p>
           </div>
-          <div class="timeline-item">
-            <div class="fw-semibold">Beslenme ve Diyetetik – Lisans</div>
-            <div class="text-muted small">2018 - 2022</div>
-            <p class="mb-2">Araþtýrma projeleri ve saha çalýþmalarý.</p>
+  <div class="timeline-item">
+        <div class="fw-bold h5">Staj – Hastane Diyetetik Bölümü</div>
+  <div class="text-muted small mb-2">&#128197; 2021</div>
+     <p class="mb-0">Klinik beslenme, menü planlama, hasta takibi ve multidisipliner ekip çalýþmasý.</p>
           </div>
-          <div class="timeline-item">
-            <div class="fw-semibold">Staj – Hastane</div>
-            <div class="text-muted small">2021</div>
-            <p class="mb-0">Klinik beslenme, menü planlama, hasta takibi.</p>
-          </div>
-        </div>
+</div>
+        
+   <h5 class="fw-bold mt-4 mb-3">&#127942; Baþarýlar & Sertifikalar</h5>
+        <div>
+        <span class="achievement">
+   <span class="achievement-icon">&#129351;</span>
+  <span>Sporcu Beslenmesi Sertifikasý</span>
+       </span>
+   <span class="achievement">
+   <span class="achievement-icon">&#128220;</span>
+   <span>Klinik Beslenme Eðitimi</span>
+          </span>
+    <span class="achievement">
+  <span class="achievement-icon">&#128161;</span>
+            <span>Davranýþsal Beslenme</span>
+     </span>
+      </div>
       </div>
     </div>
   </div>
 
-  <div class="about-card p-4 mt-4">
-    <h2 class="h4 fw-bold mb-3">Yaklaþým ve Felsefe</h2>
+  <!-- Philosophy -->
+  <div class="about-card p-4 mb-4 fv-surface-strong fv-text" data-reveal>
+    <h2 class="h3 fw-bold mb-4">&#128173; Yaklaþým ve Felsefe</h2>
+    <div class="quote-section fv-surface mb-4">
+   <p class="mb-0">Saðlýklý beslenme, kýsýtlama deðil; öðrenme ve farkýndalýktýr. Her birey kendine özgü bir yolculuktadýr.</p>
+    </div>
     <p>Danýþan odaklý ve esnek planlama: bireyin sosyal yaþamý, çalýþma düzeni ve sevdiði yiyecekler dikkate alýnarak planlar oluþturulur. Haftalýk/iki haftalýk takiplerle ilerleme deðerlendirilir.</p>
-    <ul>
-      <li>Kýsa ve uzun vadeli hedef belirleme</li>
-      <li>Vücut kompozisyonu takibi</li>
-      <li>Davranýþsal beslenme teknikleri</li>
-      <li>Kan bulgularýna göre kiþiselleþtirme</li>
-    </ul>
+  <ul class="mb-0">
+      <li>&#9989; Kýsa ve uzun vadeli hedef belirleme</li>
+    <li>&#9989; Vücut kompozisyonu takibi (BIA)</li>
+      <li>&#9989; Davranýþsal beslenme teknikleri</li>
+      <li>&#9989; Kan bulgularýna göre kiþiselleþtirme</li>
+  <li>&#9989; Sürdürülebilir alýþkanlýk oluþturma</li>
+ <li>&#9989; Motivasyon ve psikolojik destek</li>
+ </ul>
+</div>
+
+  <!-- Values -->
+  <div data-reveal>
+    <h2 class="h3 fw-bold mb-4 text-center fv-text">&#127775; Temel Deðerlerim</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+   <div class="value-card fv-surface-strong fv-text">
+          <div class="value-icon">&#128300;</div>
+        <h5 class="fw-bold mb-2">Bilimsel Yaklaþým</h5>
+  <p class="mb-0 small">Güncel bilimsel araþtýrmalar ve kanýta dayalý beslenme stratejileri.</p>
+        </div>
+    </div>
+  <div class="col-md-4">
+<div class="value-card fv-surface-strong fv-text">
+<div class="value-icon">&#129309;</div>
+          <h5 class="fw-bold mb-2">Empati & Destek</h5>
+       <p class="mb-0 small">Her danýþanla güven odaklý, yargýsýz ve destekleyici iliþki.</p>
+     </div>
+      </div>
+      <div class="col-md-4">
+        <div class="value-card fv-surface-strong fv-text">
+  <div class="value-icon">&#9851;&#65039;</div>
+          <h5 class="fw-bold mb-2">Sürdürülebilirlik</h5>
+     <p class="mb-0 small">Uzun vadeli yaþam tarzý deðiþiklikleri, kýsa vadeli diyetler deðil.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="value-card fv-surface-strong fv-text">
+   <div class="value-icon">&#127919;</div>
+       <h5 class="fw-bold mb-2">Kiþiselleþtirme</h5>
+          <p class="mb-0 small">Her birey benzersizdir; planlar kiþiye özel tasarlanýr.</p>
+      </div>
+      </div>
+      <div class="col-md-4">
+      <div class="value-card fv-surface-strong fv-text">
+    <div class="value-icon">&#128200;</div>
+ <h5 class="fw-bold mb-2">Sürekli Geliþim</h5>
+<p class="mb-0 small">Eðitim ve araþtýrma ile kendimi sürekli geliþtiriyorum.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+      <div class="value-card fv-surface-strong fv-text">
+   <div class="value-icon">&#128154;</div>
+   <h5 class="fw-bold mb-2">Bütünsel Bakýþ</h5>
+     <p class="mb-0 small">Fiziksel, mental ve sosyal saðlýðýn tümünü deðerlendiririm.</p>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="text-center mt-5" data-reveal>
+    <div class="p-4 rounded-4 fv-surface-strong fv-text" style="background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));border:2px dashed rgba(76,175,80,.3)">
+      <h3 class="h4 fw-bold mb-3">Birlikte Çalýþalým! &#128640;</h3>
+      <p class="mb-3">Hedeflerinize ulaþmak için birlikte bir plan oluþturalým.</p>
+      <a asp-controller="Appointment" asp-action="Create" class="btn btn-lg btn-primary me-2">Randevu Al</a>
+      <a asp-controller="Contact" asp-action="Index" class="btn btn-lg btn-outline-secondary">Ýletiþime Geç</a>
+</div>
   </div>
 </div>
+
+<script>
+  // Scroll reveal animation
+  (function(){
+    const els=[...document.querySelectorAll('[data-reveal]')];
+    if(!('IntersectionObserver' in window)){ els.forEach(e=>e.classList.add('in')); return; }
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ 
+        if(en.isIntersecting){ 
+          setTimeout(()=>en.target.classList.add('in'), 100);
+   io.unobserve(en.target);
+      } 
+      });
+    },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
+    els.forEach(e=>io.observe(e));
+  })();
+  
+  // Animate numbers on stats
+  (function(){
+    const stats = document.querySelectorAll('.stat-number');
+    const animateNumber = (el) => {
+   const target = el.textContent.replace(/[^0-9]/g, '');
+      const suffix = el.textContent.replace(/[0-9]/g, '');
+ let current = 0;
+      const increment = Math.ceil(target / 50);
+      const timer = setInterval(() => {
+        current += increment;
+        if(current >= target){
+          el.textContent = target + suffix;
+          clearInterval(timer);
+        } else {
+          el.textContent = current + suffix;
+        }
+      }, 30);
+    };
+    
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting){
+     animateNumber(en.target);
+        io.unobserve(en.target);
+   }
+      });
+    },{threshold:.5});
+    
+    stats.forEach(s=>io.observe(s));
+  })();
+</script>

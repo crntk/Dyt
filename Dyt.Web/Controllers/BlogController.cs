@@ -24,11 +24,11 @@ namespace Dyt.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 10, int apage = 1, int apageSize = 10, CancellationToken ct = default)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 20, int apage = 1, int apageSize = 10, CancellationToken ct = default)
         {
             if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 10;
-            pageSize = Math.Min(pageSize, 20);
+            if (pageSize < 1) pageSize = 20;
+            pageSize = Math.Min(pageSize, 50);
 
             if (apage < 1) apage = 1;
             if (apageSize < 1) apageSize = 10;
@@ -40,15 +40,14 @@ namespace Dyt.Web.Controllers
                 .Include(p => p.Media)
                     .ThenInclude(m => m.MediaFile);
 
-            // Sol grid (fotoðraf gönderileri): baþlýðý olmayanlar
-            var photosQuery = baseQuery
-                .Where(p => string.IsNullOrEmpty(p.Title))
+            // Ana grid: TÜM gönderiler (hem görseller hem makaleler)
+            var allPostsQuery = baseQuery
                 .OrderByDescending(p => p.PublishDateUtc ?? p.CreatedAtUtc);
 
-            var totalPhotos = await photosQuery.CountAsync(ct);
-            var photos = await photosQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+            var totalPosts = await allPostsQuery.CountAsync(ct);
+            var allPosts = await allPostsQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
 
-            // Sað sütun (yazýlar ve makaleler): baþlýðý olanlar
+            // Sað sütun için sadece makaleler (baþlýðý olanlar)
             var articlesQuery = baseQuery
                 .Where(p => !string.IsNullOrEmpty(p.Title))
                 .OrderByDescending(p => p.PublishDateUtc ?? p.CreatedAtUtc);
@@ -61,11 +60,11 @@ namespace Dyt.Web.Controllers
             ViewBag.ArticlePage = apage;
             ViewBag.ArticlePageSize = apageSize;
 
-            ViewBag.Total = totalPhotos;
+            ViewBag.Total = totalPosts;
             ViewBag.Page = page;
             ViewBag.PageSize = pageSize;
 
-            return View(photos);
+            return View(allPosts);
         }
 
         [HttpGet("/blog/{slug}")]

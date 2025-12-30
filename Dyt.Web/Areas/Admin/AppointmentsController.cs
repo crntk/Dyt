@@ -3,6 +3,7 @@ using Dyt.Contracts.Appointments.Requests; // Sorgu isteği modelini kullanmak i
 using Microsoft.AspNetCore.Authorization; // Admin erişim kontrolü için ekliyorum
 using Microsoft.AspNetCore.Mvc; // MVC için ekliyorum
 using Dyt.Data.Enums; // ConfirmationState enum
+using Dyt.Contracts.Appointments.Responses; // AppointmentDto için
 
 namespace Dyt.Web.Areas.Admin.Controllers // Admin Area controller'ları için ad alanını tanımlıyorum
 {
@@ -79,6 +80,83 @@ namespace Dyt.Web.Areas.Admin.Controllers // Admin Area controller'ları için a
 
             TempData["Msg"] = ok ? "Güncellendi." : "Güncellenemedi.";
             return RedirectToAction(nameof(Index));
+        }
+
+        /// <summary>
+        /// Admin randevu oluşturma sayfasını gösterir.
+        /// </summary>
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        /// <summary>
+        /// Admin tarafından randevu oluşturur.
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(
+            DateOnly date,
+            TimeOnly startTime,
+            string clientName,
+            string clientPhone,
+            string? clientEmail,
+            string? channel,
+            string? note,
+            CancellationToken ct)
+        {
+            // Validasyon
+            if (string.IsNullOrWhiteSpace(clientName) || clientName.Trim().Length < 3)
+            {
+                TempData["Error"] = "Lütfen geçerli bir ad soyad girin (en az 3 karakter).";
+                return View();
+            }
+
+            if (string.IsNullOrWhiteSpace(clientPhone))
+            {
+                TempData["Error"] = "Lütfen telefon numarası girin.";
+                return View();
+            }
+
+            if (string.IsNullOrWhiteSpace(channel))
+            {
+                TempData["Error"] = "Lütfen görüşme türünü seçin.";
+                return View();
+            }
+
+            // Randevu oluşturma request'i hazırla
+            var request = new AppointmentCreateRequest
+            {
+                Date = date,
+                StartTime = startTime,
+                ClientName = clientName.Trim(),
+                ClientPhone = clientPhone.Trim(),
+                ClientEmail = clientEmail?.Trim(),
+                Note = note?.Trim(),
+                Channel = channel
+            };
+
+            try
+            {
+                var result = await _appointments.CreateAsync(request, ct);
+
+                if (result != null)
+                {
+                    TempData["Success"] = "✅ Randevu başarıyla oluşturuldu!";
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    TempData["Error"] = "Randevu oluşturulamadı.";
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Bir hata oluştu: {ex.Message}";
+                return View();
+            }
         }
     }
 }

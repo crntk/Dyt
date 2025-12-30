@@ -6,191 +6,696 @@
 @model Dyt.Contracts.Common.PagedResult<Dyt.Contracts.Appointments.Responses.AppointmentDto>
 
 @{
-    // Görüntü başlığını ayarlıyorum
-    ViewData["Title"] = "Randevu Listesi";
-    // Filtreleri ViewBag üzerinden geri alıyorum (Controller'da ViewBag.Filters = request yapılmıştı)
+    ViewData["Title"] = "Randevularım";
     var f = (Dyt.Contracts.Appointments.Requests.AppointmentQueryRequest)ViewBag.Filters;
     var rejectInfo = TempData["RejectInfo"] as string;
+    var msg = TempData["Msg"] as string;
 
-    // Yerel zamana göre geçmiş kontrolü için yardımcılar
     var now = DateTime.Now;
-    var today = DateOnly.FromDateTime(now);
-    var nowTime = TimeOnly.FromDateTime(now);
+ var today = DateOnly.FromDateTime(now);
+  var nowTime = TimeOnly.FromDateTime(now);
     var tr = new System.Globalization.CultureInfo("tr-TR");
 }
 
-<div class="container" style="max-width:1100px;margin:32px auto;">
-    <h1 style="font-size:22px;margin-bottom:16px;">Randevu Listesi</h1>
+<style>
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  
+  /* Hero with green gradient */
+.appt-hero{
+    position:relative;
+    overflow:hidden;
+    background:
+   radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+      radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+    padding:48px 0 36px;
+  }
+.appt-hero:before{
+    content:"";
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+      radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size:32px 32px, 64px 64px;
+    background-position:0 0, 16px 16px;
+    opacity:.4;
+    animation:dotMove 25s linear infinite;
+  }
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
 
-    <!-- Filtre formu -->
-    <form method="get" style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:end;border:1px solid #e5e7eb;padding:12px;border-radius:12px;background:#fff;">
-        <div>
-            <label style="display:block;font-size:12px;color:#6b7280;">Başlangıç</label>
-            <input type="date" name="from" value="@(f.DateFrom?.ToString("yyyy-MM-dd"))" class="form-control" placeholder="gg.aa.yyyy" />
-        </div>
-        <div>
-            <label style="display:block;font-size:12px;color:#6b7280;">Bitiş</label>
-            <input type="date" name="to" value="@(f.DateTo?.ToString("yyyy-MM-dd"))" class="form-control" placeholder="gg.aa.yyyy" />
-        </div>
-        <div>
-            <label style="display:block;font-size:12px;color:#6b7280;">Durum</label>
-            <select name="status" class="form-select">
-                <option value="">Hepsi</option>
-                @foreach (var s in new[] { "Scheduled", "Canceled", "NoShow" })
-                {
-                    var sel = f.Status == s ? "selected" : null;
-                    <option value="@s" selected="@sel">@("Scheduled"==s?"Planlandı":("Canceled"==s?"İptal":"Gelmedi"))</option>
-                }
-            </select>
-        </div>
-        <div>
-            <label style="display:block;font-size:12px;color:#6b7280;">Onay</label>
-            <select name="confirmation" class="form-select">
-                <option value="">Hepsi</option>
-                @foreach (var s in new[] { "Yanıtlanmadı", "Gelecek", "Gelmeyecek" })
-                {
-                    var sel2 = f.ConfirmationState == s ? "selected" : null;
-                    <option value="@s" selected="@sel2">@s</option>
-                }
-            </select>
-        </div>
-        <div>
-            <label style="display:block;font-size:12px;color:#6b7280;">Arama</label>
-            <input type="text" name="search" value="@(f.Search)" placeholder="Ad/Telefon" class="form-control" />
-        </div>
-        <div>
-            <label style="display:block;font-size:12px;color:#6b7280;">&nbsp;</label>
-            <button type="submit" class="btn btn-primary">Filtrele</button>
-        </div>
-    </form>
+  /* Cards */
+  .card{
+    border-radius:18px;
+    border:1px solid rgba(76,175,80,.2);
+ box-shadow:0 12px 35px rgba(0,0,0,.08);
+    transition:all .3s ease;
+  }
+  .card:hover{box-shadow:0 18px 50px rgba(76,175,80,.15)}
 
-    <!-- Liste tablosu -->
-    <div style="margin-top:16px;overflow:auto;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">
-        <table class="table" style="margin:0;">
-            <thead>
-                <tr>
-                    <th>Tarih</th>
-                    <th>Gün</th>
-                    <th>Saat</th>
-                    <th>Tür</th>
-                    <th>Danışan</th>
-                    <th>Telefon</th>
-                    <th>Durum</th>
-                    <th>Onay</th>
-                    <th style="width:260px;">İşlemler</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.Items.Count == 0)
-                {
-                    <tr><td colspan="9" class="text-center">Kayıt bulunamadı.</td></tr>
-                }
-                else
-                {
-                    foreach (var a in Model.Items)
-                    {
-                        var isPast = a.Date < today || (a.Date == today && a.EndTime <= nowTime);
-                        var isPending = string.Equals(a.ConfirmationState, "Yanıtlanmadı", StringComparison.OrdinalIgnoreCase);
-                        var isAccepted = string.Equals(a.ConfirmationState, "Gelecek", StringComparison.OrdinalIgnoreCase);
-                        var isDeclined = string.Equals(a.ConfirmationState, "Gelmeyecek", StringComparison.OrdinalIgnoreCase);
-                        <tr>
-                            <td>@a.Date.ToString("dd.MM.yyyy")</td>
-                            <td>@tr.DateTimeFormat.GetDayName((System.DayOfWeek)a.Date.DayOfWeek)</td>
-                            <td>@a.StartTime.ToString("HH\\:mm") - @a.EndTime.ToString("HH\\:mm")</td>
-                            <td>
-                                @if (!string.IsNullOrWhiteSpace(a.Channel))
-                                {
-                                    <span class="badge bg-secondary">@a.Channel</span>
-                                }
-                            </td>
-                            <td>@a.ClientName</td>
-                            <td>@a.ClientPhone</td>
-                            <td>
-                                @a.Status
-                                @if (isPast)
-                                { <span class="badge bg-secondary ms-2">Geçmiş</span> }
-                            </td>
-                            <td>@a.ConfirmationState</td>
-                            <td class="d-flex gap-2">
-                                @if (!isPast)
-                                {
-                                    if (isPending)
-                                    {
-                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@a.Id" />
-                                            <input type="hidden" name="state" value="Gelecek" />
-                                            <button class="btn btn-sm btn-success">Onayla</button>
-                                        </form>
-                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post" onsubmit="return confirmDecline('@a.ClientName');">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@a.Id" />
-                                            <input type="hidden" name="state" value="Gelmeyecek" />
-                                            <button class="btn btn-sm btn-outline-danger">Reddet</button>
-                                        </form>
-                                    }
-                                    else if (isAccepted)
-                                    {
-                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@a.Id" />
-                                            <input type="hidden" name="state" value="Gelmeyecek" />
-                                            <button class="btn btn-sm btn-outline-danger">Tercihi Değiştir (Reddet)</button>
-                                        </form>
-                                    }
-                                    else if (isDeclined)
-                                    {
-                                        <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id" value="@a.Id" />
-                                            <input type="hidden" name="state" value="Gelecek" />
-                                            <button class="btn btn-sm btn-success">Tercihi Değiştir (Onayla)</button>
-                                        </form>
-                                    }
-                                }
-                                else
-                                {
-                                    <span class="text-muted">Geçmiş randevu</span>
-                                }
-                            </td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
-    </div>
+  /* Filter form */
+  .filter-form{
+  background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+  border-radius:16px;
+    padding:24px;
+    border:2px solid rgba(76,175,80,.2);
+  }
 
-    <!-- Sayfalama -->
-    @{
-        var totalPages = (int)Math.Ceiling(Model.TotalCount / (double)Model.PageSize); // Toplam sayfa sayısını hesaplıyorum
-        var current = Model.Page; // Mevcut sayfayı alıyorum
+  .filter-form .form-label{
+    font-size:12px;
+    font-weight:600;
+    color:#666;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  margin-bottom:6px;
+  }
+
+  .form-control:focus, .form-select:focus{
+    border-color:#4CAF50;
+    box-shadow:0 0 0 0.2rem rgba(76,175,80,.25);
+  }
+
+  /* Appointment card */
+  .appointment-card{
+    border:2px solid rgba(76,175,80,.2);
+    border-radius:16px;
+    padding:20px;
+    background:#fff;
+ transition:all .3s ease;
+    margin-bottom:16px;
+  }
+
+  .appointment-card:hover{
+    transform:translateY(-4px);
+ box-shadow:0 12px 30px rgba(76,175,80,.2);
+    border-color:#4CAF50;
+  }
+
+  .appointment-card.past{
+    opacity:.7;
+    background:#fafafa;
+  }
+
+  .appointment-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:16px;
+    padding-bottom:12px;
+    border-bottom:2px solid rgba(76,175,80,.15);
+  }
+
+  .appointment-date{
+    display:flex;
+ align-items:center;
+    gap:12px;
+  }
+
+  .date-badge{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    color:#fff;
+    padding:12px 16px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 4px 12px rgba(76,175,80,.3);
+  min-width:80px;
+  }
+
+  .date-badge .day{
+    font-size:28px;
+    font-weight:800;
+line-height:1;
+  }
+
+  .date-badge .month{
+    font-size:11px;
+    font-weight:600;
+text-transform:uppercase;
+    margin-top:2px;
+    opacity:.9;
+  }
+
+  .appointment-info{
+    flex:1;
+  }
+
+  .appointment-time{
+    font-size:20px;
+    font-weight:700;
+    color:#4CAF50;
+    margin-bottom:4px;
+  }
+
+  .appointment-weekday{
+ font-size:14px;
+    color:#666;
+    font-weight:600;
+  }
+
+  .appointment-badges{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
+  .badge-custom{
+    padding:6px 12px;
+    border-radius:999px;
+    font-weight:600;
+    font-size:12px;
+    display:inline-flex;
+    align-items:center;
+  gap:6px;
+  }
+
+  .badge-pending{
+    background:rgba(255,152,0,.1);
+    color:#f57c00;
+    border:1px solid rgba(255,152,0,.3);
+  }
+
+  .badge-accepted{
+ background:rgba(76,175,80,.1);
+    color:#2e7d32;
+    border:1px solid rgba(76,175,80,.3);
+  }
+
+  .badge-declined{
+    background:rgba(239,68,68,.1);
+    color:#991b1b;
+    border:1px solid rgba(239,68,68,.3);
+  }
+
+  .badge-past{
+background:rgba(156,163,175,.1);
+    color:#4b5563;
+    border:1px solid rgba(156,163,175,.3);
+  }
+
+  .badge-online{
+    background:rgba(33,150,243,.1);
+    color:#1565c0;
+    border:1px solid rgba(33,150,243,.3);
+  }
+
+  .badge-f2f{
+    background:rgba(156,39,176,.1);
+    color:#6a1b9a;
+    border:1px solid rgba(156,39,176,.3);
+  }
+
+  .appointment-details{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:16px;
+    margin-bottom:16px;
+  }
+
+  .detail-item{
+    display:flex;
+    align-items:center;
+ gap:10px;
+  }
+
+  .detail-icon{
+    width:40px;
+    height:40px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+  justify-content:center;
+    font-size:20px;
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+  }
+
+  .detail-content .label{
+    font-size:11px;
+    font-weight:600;
+    color:#999;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+
+  .detail-content .value{
+    font-size:15px;
+    font-weight:600;
+    color:#333;
+  }
+
+  .appointment-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .btn-action{
+    padding:10px 20px;
+    border-radius:10px;
+    font-weight:600;
+    font-size:14px;
+    border:2px solid transparent;
+    transition:all .3s ease;
+  display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .btn-approve{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    color:#fff;
+    border-color:#4CAF50;
+  }
+
+  .btn-approve:hover{
+    background:linear-gradient(135deg, #388E3C, #4CAF50);
+    transform:translateY(-2px);
+    box-shadow:0 6px 16px rgba(76,175,80,.3);
+    color:#fff;
+  }
+
+  .btn-decline{
+    background:#fff;
+    color:#ef4444;
+    border-color:#ef4444;
+  }
+
+  .btn-decline:hover{
+    background:#ef4444;
+    color:#fff;
+    transform:translateY(-2px);
+    box-shadow:0 6px 16px rgba(239,68,68,.3);
+  }
+
+  /* Pagination */
+  .pagination{
+    justify-content:center;
+    gap:8px;
+  }
+
+  .page-link{
+    border-radius:10px;
+    border:2px solid rgba(76,175,80,.2);
+    color:#4CAF50;
+    font-weight:600;
+    padding:10px 16px;
+    transition:all .3s ease;
+  }
+
+  .page-link:hover{
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+    border-color:#4CAF50;
+    color:#4CAF50;
+    transform:translateY(-2px);
+  }
+
+  .page-item.active .page-link{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    border-color:#4CAF50;
+    color:#fff;
+  }
+
+  .page-item.disabled .page-link{
+    opacity:.5;
+    cursor:not-allowed;
+  }
+
+  /* Stats cards */
+  .stats-grid{
+    display:grid;
+grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:16px;
+    margin-bottom:24px;
+  }
+
+  .stat-card{
+    background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border:2px solid rgba(76,175,80,.2);
+    border-radius:16px;
+    padding:20px;
+    text-align:center;
+    transition:all .3s ease;
+  }
+
+  .stat-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 8px 24px rgba(76,175,80,.2);
+  }
+
+  .stat-value{
+    font-size:36px;
+  font-weight:800;
+    color:#4CAF50;
+    line-height:1;
+  }
+
+  .stat-label{
+    font-size:13px;
+    font-weight:600;
+    color:#666;
+    margin-top:8px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+
+  /* Reveal animation */
+  [data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-reveal].in{opacity:1;transform:translateY(0)}
+
+  /* Empty state */
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+  }
+
+  .empty-state-icon{
+    font-size:80px;
+    margin-bottom:20px;
+    opacity:.5;
+  }
+
+  .empty-state-title{
+    font-size:24px;
+    font-weight:700;
+    color:#333;
+    margin-bottom:12px;
+  }
+
+  .empty-state-text{
+    font-size:16px;
+    color:#666;
+ margin-bottom:24px;
+  }
+
+  /* Responsive */
+  @@media (max-width: 768px){
+    .filter-form{
+      padding:16px;
     }
-    <nav aria-label="Sayfalama" style="margin-top:12px;">
-        <ul class="pagination">
-            <li class="page-item @(current <= 1 ? "disabled" : null)">
-                <a class="page-link" href="@Url.Action("Index", new { page = current - 1, pageSize = Model.PageSize, from = f.DateFrom?.ToString("yyyy-MM-dd"), to = f.DateTo?.ToString("yyyy-MM-dd"), status = f.Status, confirmation = f.ConfirmationState, search = f.Search })">Önceki</a>
-            </li>
+    
+    .appointment-header{
+      flex-direction:column;
+  gap:12px;
+    }
+    
+ .appointment-details{
+  grid-template-columns:1fr;
+    }
+    
+    .appointment-actions{
+      flex-direction:column;
+    }
+    
+    .btn-action{
+      width:100%;
+  justify-content:center;
+    }
+  }
+</style>
 
-            <li class="page-item disabled"><span class="page-link">Sayfa @current / @totalPages</span></li>
+<!-- Hero -->
+<section class="appt-hero">
+  <div class="container position-relative" style="z-index:1">
+    <div class="text-center" data-reveal>
+      <h1 class="display-5 fw-bold mb-3">📋 Randevularım</h1>
+      <p class="lead mb-0">Tüm randevularınızı görüntüleyin ve yönetin.</p>
+    </div>
+  </div>
+</section>
 
-            <li class="page-item @(current >= totalPages ? "disabled" : null)">
-                <a class="page-link" href="@Url.Action("Index", new { page = current + 1, pageSize = Model.PageSize, from = f.DateFrom?.ToString("yyyy-MM-dd"), to = f.DateTo?.ToString("yyyy-MM-dd"), status = f.Status, confirmation = f.ConfirmationState, search = f.Search })">Sonraki</a>
-            </li>
-        </ul>
+<div class="container py-5">
+  @if (!string.IsNullOrEmpty(msg))
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert" data-reveal>
+      @msg
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  }
+
+  <!-- Stats -->
+  <div class="stats-grid" data-reveal>
+    <div class="stat-card">
+      <div class="stat-value">@Model.TotalCount</div>
+    <div class="stat-label">Toplam Randevu</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">@Model.Items.Count(x => x.ConfirmationState == "Yanıtlanmadı")</div>
+      <div class="stat-label">Bekleyen</div>
+ </div>
+    <div class="stat-card">
+      <div class="stat-value">@Model.Items.Count(x => x.ConfirmationState == "Gelecek")</div>
+      <div class="stat-label">Onaylı</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">@Model.Items.Count(x => x.Date < today || (x.Date == today && x.EndTime <= nowTime))</div>
+      <div class="stat-label">Geçmiş</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-4" data-reveal>
+    <div class="card-body">
+    <h5 class="card-title fw-bold mb-4">🔍 Filtrele & Ara</h5>
+      <form method="get" class="filter-form">
+        <div class="row g-3">
+   <div class="col-md-3">
+            <label class="form-label">📅 Başlangıç</label>
+    <input type="date" name="from" value="@(f.DateFrom?.ToString("yyyy-MM-dd"))" class="form-control" />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">📅 Bitiş</label>
+            <input type="date" name="to" value="@(f.DateTo?.ToString("yyyy-MM-dd"))" class="form-control" />
+          </div>
+    <div class="col-md-2">
+            <label class="form-label">📊 Durum</label>
+            <select name="status" class="form-select">
+              <option value="">Hepsi</option>
+    @foreach (var s in new[] { "Scheduled", "Canceled", "NoShow" })
+              {
+  var sel = f.Status == s ? "selected" : null;
+        <option value="@s" selected="@sel">@("Scheduled"==s?"Planlandı":("Canceled"==s?"İptal":"Gelmedi"))</option>
+              }
+  </select>
+    </div>
+     <div class="col-md-2">
+         <label class="form-label">✅ Onay</label>
+          <select name="confirmation" class="form-select">
+ <option value="">Hepsi</option>
+  @foreach (var s in new[] { "Yanıtlanmadı", "Gelecek", "Gelmeyecek" })
+       {
+   var sel2 = f.ConfirmationState == s ? "selected" : null;
+          <option value="@s" selected="@sel2">@s</option>
+            }
+            </select>
+          </div>
+          <div class="col-md-2">
+         <label class="form-label">🔎 Arama</label>
+       <input type="text" name="search" value="@(f.Search)" placeholder="Ad/Telefon" class="form-control" />
+          </div>
+      </div>
+   <div class="mt-3">
+  <button type="submit" class="btn btn-primary btn-lg">🔍 Filtrele</button>
+          <a asp-action="Index" class="btn btn-outline-secondary btn-lg ms-2">↻ Temizle</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Appointments List -->
+  @if (Model.Items.Count == 0)
+  {
+    <div class="card" data-reveal>
+      <div class="card-body">
+  <div class="empty-state">
+          <div class="empty-state-icon">📅</div>
+          <h3 class="empty-state-title">Randevu Bulunamadı</h3>
+          <p class="empty-state-text">Seçtiğiniz filtrelere uygun randevu bulunmamaktadır.</p>
+          <a asp-area="Admin" asp-controller="Appointments" asp-action="Create" class="btn btn-primary btn-lg">➕ Yeni Randevu Oluştur</a>
+        </div>
+      </div>
+ </div>
+  }
+  else
+  {
+    @foreach (var a in Model.Items)
+    {
+      var isPast = a.Date < today || (a.Date == today && a.EndTime <= nowTime);
+      var isPending = string.Equals(a.ConfirmationState, "Yanıtlanmadı", StringComparison.OrdinalIgnoreCase);
+      var isAccepted = string.Equals(a.ConfirmationState, "Gelecek", StringComparison.OrdinalIgnoreCase);
+      var isDeclined = string.Equals(a.ConfirmationState, "Gelmeyecek", StringComparison.OrdinalIgnoreCase);
+      
+      <div class="appointment-card @(isPast ? "past" : "")" data-reveal>
+        <div class="appointment-header">
+    <div class="appointment-date">
+<div class="date-badge">
+     <div class="day">@a.Date.Day</div>
+              <div class="month">@a.Date.ToString("MMM", tr)</div>
+            </div>
+            <div class="appointment-info">
+              <div class="appointment-time">⏰ @a.StartTime.ToString("HH\\:mm") - @a.EndTime.ToString("HH\\:mm")</div>
+     <div class="appointment-weekday">@tr.DateTimeFormat.GetDayName((System.DayOfWeek)a.Date.DayOfWeek), @a.Date.ToString("dd MMMM yyyy", tr)</div>
+</div>
+      </div>
+          <div class="appointment-badges">
+ @if (isPast)
+            {
+        <span class="badge-custom badge-past">🕐 Geçmiş</span>
+            }
+     else if (isPending)
+            {
+   <span class="badge-custom badge-pending">⏳ Bekliyor</span>
+    }
+   else if (isAccepted)
+            {
+     <span class="badge-custom badge-accepted">✅ Onaylandı</span>
+     }
+else if (isDeclined)
+       {
+            <span class="badge-custom badge-declined">❌ Reddedildi</span>
+       }
+      
+      @if (a.Channel == "Online")
+    {
+        <span class="badge-custom badge-online">💻 Online</span>
+            }
+  else if (a.Channel == "Yüzyüze")
+     {
+  <span class="badge-custom badge-f2f">🏥 Yüzyüze</span>
+         }
+ </div>
+        </div>
+
+   <div class="appointment-details">
+        <div class="detail-item">
+         <div class="detail-icon">👤</div>
+    <div class="detail-content">
+     <div class="label">Danışan</div>
+     <div class="value">@a.ClientName</div>
+        </div>
+      </div>
+          <div class="detail-item">
+         <div class="detail-icon">📱</div>
+     <div class="detail-content">
+           <div class="label">Telefon</div>
+        <div class="value">@a.ClientPhone</div>
+    </div>
+        </div>
+      @if (!string.IsNullOrEmpty(a.ClientEmail))
+          {
+            <div class="detail-item">
+      <div class="detail-icon">📧</div>
+     <div class="detail-content">
+    <div class="label">E-posta</div>
+         <div class="value">@a.ClientEmail</div>
+        </div>
+      </div>
+          }
+        </div>
+
+        @if (!isPast)
+        {
+          <div class="appointment-actions">
+  @if (isPending)
+  {
+              <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post" style="display:inline">
+     @Html.AntiForgeryToken()
+           <input type="hidden" name="id" value="@a.Id" />
+<input type="hidden" name="state" value="Gelecek" />
+  <button class="btn-action btn-approve">✅ Onayla</button>
+   </form>
+ <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post" onsubmit="return confirmDecline('@a.ClientName');" style="display:inline">
+     @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@a.Id" />
+<input type="hidden" name="state" value="Gelmeyecek" />
+   <button class="btn-action btn-decline">❌ Reddet</button>
+              </form>
+      }
+     else if (isAccepted)
+         {
+ <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post" style="display:inline">
+                @Html.AntiForgeryToken()
+      <input type="hidden" name="id" value="@a.Id" />
+<input type="hidden" name="state" value="Gelmeyecek" />
+         <button class="btn-action btn-decline">↻ Reddet</button>
+   </form>
+            }
+else if (isDeclined)
+   {
+          <form asp-area="Admin" asp-controller="Appointments" asp-action="SetConfirmation" method="post" style="display:inline">
+           @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@a.Id" />
+              <input type="hidden" name="state" value="Gelecek" />
+        <button class="btn-action btn-approve">↻ Onayla</button>
+   </form>
+            }
+      </div>
+   }
+      </div>
+    }
+  }
+
+  <!-- Pagination -->
+  @{
+    var totalPages = (int)Math.Ceiling(Model.TotalCount / (double)Model.PageSize);
+    var current = Model.Page;
+  }
+  @if (totalPages > 1)
+  {
+    <nav aria-label="Sayfalama" class="mt-4" data-reveal>
+      <ul class="pagination">
+  <li class="page-item @(current <= 1 ? "disabled" : "")">
+          <a class="page-link" href="@Url.Action("Index", new { page = current - 1, pageSize = Model.PageSize, from = f.DateFrom?.ToString("yyyy-MM-dd"), to = f.DateTo?.ToString("yyyy-MM-dd"), status = f.Status, confirmation = f.ConfirmationState, search = f.Search })">
+     ← Önceki
+    </a>
+   </li>
+
+        @for (int i = Math.Max(1, current - 2); i <= Math.Min(totalPages, current + 2); i++)
+        {
+          <li class="page-item @(i == current ? "active" : "")">
+       <a class="page-link" href="@Url.Action("Index", new { page = i, pageSize = Model.PageSize, from = f.DateFrom?.ToString("yyyy-MM-dd"), to = f.DateTo?.ToString("yyyy-MM-dd"), status = f.Status, confirmation = f.ConfirmationState, search = f.Search })">
+              @i
+     </a>
+    </li>
+        }
+
+      <li class="page-item @(current >= totalPages ? "disabled" : "")">
+        <a class="page-link" href="@Url.Action("Index", new { page = current + 1, pageSize = Model.PageSize, from = f.DateFrom?.ToString("yyyy-MM-dd"), to = f.DateTo?.ToString("yyyy-MM-dd"), status = f.Status, confirmation = f.ConfirmationState, search = f.Search })">
+            Sonraki →
+          </a>
+    </li>
+  </ul>
     </nav>
+  }
 </div>
 
 @section Scripts {
-    <script>
-        function confirmDecline(name) {
-            return confirm(`${name} isimli danışanın randevu talebi reddedildi! Danışana red sebebi hakkında bilgi vermeyi lütfen unutmayınız!`);
-        }
-        // Eğer reddetme sonrası bilgi göstermek istenirse TempData üzerinden modal/alert:
-        (function(){
-            var info = '@(rejectInfo ?? string.Empty)';
-            if (info) {
-                alert(info + ' isimli danışanın randevu talebi reddedildi! Danışana red sebebi hakkında bilgi vermeyi lütfen unutmayınız!');
-            }
-        })();
-    </script>
+<script>
+  // Reveal animation
+  const reveals=[...document.querySelectorAll('[data-reveal]')];
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ 
+        if(en.isIntersecting){ 
+          setTimeout(()=>en.target.classList.add('in'), 100); 
+      io.unobserve(en.target); 
+     } 
+      });
+    },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
+  reveals.forEach(e=>io.observe(e));
+  } else {
+    reveals.forEach(e=>e.classList.add('in'));
+  }
+
+  function confirmDecline(name) {
+    return confirm(`${name} isimli danışanın randevu talebi reddedilecek!\n\nDanışana red sebebi hakkında bilgi vermeyi lütfen unutmayınız.`);
+  }
+
+  // Reject info alert
+  (function(){
+    var info = '@(rejectInfo ?? string.Empty)';
+    if (info) {
+      setTimeout(()=>{
+        alert(info + ' isimli danışanın randevu talebi reddedildi!\n\nDanışana red sebebi hakkında bilgi vermeyi lütfen unutmayınız!');
+      }, 500);
+    }
+  })();
+</script>
 }

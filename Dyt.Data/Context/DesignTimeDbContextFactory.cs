@@ -21,7 +21,7 @@ namespace Dyt.Data.Context // Tasarım zamanı DbContext fabrikasının bulundu�
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>(); // DbContext seçeneklerini oluştur
             optionsBuilder.UseSqlServer( // SQL Server sağlayıcısını seç
-                "Server=DESKTOP-H8P7QQ0;Database=DytDb;Trusted_Connection=True;TrustServerCertificate=True;"); // Geliştirme için basit bağlantı dizesi
+                "Server=CRNTK\\SQLEXPRESS;Database=DytDb;Trusted_Connection=True;TrustServerCertificate=True;"); // Geliştirme için basit bağlantı dizesi
 
             return new AppDbContext(optionsBuilder.Options); // Seçeneklerle DbContext oluştur ve döndür
         }

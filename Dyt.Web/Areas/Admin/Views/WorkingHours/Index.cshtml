@@ -13,274 +13,944 @@
     var closedMap = ViewBag.ClosedCountMap as IDictionary<string, int> ?? new Dictionary<string, int>();
 }
 
-<div class="container py-4">
-  <h1 class="h4 fw-bold mb-3">Çalışma Saatleri</h1>
+<style>
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  
+  /* Hero with green gradient */
+  .appt-hero{
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+      radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+    padding:48px 0 36px;
+  }
+  .appt-hero:before{
+    content:"";
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+      radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size:32px 32px, 64px 64px;
+    background-position:0 0, 16px 16px;
+    opacity:.4;
+    animation:dotMove 25s linear infinite;
+  }
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
 
+  /* Cards */
+  .card{
+    border-radius:18px;
+    border:1px solid rgba(76,175,80,.2);
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+    transition:all .3s ease;
+  }
+  .card:hover{box-shadow:0 18px 50px rgba(76,175,80,.15)}
+
+  /* Calendar Grid Styles */
+  .calendar-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
+  gap:16px;
+    margin-top:20px;
+  }
+
+  .calendar-day-card{
+    position:relative;
+    border:2px solid rgba(76,175,80,.2);
+    border-radius:16px;
+    padding:16px;
+    background:#fff;
+    cursor:pointer;
+    transition:all .3s ease;
+    min-height:160px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .calendar-day-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 30px rgba(76,175,80,.2);
+    border-color:#4CAF50;
+  }
+
+  .calendar-day-card.has-work{
+    background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border-color:rgba(76,175,80,.3);
+  }
+
+  .calendar-day-card.all-closed{
+    background:linear-gradient(135deg, rgba(239,68,68,.08), rgba(255,152,0,.05));
+    border-color:rgba(239,68,68,.3);
+  }
+
+  .calendar-date-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:12px;
+    padding-bottom:10px;
+    border-bottom:2px solid rgba(76,175,80,.15);
+  }
+
+  .calendar-day-num{
+    font-size:28px;
+  font-weight:800;
+    line-height:1;
+    color:#4CAF50;
+  }
+
+  .calendar-day-card.all-closed .calendar-day-num{
+    color:#ef4444;
+  }
+
+  .calendar-month{
+    font-size:11px;
+    font-weight:600;
+    text-transform:uppercase;
+    color:#81C784;
+margin-top:2px;
+  }
+
+  .calendar-weekday{
+    font-size:13px;
+    font-weight:600;
+    color:#666;
+  }
+
+  .calendar-day-card.today{
+    border-color:#FF9800;
+    background:linear-gradient(135deg, rgba(255,152,0,.1), rgba(76,175,80,.05));
+  }
+
+  .calendar-day-card.today .calendar-day-num{
+    color:#FF9800;
+  }
+
+  .today-badge{
+    position:absolute;
+    top:8px;
+    right:8px;
+    background:linear-gradient(135deg, #FF9800, #FFB74D);
+    color:#fff;
+    font-size:9px;
+    font-weight:700;
+    padding:3px 8px;
+    border-radius:999px;
+    text-transform:uppercase;
+    box-shadow:0 2px 8px rgba(255,152,0,.3);
+  }
+
+  .calendar-slots-info{
+  flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:auto;
+  }
+
+  .slot-status-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+  }
+
+  .slot-status-row.open{
+    background:rgba(76,175,80,.1);
+    color:#2e7d32;
+  }
+
+  .slot-status-row.closed{
+    background:rgba(239,68,68,.1);
+    color:#991b1b;
+  }
+
+  .slot-status-row.reserved{
+    background:rgba(99,102,241,.1);
+    color:#1e40af;
+  }
+
+  .calendar-edit-btn{
+    margin-top:12px;
+ padding:8px 12px;
+    border-radius:8px;
+    border:2px solid rgba(76,175,80,.3);
+    background:white;
+    color:#4CAF50;
+    font-weight:600;
+    font-size:13px;
+    text-align:center;
+    cursor:pointer;
+    transition:all .3s ease;
+  }
+
+  .calendar-edit-btn:hover{
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+    border-color:#4CAF50;
+    transform:translateY(-2px);
+    box-shadow:0 6px 16px rgba(76,175,80,.2);
+  }
+
+  /* Slot management modal */
+  .slot-management{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:rgba(0,0,0,.6);
+    backdrop-filter:blur(4px);
+    z-index:9999;
+  display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+
+  .slot-management.show{
+    display:flex;
+ animation:fadeIn .3s ease;
+  }
+
+  .slot-management-content{
+    background:white;
+    border-radius:24px;
+    padding:32px;
+  max-width:700px;
+    width:100%;
+    max-height:90vh;
+    overflow-y:auto;
+    box-shadow:0 20px 60px rgba(0,0,0,.3);
+    position:relative;
+    animation:slideUp .3s ease;
+  }
+
+  .slot-management-close{
+    position:absolute;
+    top:16px;
+    right:16px;
+    background:none;
+    border:none;
+    font-size:28px;
+    color:#999;
+    cursor:pointer;
+    width:36px;
+    height:36px;
+ display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    transition:all .3s ease;
+  }
+
+  .slot-management-close:hover{
+    background:#f5f5f5;
+  color:#333;
+ transform:rotate(90deg);
+  }
+
+  .slot-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    border:2px solid #e5e7eb;
+    border-radius:12px;
+    padding:10px 14px;
+  margin:4px;
+    font-size:13px;
+    font-weight:600;
+    position:relative;
+    cursor:pointer;
+    transition:all .3s ease;
+    user-select:none;
+  }
+
+  .slot-chip:hover{
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
+  }
+
+  .slot-chip input{
+    margin:0;
+    cursor:pointer;
+  }
+
+  .slot-chip.slot-free{
+    background:rgba(76,175,80,.08);
+    border-color:rgba(76,175,80,.3);
+    color:#2e7d32;
+  }
+
+  .slot-chip.slot-closed{
+    background:#fef2f2;
+    border-color:#ef4444;
+    color:#991b1b;
+  }
+
+  .slot-chip.slot-reserved{
+    background:#e0e7ff;
+    border-color:#6366f1;
+  color:#1e40af;
+    opacity:.7;
+    cursor:not-allowed;
+  }
+
+  .slot-chip input:disabled{
+    cursor:not-allowed;
+  }
+
+  .slot-chip .ico{
+    margin-left:4px;
+    font-size:14px;
+  }
+
+  .slot-actions{
+    margin-top:20px;
+    padding-top:20px;
+    border-top:2px solid rgba(76,175,80,.15);
+    display:flex;
+    gap:12px;
+  flex-wrap:wrap;
+  }
+
+  @@keyframes fadeIn{
+    from{opacity:0}
+  to{opacity:1}
+  }
+
+  @@keyframes slideUp{
+    from{opacity:0;transform:translateY(40px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  /* Form styling */
+  .exception-form{
+    background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border-radius:16px;
+    padding:24px;
+    border:2px solid rgba(76,175,80,.2);
+  }
+
+  .form-control:focus{
+    border-color:#4CAF50;
+    box-shadow:0 0 0 0.2rem rgba(76,175,80,.25);
+  }
+
+  /* Reveal animation */
+  [data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-reveal].in{opacity:1;transform:translateY(0)}
+
+  /* Responsive */
+  @@media (max-width: 768px){
+    .calendar-grid{
+      grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
+   gap:12px;
+    }
+    
+    .calendar-day-card{
+      min-height:140px;
+      padding:12px;
+    }
+    
+    .calendar-day-num{
+      font-size:24px;
+  }
+  }
+
+  @@media (max-width: 576px){
+    .calendar-grid{
+      grid-template-columns:repeat(2, 1fr);
+    }
+  }
+</style>
+
+<!-- Hero -->
+<section class="appt-hero">
+  <div class="container position-relative" style="z-index:1">
+    <div class="text-center" data-reveal>
+      <h1 class="display-5 fw-bold mb-3">🗓️ Çalışma Saatleri Yönetimi</h1>
+      <p class="lead mb-0">Müsaitliğinizi yönetin, kapalı günlerinizi belirleyin.</p>
+    </div>
+  </div>
+</section>
+
+<div class="container py-5">
   @if (TempData["Msg"] is string m)
   {
-    <div class="alert alert-success">@m</div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert" data-reveal>
+  @m
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
   }
   @if (!ViewData.ModelState.IsValid)
   {
-    <div class="alert alert-danger">
-      @foreach (var v in ViewData.ModelState.Values)
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" data-reveal>
+    @foreach (var v in ViewData.ModelState.Values)
       {
-        foreach (var e in v.Errors)
+   foreach (var e in v.Errors)
         {
           <div>@e.ErrorMessage</div>
         }
       }
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   }
 
-  <div class="row g-4">
-    <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">İstisnalar (Tarih Bazlı Müsaitlik)</h5>
-          <form asp-action="SaveException" method="post" class="row g-2">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="Id" value="" />
-            <div class="col-4">
-              <label class="form-label">Tarih</label>
-              <input type="date" name="Date" class="form-control" />
-            </div>
-            <div class="col-3">
-              <label class="form-label">Başlangıç</label>
-              <input type="time" name="StartTime" class="form-control" />
-            </div>
-            <div class="col-3">
-              <label class="form-label">Bitiş</label>
-              <input type="time" name="EndTime" class="form-control" />
-            </div>
-            <div class="col-2 form-check" style="padding-top:32px;">
-              <input type="hidden" name="IsClosed" value="false" />
-              <input class="form-check-input" type="checkbox" name="IsClosed" value="true" />
-              <label class="form-check-label">Kapalı</label>
-            </div>
-            <div class="col-12">
-              <input type="text" name="Note" class="form-control" placeholder="Not (opsiyonel)" />
-            </div>
-            <div class="col-12">
-              <button class="btn btn-primary">Kaydet</button>
-            </div>
-          </form>
-          <div id="exceptionsWrap" class="table-responsive mt-3">
-            @await Html.PartialAsync("_ExceptionsTable", exceptions)
+  <!-- Yeni İstisna Ekleme Formu -->
+  <div class="card mb-4" data-reveal>
+    <div class="card-body">
+      <h5 class="card-title fw-bold mb-4">➕ Yeni Müsaitlik / Kapalı Gün Ekle</h5>
+   <form asp-action="SaveException" method="post" class="exception-form" id="exceptionForm">
+        @Html.AntiForgeryToken()
+    <input type="hidden" name="Id" value="" />
+        
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+   <label class="form-label fw-semibold">📆 Tarih <span class="text-danger">*</span></label>
+  <input type="date" name="Date" class="form-control" required id="dateInput" />
           </div>
-        </div>
+          <div class="col-md-3">
+<label class="form-label fw-semibold">🕐 Başlangıç <span class="text-danger" id="startRequired">*</span></label>
+     <input type="time" name="StartTime" class="form-control" required id="startTimeInput" />
+    <small class="text-muted" id="startHint" style="display:none;">Kapalı gün için zorunlu değil</small>
       </div>
+  <div class="col-md-3">
+  <label class="form-label fw-semibold">🕐 Bitiş <span class="text-danger" id="endRequired">*</span></label>
+         <input type="time" name="EndTime" class="form-control" required id="endTimeInput" />
+     <small class="text-muted" id="endHint" style="display:none;">Kapalı gün için zorunlu değil</small>
+  </div>
+   <div class="col-md-2">
+         <label class="form-label fw-semibold d-block">&nbsp;</label>
+      <div class="form-check" style="padding-top:8px;">
+  <input type="hidden" name="IsClosed" value="false" />
+       <input class="form-check-input" type="checkbox" name="IsClosed" value="true" id="isClosedCheck" />
+     <label class="form-check-label fw-semibold" for="isClosedCheck">
+  ⛔ Kapalı Gün
+           </label>
+       </div>
+      </div>
+      </div>
+  
+        <div class="mb-3">
+  <label class="form-label fw-semibold">📝 Not (opsiyonel)</label>
+  <input type="text" name="Note" class="form-control" placeholder="Örn: Tatil, Toplantı, vb." />
+</div>
+        
+  <button type="submit" class="btn btn-primary btn-lg">✅ Kaydet</button>
+      </form>
     </div>
   </div>
 
-  <div class="row g-4 mt-1">
-    <div class="col-12">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">Önümüzdeki 14 Gün – Müsaitlik Önizleme</h5>
-
-          <style>
-            .slot-chip { display:inline-flex; align-items:center; gap:6px; border:1px solid #e5e7eb; border-radius:8px; padding:6px 10px; margin:3px; font-size:12px; position:relative; }
-            .slot-chip input { margin:0; }
-            .slot-free { background:#ecfdf5; border-color:#34d399; color:#065f46; }
-            .slot-busy { background:#fef2f2; border-color:#ef4444; color:#7f1d1d; }
-            .slot-closed { background:#fff7ed; border-color:#f59e0b; color:#78350f; }
-            .slot-reserved { background:#e0e7ff; border-color:#6366f1; color:#1e40af; }
-            .slot-closed .ico { margin-left:6px; }
-            .slot-reserved .ico { margin-left:6px; }
-            .slot-actions { margin-top:8px; }
-            .badge-closed { background:#ffe4e6; color:#9f1239; border:1px solid #fecdd3; border-radius:6px; padding:2px 6px; font-size:11px; }
-          </style>
-
-          <div class="table-responsive">
-            <table class="table table-sm align-middle" id="adminPreviewTable">
-              <thead>
-                <tr>
-                  <th style="width:160px;">Tarih</th>
-                  <th style="width:120px;">Gün</th>
-                  <th>Müsait Saatler</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach (var d in preview)
-                {
-                  var iso = d.Date.ToString("yyyy-MM-dd");
-                  var closedCount = closedMap.TryGetValue(iso, out var c) ? c : 0;
-                  <tr data-date="@iso">
-                    <td>
-                      @d.Date.ToString("dd.MM.yyyy")
-                      @if (closedCount > 0)
-                      {
-                        <span class="ms-2 badge-closed">@closedCount kapalı</span>
-                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1 js-toggle-quick-edit" data-date="@iso">Güncelle</button>
-                      }
-                    </td>
-                    <td>@(new System.Globalization.CultureInfo("tr-TR").DateTimeFormat.GetDayName((System.DayOfWeek)@d.Date.DayOfWeek))</td>
-                    <td>
-                      <div class="slot-admin" data-date="@iso">
-                        <div class="slot-items"></div>
-                        <div class="slot-actions d-none">
-                          <button type="button" class="btn btn-sm btn-warning me-2 js-close-selected">Seçili saatleri kapat</button>
-                          <button type="button" class="btn btn-sm btn-outline-success js-open-selected">Seçili kapalı saatleri aç</button>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          @* Antiforgery token'ı AJAX için sayfaya koyuyorum *@
-          <form id="af" method="post">@Html.AntiForgeryToken()</form>
-        </div>
+  <!-- İstisnalar Tablosu -->
+  @if (exceptions.Any())
+  {
+    <div class="card mb-4" data-reveal>
+      <div class="card-body">
+        <h5 class="card-title fw-bold mb-3">📋 Kayıtlı İstisnalar</h5>
+        <div id="exceptionsWrap" class="table-responsive">
+          @await Html.PartialAsync("_ExceptionsTable", exceptions)
+   </div>
       </div>
+    </div>
+  }
+
+  <!-- 14 Günlük Takvim Önizlemesi -->
+  <div class="card" data-reveal>
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+<div>
+          <h5 class="card-title fw-bold mb-1">📅 Önümüzdeki 14 Gün - Müsaitlik Durumu</h5>
+     <p class="text-muted small mb-0">Günlük saatleri yönetmek için kartlara tıklayın</p>
+        </div>
+        <div class="d-flex gap-2 align-items-center flex-wrap">
+       <span class="badge bg-success-subtle text-success border border-success fw-semibold px-3 py-2" style="font-size: 13px;">✅ Açık</span>
+          <span class="badge bg-danger-subtle text-danger border border-danger fw-semibold px-3 py-2" style="font-size: 13px;">⛔ Kapalı</span>
+     <span class="badge bg-primary-subtle text-primary border border-primary fw-semibold px-3 py-2" style="font-size: 13px;">🔒 Randevulu</span>
+        </div>
+  </div>
+
+      <div id="calendar-grid" class="calendar-grid"></div>
+ </div>
+  </div>
+</div>
+
+<!-- Slot Yönetim Modal -->
+<div class="slot-management" id="slotModal">
+  <div class="slot-management-content">
+  <button class="slot-management-close" id="slotModalClose">&times;</button>
+    
+    <h4 class="fw-bold mb-2" id="modalTitle">Slot Yönetimi</h4>
+    <p class="text-muted mb-4" id="modalDate">—</p>
+
+    <div id="modalSlots" class="mb-3"></div>
+
+    <div class="slot-actions d-none" id="slotActions">
+      <button type="button" class="btn btn-danger" id="btnCloseSelected">⛔ Seçili Saatleri Kapat</button>
+      <button type="button" class="btn btn-success" id="btnOpenSelected">✅ Seçili Kapalı Saatleri Aç</button>
     </div>
   </div>
 </div>
 
+@* Antiforgery token'ı AJAX için *@
+<form id="af" method="post">@Html.AntiForgeryToken()</form>
+
 @section Scripts {
 <script>
 (function(){
-  const table = document.getElementById('adminPreviewTable');
-  if(!table) return;
+  console.log('WorkingHours script started'); // Debug için log ekliyorum
+
+  // Reveal animation
+  const reveals=[...document.querySelectorAll('[data-reveal]')];
+  if('IntersectionObserver' in window){
+  const io=new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ 
+ if(en.isIntersecting){ 
+       setTimeout(()=>en.target.classList.add('in'), 100); 
+    io.unobserve(en.target); 
+ } 
+      });
+ },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
+  reveals.forEach(e=>io.observe(e));
+  } else {
+    reveals.forEach(e=>e.classList.add('in'));
+  }
+
+  // Exception Form - Başlangıç ve Bitiş saatleri zorunluluğu kontrolü
+  const exceptionForm = document.getElementById('exceptionForm');
+  const startTimeInput = document.getElementById('startTimeInput');
+  const endTimeInput = document.getElementById('endTimeInput');
+  const isClosedCheck = document.getElementById('isClosedCheck');
+  const startRequired = document.getElementById('startRequired');
+  const endRequired = document.getElementById('endRequired');
+  const startHint = document.getElementById('startHint');
+  const endHint = document.getElementById('endHint');
+
+  if (!exceptionForm || !startTimeInput || !endTimeInput || !isClosedCheck) {
+  console.error('Form elements not found!');
+    return;
+  }
+
+  function toggleTimeRequirement() {
+    const isClosed = isClosedCheck.checked;
+    
+    // Kapalı gün seçiliyse saatler zorunlu değil
+    startTimeInput.required = !isClosed;
+    endTimeInput.required = !isClosed;
+    
+ // Görsel göstergeler
+    if(startRequired) startRequired.style.display = isClosed ? 'none' : 'inline';
+    if(endRequired) endRequired.style.display = isClosed ? 'none' : 'inline';
+
+    if(startHint) startHint.style.display = isClosed ? 'inline' : 'none';
+    if(endHint) endHint.style.display = isClosed ? 'inline' : 'none';
+    
+    // Kapalı gün seçiliyse değerleri temizle
+    if (isClosed) {
+  startTimeInput.value = '';
+      endTimeInput.value = '';
+      startTimeInput.classList.remove('is-invalid');
+      endTimeInput.classList.remove('is-invalid');
+  }
+  }
+
+  // Checkbox değişikliğinde kontrol
+  isClosedCheck.addEventListener('change', toggleTimeRequirement);
+
+  // Form submit kontrolü
+  exceptionForm.addEventListener('submit', function(e) {
+    const isClosed = isClosedCheck.checked;
+    
+    // Kapalı gün değilse saatler zorunlu
+    if (!isClosed) {
+      if (!startTimeInput.value) {
+    alert('⚠️ Lütfen başlangıç saatini girin veya "Kapalı Gün" seçeneğini işaretleyin.');
+        startTimeInput.focus();
+  e.preventDefault();
+        return false;
+    }
+      
+      if (!endTimeInput.value) {
+   alert('⚠️ Lütfen bitiş saatini girin veya "Kapalı Gün" seçeneğini işaretleyin.');
+   endTimeInput.focus();
+        e.preventDefault();
+        return false;
+      }
+      
+      // Başlangıç bitiş kontrolü
+      if (startTimeInput.value >= endTimeInput.value) {
+ alert('⚠️ Bitiş saati başlangıç saatinden sonra olmalıdır.');
+ endTimeInput.focus();
+        e.preventDefault();
+        return false;
+      }
+  }
+  });
+
+  // Sayfa yüklendiğinde başlangıç durumunu ayarla
+  toggleTimeRequirement();
 
   const token = (document.querySelector('#af input[name="__RequestVerificationToken"]')||{}).value || '';
+  const modal = document.getElementById('slotModal');
+  const modalClose = document.getElementById('slotModalClose');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDate = document.getElementById('modalDate');
+  const modalSlots = document.getElementById('modalSlots');
+  const slotActions = document.getElementById('slotActions');
+  const btnCloseSelected = document.getElementById('btnCloseSelected');
+  const btnOpenSelected = document.getElementById('btnOpenSelected');
+
+  let currentDate = null;
 
   async function loadSlotStates(iso){
-    const r = await fetch(`/appointment/slot-states?date=${encodeURIComponent(iso)}`);
-    if(!r.ok) return [];
-    const j = await r.json();
-    return Array.isArray(j) ? j : [];
+    console.log('Loading slot states for:', iso);
+    try {
+      const r = await fetch(`/appointment/slot-states?date=${encodeURIComponent(iso)}`);
+      if(!r.ok) {
+        console.error('Slot states fetch failed:', r.status, r.statusText);
+      return [];
+      }
+      const j = await r.json();
+  console.log('Slot states loaded:', j.length);
+      return Array.isArray(j) ? j : [];
+    } catch (error) {
+      console.error('Error loading slot states:', error);
+      return [];
+    }
   }
+
   async function loadClosedStarts(iso){
-    const r = await fetch(`/Admin/WorkingHours/ClosedSlotStarts?date=${encodeURIComponent(iso)}`);
-    if(!r.ok) return [];
-    const j = await r.json();
-    return Array.isArray(j) ? j : [];
+    console.log('Loading closed starts for:', iso);
+    try {
+      const r = await fetch(`/Admin/WorkingHours/ClosedSlotStarts?date=${encodeURIComponent(iso)}`);
+   if(!r.ok) {
+        console.error('Closed starts fetch failed:', r.status, r.statusText);
+   return [];
+}
+      const j = await r.json();
+      console.log('Closed starts loaded:', j.length);
+      return Array.isArray(j) ? j : [];
+    } catch (error) {
+      console.error('Error loading closed starts:', error);
+  return [];
+    }
   }
+
   async function loadReservedStarts(iso){
-    const r = await fetch(`/Admin/WorkingHours/ReservedSlotStarts?date=${encodeURIComponent(iso)}&onlyConfirmed=true`);
-    if(!r.ok) return [];
-    const j = await r.json();
-    return Array.isArray(j) ? j : [];
+    console.log('Loading reserved starts for:', iso);
+    try {
+      const r = await fetch(`/Admin/WorkingHours/ReservedSlotStarts?date=${encodeURIComponent(iso)}&onlyConfirmed=true`);
+      if(!r.ok) {
+        console.error('Reserved starts fetch failed:', r.status, r.statusText);
+        return [];
+      }
+      const j = await r.json();
+      console.log('Reserved starts loaded:', j.length);
+      return Array.isArray(j) ? j : [];
+    } catch (error) {
+      console.error('Error loading reserved starts:', error);
+    return [];
+    }
   }
 
   async function refreshExceptions(){
     const wrap = document.getElementById('exceptionsWrap');
     if(!wrap) return;
-    const r = await fetch(`/Admin/WorkingHours/ExceptionsPartial`);
-    if(!r.ok) return;
-    wrap.innerHTML = await r.text();
+    try {
+      const r = await fetch(`/Admin/WorkingHours/ExceptionsPartial`);
+      if(!r.ok) return;
+      wrap.innerHTML = await r.text();
+    } catch (error) {
+      console.error('Error refreshing exceptions:', error);
+    }
   }
 
   function fmt(t){ const s = (t??'').toString(); return s.length>=5 ? s.substring(0,5) : s; }
 
-  function anyChecked(container){ return container.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)').length > 0; }
-  function updateActionsVisibility(slotAdmin){
-    const actions = slotAdmin.querySelector('.slot-actions');
-    actions.classList.toggle('d-none', !anyChecked(slotAdmin));
-  }
-
-  function bindSelectionHandlers(slotAdmin){
-    slotAdmin.addEventListener('change', (e)=>{
-      if(e.target && e.target.matches('input[type="checkbox"]')){
-        const label = e.target.closest('label');
-        const classes = label.classList;
-        if(e.target.disabled){ return; }
-        if(classes.contains('slot-closed')) classes.remove('slot-closed');
-        if(e.target.checked) classes.add('slot-closed');
-        updateActionsVisibility(slotAdmin);
-      }
-    });
-  }
-
-  async function renderRow(tr){
-    const iso = tr.getAttribute('data-date');
-    const slotAdmin = tr.querySelector('.slot-admin');
-    const items = slotAdmin.querySelector('.slot-items');
-    items.innerHTML = '<span class="text-muted">Yükleniyor...</span>';
-    const states = await loadSlotStates(iso);
-    const closedStarts = await loadClosedStarts(iso);
-    const reservedStarts = await loadReservedStarts(iso);
-    items.innerHTML = '';
-    const frag = document.createDocumentFragment();
-    for(const s of states){
-      const start = fmt(s.startTime); const end = fmt(s.endTime);
-      const isClosed = closedStarts.includes(start);
-      const isReserved = reservedStarts.includes(start);
-      const label = document.createElement('label');
-      label.className = `slot-chip ${isReserved ? 'slot-reserved' : (isClosed ? 'slot-closed' : 'slot-free')}`;
-      const cb = document.createElement('input');
-      cb.type = 'checkbox';
-      cb.value = start;
-      cb.checked = isClosed || isReserved;
-      cb.disabled = isReserved;
-      label.appendChild(cb);
-      const span = document.createElement('span'); span.textContent = `${start}-${end}`; label.appendChild(span);
-      if(isReserved){ const ico = document.createElement('span'); ico.className='ico'; ico.textContent='🔒'; label.appendChild(ico); label.title='Onaylanmış randevu var'; }
-      if(isClosed && !isReserved){ const ico = document.createElement('span'); ico.className='ico'; ico.textContent='⛔'; label.appendChild(ico); label.title='Kapalı'; }
-      frag.appendChild(label);
-    }
-    items.appendChild(frag);
-    updateActionsVisibility(slotAdmin);
+  function fmtDateTR(iso){ 
+    if(!iso) return ''; 
+    const d=new Date(iso+"T00:00:00"); 
+    return d.toLocaleDateString('tr-TR', { day:'2-digit', month:'long', year:'numeric', weekday:'long' }); 
   }
 
   async function postForm(url, data){
     const form = new URLSearchParams();
     for(const [k,v] of Object.entries(data)){
       if(Array.isArray(v)) v.forEach(x=> form.append(k, x));
-      else form.append(k, v);
+  else form.append(k, v);
     }
-    form.append('__RequestVerificationToken', token);
+  form.append('__RequestVerificationToken', token);
     const r = await fetch(url, { method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' }, body: form.toString() });
     if(!r.ok) throw new Error('İstek başarısız');
     return await r.json();
   }
 
-  function selectedStarts(slotAdmin, selector){
-    const sel = selector || 'input[type="checkbox"]:checked:not(:disabled)';
-    return Array.from(slotAdmin.querySelectorAll(sel)).map(cb=>cb.value);
+  function updateActionsVisibility(){
+    if (!modalSlots) return;
+    const anyChecked = modalSlots.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)').length > 0;
+    if(slotActions) slotActions.classList.toggle('d-none', !anyChecked);
   }
 
-  const rows = Array.from(table.querySelectorAll('tbody tr'));
-  rows.forEach(renderRow);
+  async function openSlotModal(iso){
+    currentDate = iso;
+    modalTitle.textContent = '⏰ Saat Yönetimi';
+    modalDate.textContent = fmtDateTR(iso);
+    modalSlots.innerHTML = '<div class="text-center"><span class="spinner-border spinner-border-sm me-2"></span>Yükleniyor...</div>';
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
 
-  table.addEventListener('click', async (e)=>{
-    const quick = e.target.closest('.js-toggle-quick-edit');
-    if(!quick) return;
-    const iso = quick.getAttribute('data-date');
-    const tr = table.querySelector(`tr[data-date="${iso}"]`);
-    if(tr){ tr.scrollIntoView({ behavior:'smooth', block:'center' }); const sa = tr.querySelector('.slot-admin'); sa.querySelector('.slot-actions').classList.remove('d-none'); }
-  });
+    const states = await loadSlotStates(iso);
+  const closedStarts = await loadClosedStarts(iso);
+    const reservedStarts = await loadReservedStarts(iso);
 
-  table.addEventListener('click', async (e)=>{
-    const btnClose = e.target.closest('.js-close-selected');
-    const btnOpen = e.target.closest('.js-open-selected');
-    if(!btnClose && !btnOpen) return;
+    modalSlots.innerHTML = '';
+ const frag = document.createDocumentFragment();
 
-    const tr = e.target.closest('tr');
-    const slotAdmin = tr.querySelector('.slot-admin');
-    const iso = tr.getAttribute('data-date');
+    for(const s of states){
+      const start = fmt(s.startTime);
+      const end = fmt(s.endTime);
+      const isClosed = closedStarts.includes(start);
+      const isReserved = reservedStarts.includes(start);
 
-    if(btnClose){
-      const starts = selectedStarts(slotAdmin, 'input[type="checkbox"]:checked:not(:disabled)');
+ const label = document.createElement('label');
+    label.className = `slot-chip ${isReserved ? 'slot-reserved' : (isClosed ? 'slot-closed' : 'slot-free')}`;
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+  cb.value = start;
+    cb.checked = isClosed || isReserved;
+   cb.disabled = isReserved;
+
+      const span = document.createElement('span');
+      span.textContent = `${start} - ${end}`;
+
+ label.appendChild(cb);
+      label.appendChild(span);
+
+      if(isReserved){
+ const ico = document.createElement('span');
+  ico.className='ico';
+   ico.textContent='🔒';
+        label.appendChild(ico);
+        label.title='Onaylanmış randevu var';
+      }
+
+      if(isClosed && !isReserved){
+     const ico = document.createElement('span');
+        ico.className='ico';
+ ico.textContent='⛔';
+        label.appendChild(ico);
+        label.title='Kapalı';
+      }
+
+      frag.appendChild(label);
+    }
+
+    modalSlots.appendChild(frag);
+    updateActionsVisibility();
+
+    // Checkbox değişimlerini dinle
+    modalSlots.addEventListener('change', (e)=>{
+      if(e.target && e.target.matches('input[type="checkbox"]')){
+        const label = e.target.closest('label');
+if(e.target.disabled) return;
+        
+        if(e.target.checked){
+          label.classList.remove('slot-free');
+       label.classList.add('slot-closed');
+        } else {
+  label.classList.remove('slot-closed');
+label.classList.add('slot-free');
+      }
+   
+        updateActionsVisibility();
+      }
+});
+  }
+
+  function closeSlotModal(){
+if(modal) modal.classList.remove('show');
+ document.body.style.overflow = '';
+    currentDate = null;
+  }
+
+  if(modalClose) modalClose.addEventListener('click', closeSlotModal);
+  if(modal) {
+    modal.addEventListener('click', (e)=>{
+      if(e.target === modal) closeSlotModal();
+    });
+  }
+
+  if(btnCloseSelected) {
+    btnCloseSelected.addEventListener('click', async ()=>{
+      const starts = Array.from(modalSlots.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)')).map(cb=>cb.value);
       if(starts.length === 0){ alert('Lütfen kapatmak için saat seçiniz.'); return; }
       if(!confirm('Seçtiğiniz saatler kapalı yapılacak. Onaylıyor musunuz?')) return;
-      try{ await postForm('/Admin/WorkingHours/CloseSlots', { date: iso, starts }); await renderRow(tr); await refreshExceptions(); alert('Seçilen saatler kapatıldı.'); }catch{ alert('Hata oluştu.'); }
-      return;
-    }
+  
+      try{
+ await postForm('/Admin/WorkingHours/CloseSlots', { date: currentDate, starts });
+ await buildCalendar();
+ await refreshExceptions();
+    closeSlotModal();
+        alert('✅ Seçilen saatler kapatıldı.');
+      }catch{
+        alert('❌ Hata oluştu.');
+      }
+    });
+  }
 
-    if(btnOpen){
-      const starts = selectedStarts(slotAdmin, 'label.slot-closed input[type="checkbox"]:checked');
+  if(btnOpenSelected) {
+    btnOpenSelected.addEventListener('click', async ()=>{
+      const starts = Array.from(modalSlots.querySelectorAll('label.slot-closed input[type="checkbox"]:checked')).map(cb=>cb.value);
       if(starts.length === 0){ alert('Açmak için kapalı saat seçiniz.'); return; }
-      if(!confirm('Seçtiğiniz kapalı saatler açılacak. Onaylıyor musunuz?')) return;
-      try{ await postForm('/Admin/WorkingHours/OpenSlots', { date: iso, starts }); await renderRow(tr); await refreshExceptions(); alert('Seçilen kapalı saatler açıldı.'); }catch{ alert('Hata oluştu.'); }
-      return;
-    }
-  });
+  if(!confirm('Seçtiğiniz kapalı saatler açılacak. Onaylıyor musunuz?')) return;
+      
+      try{
+        await postForm('/Admin/WorkingHours/OpenSlots', { date: currentDate, starts });
+await buildCalendar();
+ await refreshExceptions();
+     closeSlotModal();
+        alert('✅ Seçilen kapalı saatler açıldı.');
+   }catch{
+        alert('❌ Hata oluştu.');
+      }
+    });
+  }
 
-  table.querySelectorAll('.slot-admin').forEach(bindSelectionHandlers);
+  // Calendar building
+  const calendarGrid = document.getElementById('calendar-grid');
+  if (!calendarGrid) {
+    console.error('Calendar grid element not found!');
+    return;
+  }
+
+const monthNames = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+  const dayNames = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  function ymd(d){ 
+    const yyyy=d.getFullYear(); 
+    const mm=String(d.getMonth()+1).padStart(2,'0'); 
+    const dd=String(d.getDate()).padStart(2,'0'); 
+    return `${yyyy}-${mm}-${dd}`; 
+  }
+
+  async function buildCalendar(){
+    console.log('Building calendar...'); 
+    calendarGrid.innerHTML = '<div class="text-center w-100"><span class="spinner-border me-2"></span>Yükleniyor...</div>';
+    
+    const frag = document.createDocumentFragment();
+    
+    try {
+      for(let i=0; i<14; i++){
+  const d = new Date(today.getFullYear(), today.getMonth(), today.getDate()+i);
+        const iso = ymd(d);
+        
+        console.log(`Processing day ${i+1}/14:`, iso);
+        
+        const states = await loadSlotStates(iso);
+        const closedStarts = await loadClosedStarts(iso);
+        const reservedStarts = await loadReservedStarts(iso);
+
+        const card = document.createElement('div');
+        const isToday = d.getTime() === today.getTime();
+        
+  const openCount = states.filter(s => s.isAvailable && !closedStarts.includes(fmt(s.startTime))).length;
+        const closedCount = closedStarts.length;
+    const reservedCount = reservedStarts.length;
+        const allClosed = states.length > 0 && openCount === 0;
+
+        card.className = `calendar-day-card ${allClosed ? 'all-closed' : (states.length > 0 ? 'has-work' : '')} ${isToday ? 'today' : ''}`;
+
+if(isToday){
+    const todayBadge = document.createElement('span');
+       todayBadge.className = 'today-badge';
+        todayBadge.textContent = 'Bugün';
+        card.appendChild(todayBadge);
+        }
+
+   // Header
+        const header = document.createElement('div');
+  header.className = 'calendar-date-header';
+
+        const leftSide = document.createElement('div');
+        const dayNum = document.createElement('div');
+        dayNum.className = 'calendar-day-num';
+        dayNum.textContent = d.getDate();
+        const monthLabel = document.createElement('div');
+        monthLabel.className = 'calendar-month';
+    monthLabel.textContent = monthNames[d.getMonth()];
+        leftSide.appendChild(dayNum);
+        leftSide.appendChild(monthLabel);
+
+        const weekday = document.createElement('div');
+        weekday.className = 'calendar-weekday';
+    weekday.textContent = dayNames[d.getDay()];
+
+        header.appendChild(leftSide);
+        header.appendChild(weekday);
+        card.appendChild(header);
+
+   // Info
+  const info = document.createElement('div');
+        info.className = 'calendar-slots-info';
+
+        if(openCount > 0){
+  const openRow = document.createElement('div');
+          openRow.className = 'slot-status-row open';
+        openRow.innerHTML = `<span>✅ Açık</span><span>${openCount}</span>`;
+     info.appendChild(openRow);
+        }
+
+    if(closedCount > 0){
+          const closedRow = document.createElement('div');
+          closedRow.className = 'slot-status-row closed';
+          closedRow.innerHTML = `<span>⛔ Kapalı</span><span>${closedCount}</span>`;
+        info.appendChild(closedRow);
+        }
+
+        if(reservedCount > 0){
+    const reservedRow = document.createElement('div');
+     reservedRow.className = 'slot-status-row reserved';
+      reservedRow.innerHTML = `<span>🔒 Randevulu</span><span>${reservedCount}</span>`;
+ info.appendChild(reservedRow);
+        }
+
+        if(states.length === 0){
+          info.innerHTML = '<div class="text-muted text-center small">Müsaitlik yok</div>';
+ }
+
+card.appendChild(info);
+
+        // Edit button
+        if(states.length > 0){
+          const editBtn = document.createElement('div');
+          editBtn.className = 'calendar-edit-btn';
+ editBtn.textContent = '⚙️ Saatleri Yönet';
+          editBtn.addEventListener('click', ()=> openSlotModal(iso));
+          card.appendChild(editBtn);
+        }
+
+   frag.appendChild(card);
+      }
+
+   calendarGrid.innerHTML = '';
+  calendarGrid.appendChild(frag);
+      console.log('Calendar built successfully!');
+    } catch (error) {
+      console.error('Error building calendar:', error);
+      calendarGrid.innerHTML = '<div class="alert alert-danger">Takvim yüklenirken hata oluştu. Lütfen sayfayı yenileyin.</div>';
+    }
+  }
+
+  // Takvimi oluştur
+  console.log('Starting calendar build...');
+  buildCalendar();
 })();
 </script>
 }

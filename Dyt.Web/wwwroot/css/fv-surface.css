@@ -1,0 +1,99 @@
+/* Translucent surfaces so background sprites are visible */
+:root{
+  --fv-surface-alpha: 0.82;   /* 0.70–0.90 arasý oynatýlabilir */
+  --fv-surface-radius: 16px;
+  --fv-surface-shadow: 0 8px 24px rgba(0,0,0,.08);
+  --fv-border: rgba(255,255,255,.55);
+}
+
+/* Opt-in translucent surface */
+.fv-surface{
+  background: rgba(255,255,255,var(--fv-surface-alpha));
+  backdrop-filter: saturate(120%) blur(2px);
+  -webkit-backdrop-filter: saturate(120%) blur(2px);
+  border: 1px solid var(--fv-border);
+  border-radius: var(--fv-surface-radius);
+  box-shadow: var(--fv-surface-shadow);
+}
+
+/* A little stronger version for text-heavy blocks */
+.fv-surface-strong{
+  background: rgba(255,255,255, calc(var(--fv-surface-alpha) + 0.06));
+  backdrop-filter: saturate(120%) blur(2.5px);
+  -webkit-backdrop-filter: saturate(120%) blur(2.5px);
+}
+
+/* Ensure headings/text remain crisp over translucent bg */
+.fv-text{
+  color: #111;
+  text-shadow: 0 1px 0 rgba(255,255,255,.4);
+}
+
+/* Don’t dim images/icons inside surfaces */
+.fv-surface img, .fv-surface svg { filter: none; opacity: 1; }
+
+/* Safety: keep interactive states visible */
+.fv-surface .btn, .fv-surface button, .fv-surface a{
+  position: relative;
+  z-index: 1;
+}
+
+/* Optional: cards commonly used class names (non-breaking) */
+:where(.card,.panel,.box,.tile).fv-surface { border-radius: var(--fv-surface-radius); }
+
+/* --- Translucency sweep (only when .fv-enable is on body) --- */
+.fv-enable{
+  /* page-level defaults you can tune */
+  --fv-surface-alpha: var(--fv-surface-alpha, .80);
+}
+
+/* Common opaque containers ? translucent surfaces */
+.fv-enable :where(
+  .section, .section-bg, .hero, .intro, .marquee, .partners, .brands,
+  .panel, .card, .tile, .box, .feature, .faq, .accordion, .timeline, .cta,
+  .testimonials, .testimonial, .recipes, .grid-card, .pillbar, .chips, .chipbar,
+  .container-bg, .content-block, .widget
+){
+  background: rgba(255,255,255,var(--fv-surface-alpha)) !important;
+  backdrop-filter: saturate(120%) blur(2px);
+  -webkit-backdrop-filter: saturate(120%) blur(2px);
+  border-radius: var(--fv-surface-radius,16px);
+  border: 1px solid var(--fv-border, rgba(255,255,255,.55));
+  box-shadow: var(--fv-surface-shadow, 0 8px 24px rgba(0,0,0,.08));
+}
+
+/* If some blocks draw white with pseudo-elements, neutralize them */
+.fv-enable :where(
+  .section, .hero, .panel, .card, .tile, .box, .marquee, .partners, .brands
+)::before,
+.fv-enable :where(
+  .section, .hero, .panel, .card, .tile, .box, .marquee, .partners, .brands
+)::after{
+  background: transparent !important;
+}
+
+/* Keep text crisp on translucent backgrounds */
+.fv-enable :where(
+  .section, .panel, .card, .tile, .box, .faq, .accordion, .timeline, .cta
+) :where(h1,h2,h3,h4,h5,h6,p,li,span){
+  color:#111;
+  text-shadow: 0 1px 0 rgba(255,255,255,.35);
+}
+
+/* Do not fade pills/buttons/links */
+.fv-enable :where(.btn,button,a,.badge,.chip){ opacity:1; filter:none; }
+
+/* Safety: stacking context for content above -1 canvas */
+.fv-enable main, .fv-enable .content, .fv-enable .container{
+  position: relative; z-index: 0;
+}
+
+/* ---- Opt-out helper: remove sweep background for a subtree ---- */
+.fv-enable .fv-nobg,
+.fv-enable .fv-nobg :where(.section, .panel, .card, .tile, .box, .marquee, .accordion, .faq, .container, .carousel){
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}

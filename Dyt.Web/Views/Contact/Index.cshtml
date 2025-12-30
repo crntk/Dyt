@@ -4,112 +4,354 @@
 }
 
 <style>
-  :root{ --pink:#e91e63; --bg:#fffafc; }
-  .contact-hero{background:radial-gradient(1000px 400px at 10% -20%, rgba(233,30,99,.18), transparent),radial-gradient(900px 360px at 90% -10%, rgba(255,255,255,.30), transparent);}
-  .chip{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid rgba(233,30,99,.35);background:rgba(233,30,99,.08);cursor:pointer;font-weight:600;color:#e91e63}
-  .chip.active{background:#e91e63;border-color:#e91e63;color:#fff}
-  .card{border-radius:16px}
-  .list-tick{list-style:none;padding-left:0;margin:0}
-  .list-tick li{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-  .list-tick li::before{content:"?";color:#22c55e}
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  
+  /* Hero */
+  .contact-hero{
+    position:relative;
+    overflow:hidden;
+    background:
+  radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+      radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+    padding:64px 0 48px;
+  }
+  .contact-hero:before{
+    content:"";
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+      radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size:32px 32px, 64px 64px;
+    background-position:0 0, 16px 16px;
+    opacity:.4;
+  animation:dotMove 25s linear infinite;
+  }
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
+  
+  /* Chips */
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    border-radius:999px;
+    border:1px solid rgba(76,175,80,.35);
+    background:rgba(76,175,80,.08);
+    cursor:pointer;
+    font-weight:600;
+color:#4CAF50;
+    transition:all .3s ease;
+  }
+  .chip:hover{ background:rgba(76,175,80,.15); }
+  .chip.active{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    border-color:#4CAF50;
+    color:#fff;
+ box-shadow:0 4px 12px rgba(76,175,80,.3);
+  }
+  
+  /* Cards */
+  .card{
+    border-radius:18px;
+    border:1px solid rgba(76,175,80,.2);
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+    transition:all .3s ease;
+  }
+  .card:hover{
+    box-shadow:0 18px 50px rgba(76,175,80,.15);
+    transform:translateY(-3px);
+  }
+  
+  /* KPI */
   .kpi{display:flex;gap:12px;align-items:center}
-  .kpi .icon{width:42px;height:42px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e91e63,#ff9fbd);color:#fff;box-shadow:0 8px 20px rgba(233,30,99,.25)}
-  .hover-lift{transition:transform .15s ease, box-shadow .15s ease}
-  .hover-lift:hover{transform:translateY(-3px); box-shadow:0 18px 40px rgba(0,0,0,.10)!important}
-  .contact-link{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eee;border-radius:12px;background:#fff}
+  .kpi .icon{
+    width:52px;
+    height:52px;
+    border-radius:12px;
+  display:inline-flex;
+  align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,#4CAF50,#81C784);
+    color:#fff;
+    font-size:24px;
+    box-shadow:0 8px 20px rgba(76,175,80,.25);
+  }
+  
+  /* Contact links */
+  .contact-link{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 15px;
+    border:1px solid rgba(76,175,80,.2);
+    border-radius:12px;
+    background:#fff;
+    margin-bottom:10px;
+    transition:all .3s ease;
+  }
+  .contact-link:hover{
+    border-color:#4CAF50;
+  box-shadow:0 8px 20px rgba(76,175,80,.15);
+    transform:translateX(5px);
+  }
   .contact-link .copy{margin-left:auto}
-  .progress-wrap{height:8px;background:#f1f5f9;border-radius:10px;overflow:hidden}
-  .progress-bar{height:8px;background:linear-gradient(90deg,#e91e63,#ff9fbd);width:0}
-  .toastx{position:fixed;right:16px;bottom:16px;z-index:1080;display:none;}
+  
+  /* Icon boxes */
+  .icon-box-small{
+    width:28px;
+    height:28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .icon-box-small svg{
+    width:20px !important;
+    height:20px !important;
+    stroke:#4CAF50;
+  }
+  
+  /* Social buttons */
+  .social-btn{
+    display:inline-flex !important;
+align-items:center !important;
+    gap:8px !important;
+    padding:8px 14px !important;
+    border:1px solid rgba(76,175,80,.2) !important;
+    border-radius:10px !important;
+    transition:all .3s ease !important;
+    background:#fff !important;
+  }
+  .social-btn svg{
+    width:18px !important;
+    height:18px !important;
+stroke:#4CAF50;
+  }
+  .social-btn:hover{
+    background:linear-gradient(135deg, #4CAF50, #81C784) !important;
+ color:white !important;
+    border-color:#4CAF50 !important;
+    transform:translateY(-3px);
+    box-shadow:0 8px 20px rgba(76,175,80,.3) !important;
+  }
+  .social-btn:hover svg{ stroke:white !important; }
+  
+  /* Location container */
+  .location-container{
+width:100% !important;
+ border:1px solid rgba(76,175,80,.2);
+    border-radius:12px;
+    overflow:hidden;
+    background:#fff;
+    display:flex;
+    flex-direction:column;
+  }
+  .location-header-info{
+    display:flex;
+  align-items:center;
+    gap:12px;
+    padding:12px 15px;
+background:#fff;
+    border-bottom:1px solid rgba(76,175,80,.1);
+  }
+  .map-frame{width:100%;height:200px;line-height:0}
+  .map-frame iframe{width:100% !important;height:100% !important;border:0}
+  
+  /* Work hours */
+  .work-hour-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 0;
+    border-bottom:1px dashed rgba(76,175,80,.15);
+  }
+  .work-hour-item:last-child{border-bottom:none}
+  .badge-closed{
+    background-color:rgba(76,175,80,.1);
+ color:#4CAF50;
+    padding:4px 12px;
+    border-radius:20px;
+ font-size:11px;
+    font-weight:700;
+  }
+  
+  /* Progress bar */
+  .progress-wrap{
+    height:8px;
+    background:rgba(76,175,80,.1);
+border-radius:10px;
+    overflow:hidden;
+  }
+  .progress-bar{
+    height:8px;
+    background:linear-gradient(90deg,#4CAF50,#81C784,#FF9800);
+    width:0;
+    transition:width .3s ease;
+  }
+  
+  /* Newsletter */
+  .newsletter{
+    border-radius:16px;
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+    border:2px dashed rgba(76,175,80,.3);
+  }
+  
+  /* Toast */
+  .toastx{position:fixed;right:16px;bottom:16px;z-index:1080;display:none}
+  
+  /* Reveal */
+  [data-animate]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-animate].in{opacity:1;transform:translateY(0)}
 
-  /* reveal */
-  [data-animate]{opacity:0;transform:translateY(6px);transition:opacity .4s ease, transform .4s ease}
-  [data-animate].in{opacity:1;transform:none}
+  /* Form enhancements */
+  .form-control:focus{
+    border-color:#4CAF50;
+    box-shadow:0 0 0 0.2rem rgba(76,175,80,.25);
+  }
+  .form-label .text-danger{
+  font-size:0.9rem;
+  }
+  input[type="tel"]::-webkit-input-placeholder,
+  input[type="email"]::-webkit-input-placeholder,
+  input::placeholder,
+  textarea::placeholder{
+  color:#999;
+    font-style:italic;
+  }
+  
+  /* Phone input styling */
+  input[type="tel"] {
+    letter-spacing: 0.5px;
+  }
+  
+  /* KVKK checkbox emphasis */
+  .form-check-label {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .form-check-input:checked {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+  }
+  .form-check-input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 0.2rem rgba(76,175,80,.25);
+  }
+  
+  /* Toast */
+  .toastx{position:fixed;right:16px;bottom:16px;z-index:1080;display:none}
+  
+  /* Reveal */
+  [data-animate]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-animate].in{opacity:1;transform:translateY(0)}
 </style>
 
 <!-- Hero -->
-<section class="contact-hero py-5">
-  <div class="container">
+<section class="contact-hero fv-nobg">
+  <div class="container position-relative" style="z-index:1">
     <div class="row align-items-center g-4">
-      <div class="col-lg-7" data-animate>
-        <h1 class="display-6 fw-bold mb-2">Bize Ulaþýn</h1>
-        <p class="lead mb-0">Sorunuz, randevu talebiniz veya geri bildiriminiz için formu doldurun. En kýsa sürede dönüþ yapalým.</p>
+      <div class="col-lg-7 fv-text" data-animate>
+   <h1 class="display-4 fw-bold mb-3">&#128231; Bize Ulaþýn</h1>
+   <p class="lead mb-0">Sorunuz, randevu talebiniz veya geri bildiriminiz için formu doldurun. En kýsa sürede dönüþ yapalým.</p>
       </div>
-      <div class="col-lg-5" data-animate>
+      <div class="col-lg-5 fv-text" data-animate>
         <div class="kpi">
-          <div class="icon">??</div>
-          <div>
-            <div class="h4 mb-0">Hýzlý dönüþ</div>
-            <div class="text-muted small">Mesajlara ayný gün içinde yanýt</div>
+   <div class="icon">&#9889;</div>
+    <div>
+     <div class="h4 mb-0">Hýzlý dönüþ</div>
+    <div class="text-muted small">Mesajlara ayný gün içinde yanýt</div>
           </div>
-        </div>
-      </div>
+   </div>
+ </div>
     </div>
   </div>
 </section>
 
-<div class="container py-4">
+<div class="container py-5">
   <div class="row g-4">
     <!-- Form -->
     <div class="col-lg-7" data-animate>
       @if (TempData["Msg"] is string m){
-        <div class="alert alert-success hover-lift">@m</div>
+        <div class="alert alert-success">&#9989; @m</div>
       }
-      <div class="card shadow-sm hover-lift">
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <h5 class="card-title mb-0">Ýletiþim Formu</h5>
-            <div class="progress-wrap" style="width:180px"><div id="progress" class="progress-bar"></div></div>
+      @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+      {
+       <div class="alert alert-danger">
+     <strong>?? Lütfen aþaðýdaki hatalarý düzeltin:</strong>
+     <ul class="mb-0 mt-2">
+   @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+     {
+ <li>@error.ErrorMessage</li>
+   }
+  </ul>
+    </div>
+    }
+ <div class="card shadow-sm fv-surface-strong fv-text">
+     <div class="card-body">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h5 class="card-title mb-0 fw-bold">&#128221; Ýletiþim Formu</h5>
+   <div class="progress-wrap" style="width:180px">
+              <div id="progress" class="progress-bar"></div>
+            </div>
           </div>
 
-          <div class="mb-2 small text-muted">Konu baþlýðý seçmek için etiketlere týklayýn:</div>
-          <div class="d-flex flex-wrap gap-2 mb-3">
-            <button type="button" class="chip js-chip" data-text="Randevu Hakkýnda">#Randevu</button>
-            <button type="button" class="chip js-chip" data-text="Beslenme Programý">#Program</button>
-            <button type="button" class="chip js-chip" data-text="Kurumsal Ýþ Birliði">#Kurumsal</button>
-            <button type="button" class="chip js-chip" data-text="Diðer">#Diðer</button>
-          </div>
+   <div class="mb-3 small text-muted">Konu baþlýðý seçmek için etiketlere týklayýn:</div>
+          <div class="d-flex flex-wrap gap-2 mb-4">
+      <button type="button" class="chip js-chip" data-text="Randevu Hakkýnda">&#128188; Randevu</button>
+            <button type="button" class="chip js-chip" data-text="Beslenme Programý">&#129367; Program</button>
+        <button type="button" class="chip js-chip" data-text="Kurumsal Ýþ Birliði">&#127970; Kurumsal</button>
+      <button type="button" class="chip js-chip" data-text="Diðer">&#128172; Diðer</button>
+</div>
 
-          <form method="post" id="cform" novalidate>
-            @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Ad Soyad</label>
-                <input asp-for="Name" class="form-control" placeholder="Adýnýz Soyadýnýz" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">E-posta</label>
-                <input asp-for="Email" class="form-control" placeholder="mail@ornek.com" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-              </div>
-              <div class="col-12">
-                <label class="form-label">Konu</label>
-                <input asp-for="Subject" class="form-control" placeholder="Kýsaca konuyu yazýn" />
-                <span asp-validation-for="Subject" class="text-danger"></span>
-              </div>
-              <div class="col-12">
-                <label class="form-label">Mesaj</label>
-                <textarea asp-for="Message" rows="6" class="form-control" placeholder="Mesajýnýzý yazýn"></textarea>
-                <div class="d-flex justify-content-between small mt-1">
-                  <span asp-validation-for="Message" class="text-danger"></span>
-                  <span id="charCount" class="text-muted">0 karakter</span>
-                </div>
-              </div>
+       <form method="post" id="cform" novalidate>
+       @Html.AntiForgeryToken()
+         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+      <div class="row g-3">
+      <div class="col-md-6">
+ <label class="form-label fw-semibold">Ad Soyad <span class="text-danger">*</span></label>
+ <input asp-for="Name" class="form-control" placeholder="Adýnýz Soyadýnýz" required />
+  <span asp-validation-for="Name" class="text-danger small"></span>
+      </div>
+   <div class="col-md-6">
+       <label class="form-label fw-semibold">Telefon <span class="text-danger">*</span></label>
+   <input asp-for="Phone" type="tel" class="form-control" placeholder="05XX XXX XX XX" required pattern="[0-9+\s\-\(\)]+" inputmode="numeric" />
+     <span asp-validation-for="Phone" class="text-danger small"></span>
+         </div>
+   <div class="col-md-6">
+  <label class="form-label fw-semibold">E-posta <span class="text-danger">*</span></label>
+  <input asp-for="Email" type="email" class="form-control" placeholder="mail@ornek.com" required />
+     <span asp-validation-for="Email" class="text-danger small"></span>
+    </div>
+      <div class="col-md-6">
+       <label class="form-label fw-semibold">Konu <span class="text-danger">*</span></label>
+   <input asp-for="Subject" class="form-control" placeholder="Kýsaca konuyu yazýn" required />
+    <span asp-validation-for="Subject" class="text-danger small"></span>
+   </div>
+   <div class="col-12">
+        <label class="form-label fw-semibold">Mesajýnýz <span class="text-danger">*</span></label>
+      <textarea asp-for="Message" rows="6" class="form-control" placeholder="Mesajýnýzý detaylý bir þekilde yazýn..." required minlength="10"></textarea>
+      <div class="d-flex justify-content-between small mt-1">
+            <span asp-validation-for="Message" class="text-danger"></span>
+      <span id="charCount" class="text-muted">0 / 2000 karakter</span>
+  </div>
+      </div>
             </div>
 
-            <div class="form-check mt-3 mb-2">
-              <input class="form-check-input" type="checkbox" id="consent">
-              <label class="form-check-label" for="consent">KVKK aydýnlatma metnini okudum, bilgilendirildim.</label>
-            </div>
+  <div class="form-check mt-3 mb-3">
+          <input asp-for="KvkkConsent" class="form-check-input" type="checkbox" id="consent">
+       <label class="form-check-label" for="consent">
+     <span class="text-danger">*</span> KVKK aydýnlatma metnini okudum, bilgilendirildim ve kabul ediyorum.
+   </label>
+     <span asp-validation-for="KvkkConsent" class="text-danger small d-block"></span>
+   </div>
 
-            <div class="d-flex gap-2 justify-content-end mt-2">
+  <div class="d-flex gap-2 justify-content-end">
               <button id="btnReset" type="button" class="btn btn-outline-secondary">Temizle</button>
-              <button id="btnSend" class="btn btn-primary">
-                <span class="send-text">Gönder</span>
-                <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
-              </button>
+          <button id="btnSend" class="btn btn-primary">
+ <span class="send-text">Gönder</span>
+ <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+           </button>
             </div>
           </form>
         </div>
@@ -118,57 +360,127 @@
 
     <!-- Info -->
     <div class="col-lg-5" data-animate>
-      <div class="card shadow-sm mb-3 hover-lift">
+      <div class="card shadow-sm mb-4 fv-surface-strong fv-text">
+   <div class="card-body">
+      <h5 class="card-title fw-bold mb-3">&#128222; Ýletiþim Kanallarý</h5>
+   <div class="d-flex flex-column gap-2">
+       <div class="contact-link">
+    <div class="icon-box-small">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+       </svg>
+     </div>
+        <a href="tel:+905551112233" class="text-reset text-decoration-none fw-semibold">+90 555 111 22 33</a>
+      <button class="btn btn-sm btn-light copy" data-copy="+905551112233">Kopyala</button>
+      </div>
+   <div class="contact-link">
+        <div class="icon-box-small">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+ <polyline points="22,6 12,13 2,6"></polyline>
+      </svg>
+  </div>
+        <a href="mailto:riyazatair15@gmail.com" class="text-reset text-decoration-none fw-semibold">riyazatair15@@gmail.com</a>
+  <button class="btn btn-sm btn-light copy" data-copy="riyazatair15@gmail.com">Kopyala</button>
+     </div>
+       <div class="contact-link">
+     <div class="location-container">
+      <div class="location-header-info">
+      <div class="icon-box-small">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+  <circle cx="12" cy="10" r="3"></circle>
+    </svg>
+   </div>
+       <span class="small fw-semibold">Merkez Mh. Saðlýk Sk. No:10, Ýstanbul</span>
+     </div>
+ <div class="map-frame">
+           <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.5123456789!2d28.974!3d41.008!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDAwJzI4LjgiTiAyOMKwNTgnMjYuNCJF!5e0!3m2!1str!2str!4v123456789" allowfullscreen="" loading="lazy"></iframe>
+</div>
+   </div>
+      </div>
+  </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mb-4 fv-surface-strong fv-text">
         <div class="card-body">
-          <h5 class="card-title">Ýletiþim Kanallarý</h5>
+        <h5 class="card-title fw-bold mb-3">&#128336; Çalýþma Saatleri</h5>
           <div class="d-flex flex-column gap-2">
-            <div class="contact-link">
-              <span>??</span>
-              <a href="tel:+905551112233" class="text-reset text-decoration-none">+90 555 111 22 33</a>
-              <button class="btn btn-sm btn-light copy" data-copy="+905551112233">Kopyala</button>
-            </div>
-            <div class="contact-link">
-              <span>??</span>
-              <a href="mailto:info@ornek.com" class="text-reset text-decoration-none">info@ornek.com</a>
-              <button class="btn btn-sm btn-light copy" data-copy="info@ornek.com">Kopyala</button>
-            </div>
-            <div class="contact-link">
-              <span>??</span>
-              <span>Merkez Mh. Saðlýk Sk. No:10, Ýstanbul</span>
-              <a class="btn btn-sm btn-outline-secondary ms-auto" target="_blank" href="https://maps.google.com/?q=Merkez%20Mahallesi%20Sa%C4%9Fl%C4%B1k%20Sk%2010%20Istanbul">Haritada Aç</a>
-            </div>
-          </div>
+   <div class="work-hour-item">
+      <div class="icon-box-small">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+       </div>
+<div class="d-flex justify-content-between w-100 align-items-center">
+        <span class="fw-semibold">Pazartesi - Cuma</span>
+         <span class="text-muted small">10:00 - 19:00</span>
+     </div>
+     </div>
+            <div class="work-hour-item">
+      <div class="icon-box-small">
+   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+ </div>
+    <div class="d-flex justify-content-between w-100 align-items-center">
+  <span class="fw-semibold">Cumartesi</span>
+ <span class="text-muted small">10:00 - 16:00</span>
+       </div>
+  </div>
+            <div class="work-hour-item">
+     <div class="icon-box-small">
+     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+      </div>
+           <div class="d-flex justify-content-between w-100 align-items-center">
+             <span class="fw-semibold">Pazar</span>
+          <span class="badge-closed">Kapalý</span>
         </div>
+</div>
+          </div>
+   </div>
       </div>
 
-      <div class="card shadow-sm mb-3 hover-lift">
+      <div class="card shadow-sm fv-surface-strong fv-text">
         <div class="card-body">
-          <h5 class="card-title">Çalýþma Saatleri</h5>
-          <ul class="list-tick text-muted small">
-            <li>Pazartesi - Cuma: 10:00 - 19:00</li>
-            <li>Cumartesi: 10:00 - 16:00</li>
-            <li>Pazar: Kapalý</li>
-          </ul>
+    <h5 class="card-title fw-bold mb-3">&#127760; Sosyal Medya</h5>
+ <div class="d-flex gap-2 flex-wrap">
+          <a class="btn btn-sm btn-light social-btn" target="_blank" href="#">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+        <span>Instagram</span>
+        </a>
+            <a class="btn btn-sm btn-light social-btn" target="_blank" href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 4l11.733 16h4.267l-11.733 -16z"></path>
+         <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path>
+            </svg>
+       <span>X</span>
+</a>
+        <a class="btn btn-sm btn-light social-btn" target="_blank" href="#">
+       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+ <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z"></path>
+    <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+            </svg>
+     <span>YouTube</span>
+        </a>
+    <a class="btn btn-sm btn-light social-btn" target="_blank" href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+   <rect x="2" y="9" width="4" height="12"></rect>
+          <circle cx="4" cy="4" r="2"></circle>
+  </svg>
+    <span>LinkedIn</span>
+          </a>
         </div>
-      </div>
-
-      <div class="card shadow-sm hover-lift">
-        <div class="card-body">
-          <h5 class="card-title">Sosyal Medya</h5>
-          <div class="d-flex gap-2 flex-wrap">
-            <a class="btn btn-sm btn-outline-secondary" target="_blank" href="#">?? Instagram</a>
-            <a class="btn btn-sm btn-outline-secondary" target="_blank" href="#">?? X</a>
-            <a class="btn btn-sm btn-outline-secondary" target="_blank" href="#">?? YouTube</a>
-            <a class="btn btn-sm btn-outline-secondary" target="_blank" href="#">?? LinkedIn</a>
-          </div>
-        </div>
+   </div>
       </div>
     </div>
   </div>
 </div>
 
 <div class="toastx">
-  <div class="alert alert-success shadow-sm mb-0">Panoya kopyalandý ?</div>
+  <div class="alert alert-success shadow-sm mb-0">&#9989; Panoya kopyalandý!</div>
 </div>
 
 @section Scripts{
@@ -184,31 +496,170 @@
       const subject = document.getElementById('Subject');
       chips.forEach(c=> c.addEventListener('click', function(){ chips.forEach(x=>x.classList.remove('active')); this.classList.add('active'); if(subject && !subject.value){ subject.value=this.dataset.text||''; subject.dispatchEvent(new Event('input')); }}));
 
-      // progress + char count + send animation
-      const form = document.getElementById('cform');
+  // progress + char count + send animation
+    const form = document.getElementById('cform');
       const name = document.getElementById('Name');
       const email = document.getElementById('Email');
       const message = document.getElementById('Message');
+      const consent = document.getElementById('consent');
       const progress = document.getElementById('progress');
       const charCount = document.getElementById('charCount');
       const btnSend = document.getElementById('btnSend');
-      const spinner = btnSend.querySelector('.spinner-border');
-      const sendText = btnSend.querySelector('.send-text');
-      const btnReset = document.getElementById('btnReset');
+   const spinner = btnSend?.querySelector('.spinner-border');
+  const sendText = btnSend?.querySelector('.send-text');
+    const btnReset = document.getElementById('btnReset');
 
       function upd(){
-        const len = (message?.value||'').length; charCount.textContent = len + ' karakter';
-        let p = 10; if(name?.value) p+=25; if(email?.value) p+=20; if(subject?.value) p+=20; if(len>5) p+=25; progress.style.width = Math.min(100,p)+'%';
+ const len = (message?.value||'').length; 
+   const msgColor = len > 2000 ? 'text-danger' : (len < 10 ? 'text-warning' : 'text-muted');
+   if(charCount) {
+   charCount.textContent = len + ' / 2000 karakter';
+    charCount.className = `small ${msgColor}`;
+   }
+   
+   // Mark message field as invalid if exceeds limit
+   if(message) {
+  if(len > 2000) {
+   message.classList.add('is-invalid');
+   message.classList.remove('is-valid');
+  } else if(len >= 10) {
+   message.classList.add('is-valid');
+    message.classList.remove('is-invalid');
+} else {
+message.classList.remove('is-valid', 'is-invalid');
+  }
+   }
+   
+    let p = 8; 
+ if(name?.value && name.value.trim()) p+=18; 
+   const phoneVal = document.getElementById('Phone')?.value || '';
+   if(phoneVal.trim() && phoneVal.replace(/[^0-9]/g, '').length >= 10) p+=18;
+    if(email?.value && email.value.trim() && email.validity?.valid) p+=18; 
+        if(subject?.value && subject.value.trim()) p+=18; 
+ if(len >= 10 && len <= 2000) p+=18;
+        if(consent?.checked) p+=10;
+        if(progress) progress.style.width = Math.min(100,p)+'%';
+  
+ // Enable/disable send button
+    const phone = document.getElementById('Phone');
+ const ready = name?.value?.trim() && 
+      phone?.value?.trim() && 
+         phone.value.replace(/[^0-9]/g, '').length >= 10 &&
+      email?.value?.trim() && 
+       email.validity?.valid &&
+      subject?.value?.trim() && 
+     len >= 10 && 
+               len <= 2000 && 
+               consent?.checked;
+        if(btnSend) btnSend.disabled = !ready;
+ }
+  const phoneInput = document.getElementById('Phone');
+ 
+      // Phone number validation - only numbers
+   if(phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+     // Allow only numbers, +, -, (, ), and spaces
+    const value = this.value;
+          const cleaned = value.replace(/[^0-9+\s\-\(\)]/g, '');
+   if(value !== cleaned) {
+       this.value = cleaned;
+          }
+        });
       }
-      ['input','change'].forEach(ev=>{ [name,email,subject,message].forEach(x=>x&&x.addEventListener(ev,upd)); });
+ 
+    // Real-time validation feedback
+   [name, email, phoneInput, subject].forEach(input => {
+        if(!input) return;
+     input.addEventListener('blur', function() {
+    if(this.value.trim() === '') {
+    this.classList.add('is-invalid');
+   this.classList.remove('is-valid');
+       } else if(this.validity.valid) {
+    this.classList.add('is-valid');
+this.classList.remove('is-invalid');
+ } else {
+          this.classList.add('is-invalid');
+    this.classList.remove('is-valid');
+          }
+ });
+   input.addEventListener('input', function() {
+   if(this.classList.contains('is-invalid') && this.value.trim() !== '' && this.validity.valid) {
+            this.classList.remove('is-invalid');
+      this.classList.add('is-valid');
+  }
+        });
+  });
+
+      ['input','change'].forEach(ev=>{ [name,email,phoneInput,subject,message,consent].forEach(x=>x&&x.addEventListener(ev,upd)); });
       upd();
 
-      form?.addEventListener('submit', function(){ btnSend.disabled=true; spinner.classList.remove('d-none'); sendText.textContent='Gönderiliyor'; });
-      btnReset?.addEventListener('click', function(){ form.reset(); document.querySelectorAll('.js-chip').forEach(x=>x.classList.remove('active')); upd(); });
+      form?.addEventListener('submit', function(e){ 
+        const phone = document.getElementById('Phone');
+  
+  // Custom validation messages
+   const validationMessages = [];
+   
+   if(!name?.value || name.value.trim() === '') {
+       validationMessages.push('• Ad Soyad alaný zorunludur.');
+   }
+ if(!phone?.value || phone.value.trim() === '') {
+    validationMessages.push('• Telefon numarasý zorunludur.');
+      } else if(phone.value.replace(/[^0-9]/g, '').length < 10) {
+          validationMessages.push('• Telefon numarasý en az 10 rakam içermelidir.');
+   }
+   if(!email?.value || email.value.trim() === '') {
+   validationMessages.push('• E-posta adresi zorunludur.');
+ } else if(!email.validity.valid) {
+       validationMessages.push('• Geçerli bir e-posta adresi giriniz.');
+   }
+   if(!subject?.value || subject.value.trim() === '') {
+   validationMessages.push('• Konu alaný zorunludur.');
+ }
+   const msgLen = (message?.value || '').trim().length;
+if(msgLen === 0) {
+ validationMessages.push('• Mesajýnýz alaný zorunludur.');
+   } else if(msgLen < 10) {
+   validationMessages.push('• Mesajýnýz en az 10 karakter olmalýdýr.');
+   } else if(msgLen > 2000) {
+   validationMessages.push('• Mesajýnýz en fazla 2000 karakter olabilir.');
+}
+   if(!consent?.checked) {
+    validationMessages.push('• KVKK aydýnlatma metnini kabul etmelisiniz.');
+}
+   
+   if(validationMessages.length > 0) {
+  e.preventDefault();
+  alert('?? Lütfen aþaðýdaki hatalarý düzeltin:\n\n' + validationMessages.join('\n'));
+   return false;
+    }
+        if(btnSend){
+  btnSend.disabled=true; 
+ if(spinner) spinner.classList.remove('d-none'); 
+          if(sendText) sendText.textContent='Gönderiliyor...';
+ }
+    });
+ 
+      btnReset?.addEventListener('click', function(){ 
+     form?.reset(); 
+        document.querySelectorAll('.js-chip').forEach(x=>x.classList.remove('active')); 
+    upd(); 
+    });
 
-      // copy helpers
-      const toast = document.querySelector('.toastx'); let tHandle;
-      document.querySelectorAll('.copy').forEach(b=> b.addEventListener('click', async function(){ try{ await navigator.clipboard.writeText(this.dataset.copy||''); toast.style.display='block'; clearTimeout(tHandle); tHandle=setTimeout(()=> toast.style.display='none', 1200); }catch{} }));
-    })();
+ // copy helpers
+      const toast = document.querySelector('.toastx'); 
+      let tHandle;
+      document.querySelectorAll('.copy').forEach(b=> b.addEventListener('click', async function(){ 
+        try{ 
+      await navigator.clipboard.writeText(this.dataset.copy||''); 
+   if(toast){
+            toast.style.display='block'; 
+     clearTimeout(tHandle); 
+       tHandle=setTimeout(()=> toast.style.display='none', 1500);
+}
+      }catch(err){
+          console.error('Copy failed:', err);
+        }
+      }));
+  })();
   </script>
 }

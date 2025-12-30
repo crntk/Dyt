@@ -1,0 +1,988 @@
+@{
+  ViewData["Title"] = "Randevu Oluþtur";
+}
+
+<style>
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  
+  /* Hero with green gradient */
+  .appt-hero{
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+      radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+    padding:48px 0 36px;
+  }
+  .appt-hero:before{
+    content:"";
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+      radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size:32px 32px, 64px 64px;
+    background-position:0 0, 16px 16px;
+    opacity:.4;
+    animation:dotMove 25s linear infinite;
+  }
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
+  
+  /* Stepper */
+  .stepper{display:flex;gap:14px;align-items:center;margin:12px 0 20px}
+  .step{display:flex;align-items:center;gap:8px}
+  .step .dot{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    background:#e5e7eb;
+    color:#6b7280;
+    font-weight:700;
+    transition:all .3s ease;
+  }
+  .step.active .dot{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    color:#fff;
+    box-shadow:0 4px 12px rgba(76,175,80,.3);
+  }
+  .step .label{font-weight:600;color:#9ca3af;transition:color .3s ease}
+  .step.active .label{color:#111827}
+
+  /* Progress bar */
+  .progress-wrap{
+    height:8px;
+    background:rgba(76,175,80,.1);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .progress-bar{
+ height:8px;
+    background:linear-gradient(90deg, #4CAF50, #81C784, #FF9800);
+    width:0;
+    transition:width .4s ease;
+  }
+
+  /* Slot grid */
+  .slot-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(120px,1fr));gap:12px;margin:16px 0}
+  .slot-item{
+    position:relative;
+    display:flex;
+    align-items:center;
+  justify-content:center;
+    padding:12px;
+    border:2px solid transparent;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    user-select:none;
+ transition:all .3s ease;
+    background:#fff;
+  }
+  .slot-item input{position:absolute;opacity:0;pointer-events:none}
+  .slot-free{
+    background:rgba(76,175,80,.08);
+    border-color:rgba(76,175,80,.3);
+    color:#2e7d32;
+  }
+  .slot-free:hover{
+    background:rgba(76,175,80,.15);
+    border-color:#4CAF50;
+    transform:translateY(-2px);
+    box-shadow:0 6px 16px rgba(76,175,80,.2);
+  }
+  .slot-busy{
+    background:#fef2f2;
+    border-color:#ef4444;
+    color:#991b1b;
+    cursor:not-allowed;
+  opacity:.6;
+  }
+  .slot-selected{
+    background:linear-gradient(135deg, #2196F3, #64B5F6) !important;
+    border-color:#2196F3 !important;
+    color:#fff !important;
+    box-shadow:0 6px 16px rgba(33,150,243,.35) !important;
+    font-weight:700 !important;
+  }
+
+  /* Chips */
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 16px;
+    border-radius:999px;
+    border:1px solid rgba(76,175,80,.3);
+    background:rgba(76,175,80,.08);
+  cursor:pointer;
+    font-weight:600;
+    color:#4CAF50;
+    transition:all .3s ease;
+  }
+  .chip:hover{background:rgba(76,175,80,.15);transform:translateY(-2px)}
+  .chip.active{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    border-color:#4CAF50;
+    color:#fff;
+    box-shadow:0 4px 12px rgba(76,175,80,.3);
+  }
+
+  /* Summary card */
+  .summary-card{position:sticky;top:16px}
+  .summary-row{
+    display:flex;
+    justify-content:space-between;
+  gap:10px;
+    font-size:14px;
+    padding:8px 0;
+    border-bottom:1px dashed rgba(76,175,80,.15);
+  }
+  .summary-row:last-child{border-bottom:none}
+
+  /* Channel cards */
+  .channel-card{display:flex;gap:12px}
+  .channel-card .opt{
+    flex:1;
+  border:2px solid rgba(76,175,80,.2);
+    border-radius:14px;
+ padding:16px;
+ cursor:pointer;
+    transition:all .3s ease;
+ background:#fff;
+  }
+  .channel-card .opt:hover{
+    border-color:#4CAF50;
+    box-shadow:0 8px 24px rgba(76,175,80,.15);
+    transform:translateY(-3px);
+  }
+  .channel-card .opt.active{
+border-color:#4CAF50;
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+    box-shadow:0 8px 24px rgba(76,175,80,.2);
+  }
+
+  /* Cards */
+  .card{
+  border-radius:18px;
+    border:1px solid rgba(76,175,80,.2);
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+    transition:all .3s ease;
+  }
+  .card:hover{box-shadow:0 18px 50px rgba(76,175,80,.15)}
+
+  /* Form validation states */
+  .form-control.is-invalid{
+    border-color:#dc3545;
+    background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23dc3545' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat:no-repeat;
+    background-position:right calc(.375em + .1875rem) center;
+    background-size:calc(.75em + .375rem) calc(.75em + .375rem);
+    padding-right:calc(1.5em + .75rem);
+  }
+  
+  .form-control.is-valid{
+    border-color:#4CAF50;
+    background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3e%3cpath fill='%234CAF50' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+background-repeat:no-repeat;
+    background-position:right calc(.375em + .1875rem) center;
+    background-size:calc(.75em + .375rem) calc(.75em + .375rem);
+    padding-right:calc(1.5em + .75rem);
+  }
+  
+.form-control:focus{
+    border-color:#4CAF50;
+    box-shadow:0 0 0 0.2rem rgba(76,175,80,.25);
+  }
+  
+  .form-control.is-invalid:focus{
+  border-color:#dc3545;
+    box-shadow:0 0 0 0.2rem rgba(220,53,69,.25);
+  }
+  
+  .text-danger{
+    color:#dc3545;
+    font-size:0.875em;
+    margin-top:0.25rem;
+  }
+
+  /* Alert messages */
+  .alert{
+    border-radius:12px;
+    padding:16px 20px;
+    margin-bottom:20px;
+  }
+
+  /* Reveal animation */
+  [data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-reveal].in{opacity:1;transform:translateY(0)}
+
+/* Calendar Grid Styles */
+.calendar-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
+  gap:16px;
+  margin-top:20px;
+}
+
+.calendar-day-card{
+  position:relative;
+  border:2px solid rgba(76,175,80,.2);
+  border-radius:16px;
+  padding:16px;
+  background:#fff;
+  cursor:pointer;
+  transition:all .3s ease;
+  min-height:140px;
+  display:flex;
+  flex-direction:column;
+}
+
+.calendar-day-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 30px rgba(76,175,80,.2);
+  border-color:#4CAF50;
+}
+
+.calendar-day-card.has-slots{
+  background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+  border-color:rgba(76,175,80,.3);
+}
+
+.calendar-day-card.no-slots{
+  background:#fafafa;
+  border-color:#e5e7eb;
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.calendar-day-card.no-slots:hover{
+  transform:none;
+  box-shadow:none;
+}
+
+.calendar-date-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:2px solid rgba(76,175,80,.15);
+}
+
+.calendar-day-num{
+  font-size:28px;
+  font-weight:800;
+  line-height:1;
+  color:#4CAF50;
+}
+
+.calendar-month{
+  font-size:11px;
+  font-weight:600;
+  text-transform:uppercase;
+  color:#81C784;
+margin-top:2px;
+}
+
+.calendar-weekday{
+  font-size:13px;
+  font-weight:600;
+  color:#666;
+}
+
+.calendar-slots-mini{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  margin-top:auto;
+}
+
+.slot-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#4CAF50;
+  transition:all .2s ease;
+}
+
+.slot-dot.busy{
+  background:#ef4444;
+}
+
+.calendar-slots-count{
+font-size:12px;
+  font-weight:700;
+  color:#4CAF50;
+  margin-top:8px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+.calendar-slots-count.no-slots{
+  color:#999;
+}
+
+.calendar-day-card.today{
+  border-color:#FF9800;
+  background:linear-gradient(135deg, rgba(255,152,0,.1), rgba(76,175,80,.05));
+}
+
+.calendar-day-card.today .calendar-day-num{
+  color:#FF9800;
+}
+
+.today-badge{
+  position:absolute;
+  top:8px;
+  right:8px;
+  background:linear-gradient(135deg, #FF9800, #FFB74D);
+  color:#fff;
+  font-size:9px;
+  font-weight:700;
+  padding:3px 8px;
+  border-radius:999px;
+  text-transform:uppercase;
+  box-shadow:0 2px 8px rgba(255,152,0,.3);
+}
+
+/* Responsive */
+@@media (max-width: 768px){
+  .calendar-grid{
+    grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
+    gap:12px;
+  }
+  
+  .calendar-day-card{
+  min-height:120px;
+    padding:12px;
+  }
+  
+  .calendar-day-num{
+    font-size:24px;
+  }
+}
+
+@@media (max-width: 576px){
+  .calendar-grid{
+    grid-template-columns:repeat(2, 1fr);
+  }
+}
+
+</style>
+
+<!-- Hero -->
+<section class="appt-hero">
+  <div class="container position-relative" style="z-index:1">
+    <div class="text-center" data-reveal>
+<h1 class="display-5 fw-bold mb-3">??? Randevu Oluþtur (Admin)</h1>
+      <p class="lead mb-0">Danýþan için tarih ve saat seçin, bilgileri girin.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Alerts -->
+@if (TempData["Success"] != null)
+{
+    <div class="container">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+         @TempData["Success"]
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+  <div class="container">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+       @TempData["Error"]
+     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+
+<!-- 14 günlük müsaitlik önizleme -->
+<div class="container pb-4">
+  <div class="card" data-reveal>
+    <div class="card-body">
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+      <div>
+          <h5 class="card-title fw-bold mb-1">?? Müsaitlik Takvimi</h5>
+          <p class="text-muted small mb-0">Önümüzdeki 14 gün - Müsait günleri görüntüleyin ve týklayarak seçin</p>
+      </div>
+        <div class="d-flex gap-2 align-items-center">
+          <div class="d-flex align-items-center justify-content-center" style="min-width: 110px;">
+            <span class="badge bg-success-subtle text-success border border-success fw-semibold px-3 py-2" style="font-size: 13px; width: 100%; text-align: center;">? Müsait</span>
+  </div>
+     <div class="d-flex align-items-center justify-content-center" style="min-width: 110px;">
+            <span class="badge bg-danger-subtle text-danger border border-danger fw-semibold px-3 py-2" style="font-size: 13px; width: 100%; text-align: center;">? Dolu</span>
+          </div>
+        </div>
+      </div>
+   
+   <div id="calendar-grid" class="calendar-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Form -->
+    <div class="col-lg-7" data-reveal>
+      <div class="card">
+    <div class="card-body">
+          <div class="stepper">
+         <div class="step step-1 active">
+  <span class="dot">1</span>
+     <span class="label">Tarih & Saat</span>
+      </div>
+            <div class="step step-2">
+       <span class="dot">2</span>
+    <span class="label">Bilgiler</span>
+        </div>
+       <div class="step step-3">
+      <span class="dot">3</span>
+         <span class="label">Oluþtur</span>
+  </div>
+     </div>
+    <div class="progress-wrap mb-4">
+            <div id="progressBar" class="progress-bar"></div>
+          </div>
+
+          <form asp-area="Admin" asp-controller="Appointments" asp-action="Create" method="post" id="apptForm">
+      @Html.AntiForgeryToken()
+
+    <!-- Tarih -->
+      <div class="mb-4">
+              <label class="form-label fw-semibold">?? Tarih Seçin <span class="text-danger">*</span></label>
+          <input name="Date" type="date" class="form-control" required />
+            </div>
+
+ <!-- Saat filtreleri -->
+     <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+  <span class="small text-muted fw-semibold">?? Günün bölümü:</span>
+        <button type="button" class="chip active" data-part="all">? Hepsi</button>
+     <button type="button" class="chip" data-part="morning">?? Sabah</button>
+ <button type="button" class="chip" data-part="noon">?? Öðlen</button>
+       <button type="button" class="chip" data-part="evening">?? Akþam</button>
+            </div>
+
+       <!-- Saat grid -->
+            <div class="mb-2">
+     <small class="text-muted">Uygun saatler aþaðýda listelenir. Yeþil olanlar müsait.</small>
+     </div>
+            <div id="slotGrid" class="slot-grid"></div>
+       <div class="slot-legend mb-4">
+       <span class="badge bg-success ms-2">? Müsait</span>
+       <span class="badge bg-danger ms-2">? Dolu</span>
+      <span class="badge ms-2" style="background:linear-gradient(135deg, #2196F3, #64B5F6);color:#fff;padding:6px 12px;border-radius:999px;box-shadow:0 4px 8px rgba(33,150,243,.2);">?? Seçili</span>
+    </div>
+
+       <input name="StartTime" type="hidden" required />
+
+            <hr class="my-4" />
+
+            <!-- Görüþme Türü -->
+        <div class="mb-4">
+    <label class="form-label fw-semibold">?? Görüþme Türü <span class="text-danger">*</span></label>
+        <div class="channel-card">
+          <label class="opt" id="optOnline">
+    <input type="radio" name="Channel" value="Online" class="form-check-input d-none" required />
+       <div class="fw-bold mb-1">?? Online</div>
+     <div class="text-muted small">Görüntülü arama ile</div>
+                </label>
+     <label class="opt" id="optF2F">
+            <input type="radio" name="Channel" value="Yüzyüze" class="form-check-input d-none" required />
+        <div class="fw-bold mb-1">?? Yüzyüze</div>
+         <div class="text-muted small">Klinikte</div>
+        </label>
+            </div>
+        </div>
+
+     <!-- Ýletiþim bilgileri -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+  <label class="form-label fw-semibold">?? Ad Soyad <span class="text-danger">*</span></label>
+       <input name="ClientName" class="form-control" placeholder="Danýþan Adý Soyadý" required minlength="3" />
+              </div>
+       <div class="col-md-6">
+                <label class="form-label fw-semibold">?? Telefon <span class="text-danger">*</span></label>
+      <input name="ClientPhone" type="tel" class="form-control" placeholder="+90 555 123 4567" required pattern="[\+]?[0-9]{10,14}" maxlength="14" id="phoneInput" />
+       <small class="text-muted">Örnek: +905551234567 veya 05551234567</small>
+   </div>
+    <div class="col-md-6">
+         <label class="form-label fw-semibold">?? E-posta (opsiyonel)</label>
+        <input name="ClientEmail" type="email" class="form-control" placeholder="mail@ornek.com" />
+     </div>
+              <div class="col-md-6">
+    <label class="form-label fw-semibold">?? Not (opsiyonel)</label>
+           <textarea name="Note" rows="3" class="form-control" placeholder="Kýsa bir not" maxlength="500"></textarea>
+    </div>
+    </div>
+
+<button id="submitBtn" type="submit" class="btn btn-lg btn-primary w-100" disabled>
+        ? Randevuyu Oluþtur
+            </button>
+     </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sað panel -->
+    <div class="col-lg-5" data-reveal>
+ <div class="summary-card">
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h5 class="card-title mb-0 fw-bold">?? Randevu Özeti</h5>
+              <span class="badge" style="background:linear-gradient(135deg, #4CAF50, #81C784);color:#fff;padding:8px 14px;border-radius:999px">?? 30 dk</span>
+       </div>
+            <div class="summary-row">
+     <span class="text-muted fw-semibold">?? Tarih</span>
+      <span id="sumDate" class="fw-bold">—</span>
+ </div>
+  <div class="summary-row">
+              <span class="text-muted fw-semibold">?? Saat</span>
+     <span id="sumTime" class="fw-bold">—</span>
+     </div>
+            <div class="summary-row">
+  <span class="text-muted fw-semibold">?? Tür</span>
+              <span id="sumChannel" class="fw-bold">—</span>
+            </div>
+         <div class="summary-row">
+           <span class="text-muted fw-semibold">?? Ad Soyad</span>
+     <span id="sumName" class="fw-bold">—</span>
+         </div>
+        <div class="summary-row">
+   <span class="text-muted fw-semibold">?? Telefon</span>
+      <span id="sumPhone" class="fw-bold">—</span>
+   </div>
+    </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+      <h5 class="card-title fw-bold mb-3">?? Bilgilendirme</h5>
+       <ul class="mb-0 small">
+              <li>Admin panelinden oluþturulan randevular otomatik olarak <strong>"Yanýtlanmadý"</strong> durumunda olur</li>
+  <li>Danýþana randevu onay linki SMS ile gönderilir</li>
+     <li>Danýþan onayladýktan sonra randevu <strong>"Gelecek"</strong> durumuna geçer</li>
+   <li>Randevular listesinden durum deðiþikliði yapabilirsiniz</li>
+            </ul>
+        </div>
+        </div>
+   </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts{
+<script>
+(function(){
+  // Reveal animation
+  const reveals=[...document.querySelectorAll('[data-reveal]')];
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ 
+        if(en.isIntersecting){ 
+          setTimeout(()=>en.target.classList.add('in'), 100); 
+          io.unobserve(en.target); 
+        } 
+      });
+    },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
+    reveals.forEach(e=>io.observe(e));
+  } else {
+    reveals.forEach(e=>e.classList.add('in'));
+  }
+
+  const form = document.getElementById('apptForm');
+  const dateInput = form.querySelector('input[name="Date"]');
+  const slotGrid = document.getElementById('slotGrid');
+  const startTimeHidden = form.querySelector('input[name="StartTime"]');
+  const chips = Array.from(document.querySelectorAll('.chip[data-part]'));
+  const progressBar = document.getElementById('progressBar');
+  const submitBtn = document.getElementById('submitBtn');
+  const phoneInput = document.getElementById('phoneInput');
+
+  // Phone input validation
+  phoneInput.addEventListener('input', function(e){
+    let val = e.target.value;
+    val = val.replace(/[^0-9+\s]/g, '');
+    const plusCount = (val.match(/\+/g) || []).length;
+    if(plusCount > 1){
+    val = '+' + val.replace(/\+/g, '');
+    }
+    if(val.includes('+') && val.indexOf('+') !== 0){
+      val = val.replace(/\+/g, '');
+    }
+    e.target.value = val;
+    updateSummary();
+    updateProgress();
+    validatePhone();
+  });
+
+  phoneInput.addEventListener('keypress', function(e){
+    const char = String.fromCharCode(e.which);
+    if(!/[0-9+]/.test(char)){
+      e.preventDefault();
+      return false;
+    }
+    if(char === '+' && this.value.length > 0){
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  function validatePhone(){
+    const val = phoneInput.value.replace(/\s/g, '');
+    const isValid = /^[\+]?[0-9]{10,14}$/.test(val);
+    
+ if(val.length > 0 && !isValid){
+      phoneInput.classList.add('is-invalid');
+ phoneInput.classList.remove('is-valid');
+    } else if(isValid){
+      phoneInput.classList.remove('is-invalid');
+      phoneInput.classList.add('is-valid');
+    } else {
+   phoneInput.classList.remove('is-invalid', 'is-valid');
+    }
+    
+    return isValid;
+  }
+
+  // Form validation on submit
+  form.addEventListener('submit', function(e){
+    if(!dateInput.value){
+   alert('?? Lütfen bir tarih seçin.');
+      dateInput.focus();
+      e.preventDefault();
+   return false;
+  }
+    
+    if(!startTimeHidden.value){
+  alert('?? Lütfen bir saat seçin.');
+      window.scrollTo({top: slotGrid.offsetTop - 100, behavior: 'smooth'});
+      e.preventDefault();
+      return false;
+    }
+    
+    if(!form.Channel.value){
+alert('?? Lütfen görüþme türünü seçin.');
+      e.preventDefault();
+      return false;
+    }
+    
+    if(!form.ClientName.value || form.ClientName.value.trim().length < 3){
+      alert('?? Lütfen geçerli bir ad soyad girin (en az 3 karakter).');
+   form.ClientName.focus();
+ e.preventDefault();
+      return false;
+    }
+    
+    if(!validatePhone()){
+      alert('?? Lütfen geçerli bir telefon numarasý girin.\nÖrnek: +905551234567 veya 05551234567');
+      phoneInput.focus();
+      e.preventDefault();
+      return false;
+    }
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Oluþturuluyor...';
+  });
+
+  // Channel toggle
+  const optOnline = document.getElementById('optOnline');
+  const optF2F = document.getElementById('optF2F');
+  const channelInputs = form.querySelectorAll('input[name="Channel"]');
+
+  // Summary elements
+  const sumDate = document.getElementById('sumDate');
+  const sumTime = document.getElementById('sumTime');
+  const sumChannel = document.getElementById('sumChannel');
+const sumName = document.getElementById('sumName');
+  const sumPhone = document.getElementById('sumPhone');
+
+  function fmtDateTR(iso){ 
+    if(!iso) return ''; 
+    const d=new Date(iso+"T00:00:00"); 
+    return d.toLocaleDateString('tr-TR', { day:'2-digit', month:'long', year:'numeric', weekday:'long' }); 
+  }
+
+  function markSteps(){
+    const s1 = !!dateInput.value && !!startTimeHidden.value;
+    const s2 = !!form.ClientName.value && !!form.ClientPhone.value && validatePhone();
+    document.querySelector('.step-1').classList.toggle('active', true);
+    document.querySelector('.step-2').classList.toggle('active', s2);
+    document.querySelector('.step-3').classList.toggle('active', s1 && s2);
+  }
+
+  function updateProgress(){
+    let p = 10;
+    if(dateInput.value) p += 20;
+    if(startTimeHidden.value) p += 30;
+    if(form.ClientName.value && form.ClientName.value.trim().length >= 3) p += 15;
+    if(validatePhone()) p += 15;
+    if(form.Channel.value) p += 10;
+    progressBar.style.width = Math.min(100,p) + '%';
+    
+    const ready = !!dateInput.value && 
+         !!startTimeHidden.value && 
+     !!form.ClientName.value && 
+     form.ClientName.value.trim().length >= 3 &&
+      validatePhone() && 
+           !!form.Channel.value;
+    submitBtn.disabled = !ready;
+    markSteps();
+  }
+
+  function updateSummary(){
+    sumDate.textContent = fmtDateTR(dateInput.value) || '—';
+    sumTime.textContent = startTimeHidden.value || '—';
+    sumChannel.textContent = form.Channel.value || '—';
+    sumName.textContent = form.ClientName.value || '—';
+    sumPhone.textContent = form.ClientPhone.value || '—';
+  }
+
+  function setChannel(val){
+    channelInputs.forEach(x=>{ x.checked = x.value === val; });
+    optOnline.classList.toggle('active', val==='Online');
+    optF2F.classList.toggle('active', val==='Yüzyüze');
+    form.Channel.value = val;
+    updateSummary();
+    updateProgress();
+  }
+
+  optOnline.addEventListener('click', ()=> setChannel('Online'));
+  optF2F.addEventListener('click', ()=> setChannel('Yüzyüze'));
+
+  function enforceSingleSelection(changed){
+    const boxes = slotGrid.querySelectorAll('input[type="checkbox"][data-available="true"]');
+    boxes.forEach(cb=>{ 
+      const label=cb.closest('label'); 
+      if(cb!==changed){ 
+        cb.checked=false; 
+    label.classList.remove('slot-selected'); 
+      } 
+ });
+  }
+
+  async function renderSlotGrid(isoDate){
+ slotGrid.innerHTML=''; 
+    startTimeHidden.value=''; 
+    updateSummary(); 
+    updateProgress();
+ if(!isoDate) return;
+    
+    const resp = await fetch(`/appointment/slot-states?date=${encodeURIComponent(isoDate)}`);
+    if(!resp.ok){ 
+      slotGrid.innerHTML='<div class="text-muted">Uygun saat bulunamadý</div>'; 
+      return; 
+    }
+    
+    const data = await resp.json();
+    if(!Array.isArray(data) || data.length===0){ 
+   slotGrid.innerHTML='<div class="text-muted">Uygun saat bulunamadý</div>'; 
+      return; 
+    }
+
+    const frag = document.createDocumentFragment();
+    for(const s of data){
+  const start = (s.startTime||'').toString().substring(0,5);
+      const end = (s.endTime||'').toString().substring(0,5);
+      const available = !!s.isAvailable;
+      const hour = parseInt(start.split(':')[0]||'0',10);
+    const part = hour < 12? 'morning' : (hour < 17? 'noon' : 'evening');
+   
+   const label = document.createElement('label');
+    label.className = `slot-item ${available? 'slot-free' : 'slot-busy'}`; 
+      label.title = available? 'Müsait' : 'Dolu';
+      label.setAttribute('data-part', part);
+      
+      const cb = document.createElement('input'); 
+      cb.type='checkbox'; 
+      cb.value=start; 
+      cb.disabled=!available; 
+      cb.setAttribute('data-available', available? 'true':'false');
+      
+  const span = document.createElement('span'); 
+      span.className='slot-time'; 
+      span.textContent = `${start}-${end}`;
+      
+      label.appendChild(cb); 
+      label.appendChild(span);
+      
+      if(available){ 
+        label.addEventListener('click', function(){ 
+        if(cb.disabled) return; 
+     setTimeout(()=>{ 
+     if(cb.checked){ 
+        enforceSingleSelection(cb); 
+         label.classList.add('slot-selected'); 
+   startTimeHidden.value = cb.value; 
+            } else { 
+    label.classList.remove('slot-selected'); 
+      if(startTimeHidden.value===cb.value) startTimeHidden.value=''; 
+    } 
+    updateSummary(); 
+          updateProgress(); 
+        },0); 
+        }); 
+      }
+      
+      frag.appendChild(label);
+    }
+    slotGrid.appendChild(frag);
+    applyPartFilter();
+  }
+
+  function applyPartFilter(){
+    const active = document.querySelector('.chip[data-part].active')?.getAttribute('data-part') || 'all';
+    slotGrid.querySelectorAll('.slot-item').forEach(el=>{
+  const p = el.getAttribute('data-part');
+      el.style.display = (active==='all' || active===p) ? '' : 'none';
+    });
+  }
+
+  dateInput.addEventListener('change', ()=>{ 
+    renderSlotGrid(dateInput.value); 
+    updateSummary(); 
+    updateProgress(); 
+  });
+  
+  form.ClientName.addEventListener('input', ()=>{ updateSummary(); updateProgress(); });
+  form.ClientPhone.addEventListener('input', ()=>{ updateSummary(); updateProgress(); });
+  
+  document.querySelectorAll('.chip[data-part]').forEach(c=> c.addEventListener('click', function(){ 
+    document.querySelectorAll('.chip[data-part]').forEach(x=>x.classList.remove('active')); 
+    this.classList.add('active'); 
+    applyPartFilter(); 
+  }));
+
+  // Calendar view
+  async function loadSlotStatesForDate(iso){ 
+    const r = await fetch(`/appointment/slot-states?date=${encodeURIComponent(iso)}`); 
+    if(!r.ok) return []; 
+    const j=await r.json(); 
+    return Array.isArray(j)? j: []; 
+  }
+  
+  const calendarGrid = document.getElementById('calendar-grid');
+  const monthNames = ['Oca','Þub','Mar','Nis','May','Haz','Tem','Aðu','Eyl','Eki','Kas','Ara'];
+  const dayNames = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  
+  function ymd(d){ 
+    const yyyy=d.getFullYear(); 
+    const mm=String(d.getMonth()+1).padStart(2,'0'); 
+    const dd=String(d.getDate()).padStart(2,'0'); 
+    return `${yyyy}-${mm}-${dd}`; 
+  }
+  
+  (async function buildCalendar(){
+    const frag = document.createDocumentFragment();
+    
+    for(let i=0; i<14; i++){
+      const d = new Date(today.getFullYear(), today.getMonth(), today.getDate()+i);
+      const iso = ymd(d);
+      const states = await loadSlotStatesForDate(iso);
+   
+      const card = document.createElement('div');
+      const isToday = d.getTime() === today.getTime();
+   const hasSlots = states.some(s => s.isAvailable);
+      
+    card.className = `calendar-day-card ${hasSlots ? 'has-slots' : 'no-slots'} ${isToday ? 'today' : ''}`;
+
+      if(isToday){
+        const todayBadge = document.createElement('span');
+        todayBadge.className = 'today-badge';
+  todayBadge.textContent = 'Bugün';
+    card.appendChild(todayBadge);
+      }
+      
+      const header = document.createElement('div');
+      header.className = 'calendar-date-header';
+      
+ const leftSide = document.createElement('div');
+ const dayNum = document.createElement('div');
+      dayNum.className = 'calendar-day-num';
+      dayNum.textContent = d.getDate();
+      const monthLabel = document.createElement('div');
+      monthLabel.className = 'calendar-month';
+      monthLabel.textContent = monthNames[d.getMonth()];
+      leftSide.appendChild(dayNum);
+      leftSide.appendChild(monthLabel);
+      
+      const weekday = document.createElement('div');
+      weekday.className = 'calendar-weekday';
+      weekday.textContent = dayNames[d.getDay()];
+   
+      header.appendChild(leftSide);
+      header.appendChild(weekday);
+  card.appendChild(header);
+      
+      if(states.length === 0){
+    const noSlots = document.createElement('div');
+   noSlots.className = 'calendar-slots-count no-slots';
+        noSlots.innerHTML = '?? Müsaitlik yok';
+        card.appendChild(noSlots);
+    } else {
+        const availableSlots = states.filter(s => s.isAvailable);
+   const busySlots = states.filter(s => !s.isAvailable);
+        
+      const dotsContainer = document.createElement('div');
+ dotsContainer.className = 'calendar-slots-mini';
+        
+    const maxDots = Math.min(states.length, 12);
+        for(let j=0; j<maxDots; j++){
+          const dot = document.createElement('div');
+          dot.className = `slot-dot ${states[j].isAvailable ? '' : 'busy'}`;
+          dot.title = `${states[j].startTime} - ${states[j].endTime}`;
+  dotsContainer.appendChild(dot);
+        }
+        
+        if(states.length > 12){
+          const moreDot = document.createElement('div');
+          moreDot.style.cssText = 'font-size:10px;font-weight:700;color:#4CAF50;';
+          moreDot.textContent = `+${states.length - 12}`;
+          dotsContainer.appendChild(moreDot);
+        }
+        
+   card.appendChild(dotsContainer);
+        
+    const count = document.createElement('div');
+      count.className = `calendar-slots-count ${availableSlots.length === 0 ? 'no-slots' : ''}`;
+        count.innerHTML = availableSlots.length > 0 
+          ? `? ${availableSlots.length} müsait` 
+          : `? ${busySlots.length} dolu`;
+        card.appendChild(count);
+      }
+      
+      if(hasSlots){
+   card.style.cursor = 'pointer';
+      card.addEventListener('click', ()=>{
+      dateInput.value = iso;
+     renderSlotGrid(iso);
+        setTimeout(() => {
+            const slotGridTop = slotGrid.getBoundingClientRect().top + window.pageYOffset - 300;
+        window.scrollTo({top: slotGridTop, behavior:'smooth'});
+    }, 100);
+        });
+      }
+      
+      frag.appendChild(card);
+    }
+    
+    calendarGrid.appendChild(frag);
+  })();
+
+  updateProgress(); 
+  updateSummary();
+})();
+</script>
+}

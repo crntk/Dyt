@@ -17,7 +17,7 @@ namespace Dyt.Web.Controllers
         }
 
         /// <summary>
-        /// Ana sayfaya gelen ziyaretçiyi randevu oluþturma sayfasýna yönlendirir.
+        /// Ana sayfa
         /// </summary>
         public async Task<IActionResult> Index(CancellationToken ct) // GET /Home/Index veya / isteði için action'ý tanýmlýyorum
         {
@@ -28,6 +28,10 @@ namespace Dyt.Web.Controllers
                 .OrderByDescending(p => p.PublishDateUtc ?? p.CreatedAtUtc)
                 .Take(6)
                 .ToListAsync(ct);
+
+            // Enable translucent surfaces on Home only
+            ViewData["FvEnable"] = true;
+
             return View(latest);
         }
 

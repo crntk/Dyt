@@ -2,143 +2,66 @@
 @model List<BlogPost>
 @{
     ViewData["Title"] = "Anasayfa";
+    ViewData["FvEnable"] = true;
+    
+    // Model null check
+    var tiles = Model?.Take(6).ToList() ?? new List<BlogPost>();
 }
 <style>
-  :root{ --brand:#e91e63 }
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
   /* Section backgrounds */
   .hero-gradient{position:relative;overflow:hidden;background:
-    radial-gradient(1200px 500px at 20% -10%, rgba(233,30,99,.18), transparent),
-    radial-gradient(1000px 400px at 90% -10%, rgba(255,255,255,.25), transparent)}
+radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+ radial-gradient(1000px 400px at 90% -10%, rgba(255,152,0,.25), transparent)}
   .section{padding:64px 0}
-  .glass{background: rgba(255,255,255,.65); backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,.6); border-radius:18px;}
-  .avatar{width:140px;height:140px;border-radius:50%;object-fit:cover;box-shadow:0 10px 30px rgba(0,0,0,.12);} 
+  .glass{background: rgba(255,255,255,.75); backdrop-filter: blur(10px); border:2px solid rgba(76,175,80,.2); border-radius:18px;}
+  .avatar{width:140px;height:140px;border-radius:50%;object-fit:cover;box-shadow:0 10px 30px rgba(0,0,0,.12)} 
 
   /* TIMELINE: continuous line + big stops aligned to the line */
   .timeline{position:relative; --pad:64px; --line-x:28px; --dot:16px; padding-left:var(--pad)}
-  .timeline:before{content:"";position:absolute;left:var(--line-x);top:0;bottom:0;width:2px;background:linear-gradient(180deg, rgba(233,30,99,.35), rgba(233,30,99,.12));z-index:0}
+  .timeline:before{content:"";position:absolute;left:var(--line-x);top:0;bottom:0;width:2px;background:linear-gradient(180deg, rgba(76,175,80,.35), rgba(255,152,0,.12));z-index:0}
   .timeline-item{position:relative;margin:0 0 28px;min-height:34px}
   /* place dot center exactly on the line: left = line-x - pad - dot/2  */
-  .timeline-item:before{content:"";position:absolute;left:calc(var(--line-x) - var(--pad) - (var(--dot) / 2));top:8px;width:var(--dot);height:var(--dot);border-radius:50%;background:var(--brand);border:2px solid #fff;box-shadow:0 0 0 6px rgba(233,30,99,.18);z-index:1}
+  .timeline-item:before{content:"";position:absolute;left:calc(var(--line-x) - var(--pad) - (var(--dot) / 2));top:8px;width:var(--dot);height:var(--dot);border-radius:50%;background:var(--brand);border:2px solid #fff;box-shadow:0 0 0 6px rgba(76,175,80,.18);z-index:1}
   .timeline-item:last-child{margin-bottom:0}
 
   .cert-card{border-radius:16px;border:1px solid #eee;box-shadow:0 10px 30px rgba(0,0,0,.06)}
-  .cert-badge{background:linear-gradient(90deg,#e91e63,#ff7aa5);color:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600}
+  .cert-badge{background:linear-gradient(90deg,#4CAF50,#81C784);color:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600}
   /* New */
-  .icon-lg{width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e91e63,#ff9fbd);color:#fff;box-shadow:0 8px 20px rgba(233,30,99,.25)}
+  .icon-lg{width:44px;height:44px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#4CAF50,#81C784);color:#fff;box-shadow:0 8px 20px rgba(76,175,80,.25)}
   .stats-card{border-radius:16px;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.06);padding:18px}
   .service-card{border-radius:16px;border:1px solid #eee;background:#fff;transition:transform .18s ease, box-shadow .18s ease}
   .service-card:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 16px 40px rgba(0,0,0,.10)}
-  .cta{background:linear-gradient(90deg, rgba(233,30,99,.15), rgba(255,255,255,.15)); border:1px dashed rgba(233,30,99,.35); border-radius:18px}
+  .cta{background:linear-gradient(90deg, rgba(76,175,80,.15), rgba(255,152,0,.15)); border:1px dashed rgba(76,175,80,.35); border-radius:18px}
 
   /* Background fill: mesh + dotted grid + floating blobs + subtle rings */
   .decor-layer{position:absolute;inset:0;pointer-events:none;z-index:0}
   .mesh{position:absolute;inset:-10%;background:
-      radial-gradient(60% 80% at 10% 10%, rgba(255,182,193,.35), transparent 60%),
-      radial-gradient(50% 70% at 90% 0%, rgba(233,30,99,.30), transparent 60%),
-      radial-gradient(40% 60% at 50% -10%, rgba(255,255,255,.35), transparent 60%);
+      radial-gradient(60% 80% at 10% 10%, rgba(129,199,132,.35), transparent 60%),
+      radial-gradient(50% 70% at 90% 0%, rgba(76,175,80,.30), transparent 60%),
+      radial-gradient(40% 60% at 50% -10%, rgba(255,152,0,.35), transparent 60%);
     filter:saturate(1.05) contrast(1.02);animation:meshMove 18s ease-in-out infinite alternate}
   .dot-grid{position:absolute;inset:-20%;background:
-      radial-gradient(rgba(233,30,99,.18) 1px, transparent 1.2px),
-      radial-gradient(rgba(233,30,99,.10) 1px, transparent 1.2px);
+      radial-gradient(rgba(76,175,80,.18) 1px, transparent 1.2px),
+      radial-gradient(rgba(255,152,0,.10) 1px, transparent 1.2px);
     background-size:28px 28px, 56px 56px; background-position:0 0, 14px 14px; opacity:.12}
   .blob{position:absolute;filter:blur(24px);opacity:.35;mix-blend-mode:multiply;border-radius:40%}
-  .blob.b1{width:420px;height:420px;left:-80px;top:-80px;background:radial-gradient(circle at 30% 30%, rgba(233,30,99,.55), rgba(255,159,189,.35), transparent 70%);animation:floaty 9s ease-in-out infinite}
-  .blob.b2{width:360px;height:360px;right:-100px;top:-60px;background:radial-gradient(circle at 70% 30%, rgba(255,255,255,.55), rgba(233,30,99,.35), transparent 70%);animation:floaty 11s ease-in-out infinite reverse}
+  .blob.b1{width:420px;height:420px;left:-80px;top:-80px;background:radial-gradient(circle at 30% 30%, rgba(76,175,80,.55), rgba(129,199,132,.35), transparent 70%);animation:floaty 9s ease-in-out infinite}
+  .blob.b2{width:360px;height:360px;right:-100px;top:-60px;background:radial-gradient(circle at 70% 30%, rgba(255,152,0,.55), rgba(255,183,77,.35), transparent 70%);animation:floaty 11s ease-in-out infinite reverse}
   .ring{position:absolute;border-radius:50%;background:
-      conic-gradient(from 0deg, rgba(233,30,99,.0) 0 40%, rgba(233,30,99,.45) 50%, rgba(233,30,99,.0) 60% 100%);
-    box-shadow:0 0 60px rgba(233,30,99,.12) inset;filter:blur(0.3px);opacity:.35}
+   conic-gradient(from 0deg, rgba(76,175,80,.0) 0 40%, rgba(76,175,80,.45) 50%, rgba(76,175,80,.0) 60% 100%);
+    box-shadow:0 0 60px rgba(76,175,80,.12) inset;filter:blur(0.3px);opacity:.35}
   .r1{width:520px;height:520px;left:-160px;top:40px;animation:spin 28s linear infinite}
   .r2{width:360px;height:360px;right:-120px;top:100px;animation:spin 36s linear infinite reverse}
   .wave{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:90px;opacity:.7}
   @@keyframes floaty {0%,100%{transform:translateY(0)}50%{transform:translateY(16px)}}
   @@keyframes meshMove {0%{transform:translateY(0)} 100%{transform:translateY(24px) scale(1.02)}}
-  @@keyframes spin {to{transform:rotate(360deg)}}
-
-  /* Reveal on scroll (safe fallback: visible by default) */
-  [data-animate]{opacity:1;transform:none;transition:opacity .45s ease, transform .45s ease}
-  [data-animate].in{opacity:1;transform:none}
-
-  /* Micro motion + color */
-  .hover-lift{transition:transform .18s ease, box-shadow .18s ease}
-  .hover-lift:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.08)}
-  .shine{position:relative;overflow:hidden}
-  .shine:after{content:"";position:absolute;inset:auto -60% 0 -60%;top:-100%;height:200%;background:linear-gradient(120deg,transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%);transform:translateY(0) rotate(12deg)}
-  .shine:hover:after{animation:shine 1s ease}
-  @@keyframes shine {from{transform:translate(-120%, -20%) rotate(12deg)} to{transform:translate(120%, 20%) rotate(12deg)}}
-
-  .gradient-text{background:linear-gradient(90deg,#e91e63, #ff8fb1, #e91e63);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:200% auto;animation:gradflow 6s ease-in-out infinite}
-  @@keyframes gradflow {0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-
-  .border-glow{position:relative;border:1px solid transparent;background:
-      linear-gradient(#fff,#fff) padding-box,
-      linear-gradient(135deg, rgba(233,30,99,.6), rgba(255,143,177,.6)) border-box;box-shadow:0 6px 24px rgba(233,30,99,.12)}
-  .border-glow:after{content:"";position:absolute;inset:-2px;border-radius:inherit;background:radial-gradient(600px 120px at var(--x,50%) var(--y,50%), rgba(233,30,99,.25), transparent 60%);opacity:.6;transition:opacity .3s ease;pointer-events:none}
-  .border-glow:hover:after{opacity:.9}
-
-  .btn-bling{position:relative;overflow:hidden}
-  .btn-bling:after{content:"";position:absolute;top:-50%;left:-20%;width:60%;height:200%;transform:rotate(20deg);background:linear-gradient(120deg, transparent 0%, rgba(255,255,255,.55) 40%, transparent 80%);animation:btnshine 2.2s ease-in-out infinite}
-  @@keyframes btnshine {0%{transform:translateX(-140%) rotate(20deg)}100%{transform:translateX(260%) rotate(20deg)}}
-
-  /* Scroll progress */
-  #scrollProgress{position:fixed;left:0;top:0;height:3px;width:100%;transform-origin:left center;transform:scaleX(0);background:linear-gradient(90deg,#e91e63,#ff8fb1);z-index:2000}
-
-  /* NEW: marquee partners */
-  .marquee{position:relative;overflow:hidden;border-radius:16px;background:linear-gradient(90deg, rgba(233,30,99,.08), rgba(255,143,177,.08));padding:10px 0}
-  .marquee:before,.marquee:after{content:"";position:absolute;top:0;bottom:0;width:80px;z-index:2}
-  .marquee:before{left:0;background:linear-gradient(90deg, #fff, transparent)}
-  .marquee:after{right:0;background:linear-gradient(270deg, #fff, transparent)}
-  .marquee-track{display:flex;gap:18px;align-items:center;width:max-content;animation:marquee 22s linear infinite}
-  .logo-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:#fff;border:1px solid #f1f5f9;box-shadow:0 6px 18px rgba(233,30,99,.08)}
-  .logo-emoji{font-size:18px}
-  @@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-
-  /* NEW: collage grid */
-  .collage{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:90px;gap:14px}
-  .tile{position:relative;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#ffe4ec,#fff);box-shadow:0 8px 24px rgba(0,0,0,.06)}
-  .tile .bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(1.05) contrast(1.02)}
-  .tile:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.35));opacity:.6}
-  .tile .cap{position:absolute;left:12px;right:12px;bottom:10px;color:#fff;z-index:2;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,.35);font-size:14px}
-  .tile:hover{transform:translateY(-3px);transition:transform .18s ease}
-  .span-2x{grid-column:span 2}
-  .span-3x{grid-column:span 3}
-  .span-2y{grid-row:span 2}
-  @@media (max-width: 992px){ .collage{grid-template-columns:repeat(4,1fr)} }
-  @@media (max-width: 576px){ .collage{grid-template-columns:repeat(2,1fr);grid-auto-rows:110px} }
-
-  /* NEW: wave services section (shape like screenshot, themed colors) */
-  .wave-section{position:relative;overflow:hidden;background:#fdf1f7}
-  .wave-section .wave-edge{position:absolute;left:0;right:0;height:100px;z-index:1;pointer-events:none}
-  .wave-section .wave-top{top:-1px}
-  .wave-section .wave-bottom{bottom:-1px;transform:rotate(180deg)}
-  .wave-section .content{position:relative;z-index:2;min-height:560px;display:grid;grid-template-rows:auto 1fr;align-items:center;justify-items:center;gap:18px;padding-block:24px}
-  /* slight downward offset for the carousel */
-  .wave-section .deck{margin-top:36px}
-  .service-fancy{background:#fff;border:1px solid #f0f0f0;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.06);padding:22px}
-  .service-fancy .title{font-weight:800;font-size:22px}
-
-  /* NEW: deck carousel for Hizmetlerimiz */
-  .deck{position:relative;max-width:1100px;margin:0 auto}
-  .deck-viewport{position:relative;min-height:340px;perspective:1000px;overflow:visible}
-  .deck-slides{position:relative}
-  .c-card{position:absolute;left:50%;top:0;width:min(540px, 92vw);transform:translateX(-50%);border-radius:16px;border:1px solid #eee;background:#fff;box-shadow:0 18px 50px rgba(0,0,0,.12);padding:22px;transition:transform .35s ease, opacity .35s ease, filter .35s ease, z-index .35s;will-change:transform}
-  .c-card .title{font-weight:700;font-size:22px}
-  .c-card .text{color:#4b5563}
-  .deck-nav{position:absolute;top:50%;transform:translateY(-50%);border:0;background:#111827;color:#fff;width:40px;height:40px;border-radius:50%;opacity:.85;display:flex;align-items:center;justify-content:center;z-index:5}
-  .deck-nav:hover{opacity:1}
-  .deck-nav.prev{left:calc(50% - 380px)}
-  .deck-nav.next{right:calc(50% - 380px)}
-  @@media (max-width: 992px){ .deck-nav.prev{left:8px} .deck-nav.next{right:8px} }
-  @@media (max-width: 576px){ .deck-nav{display:none} }
-  /* Recipe teaser cards */
-  .recipe-card{border-radius:16px; overflow:hidden}
-  .recipe-card.border-glow{border-radius:16px}
-  .recipe-cover{display:block;width:100%;height:140px;border-top-left-radius:inherit;border-top-right-radius:inherit}
-</style>
+  @@keyframes spin {to{transform:rotate(360deg)}}</style>
 
 <div id="scrollProgress" aria-hidden="true"></div>
 
 <!-- Hero -->
-<section class="hero-gradient section text-dark">
+<section class="hero-gradient section fv-nobg text-dark">
   <div class="decor-layer" aria-hidden="true">
     <div class="mesh"></div>
     <div class="dot-grid"></div>
@@ -147,74 +70,75 @@
     <div class="ring r1"></div>
     <div class="ring r2"></div>
     <svg class="wave" viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path fill="url(#g)" d="M0,64L60,69.3C120,75,240,85,360,96C480,107,600,117,720,112C840,107,960,85,1080,80C1200,75,1320,85,1380,90L1440,96L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"/>
-      <defs>
+    <path fill="url(#g)" d="M0,64L60,69.3C120,75,240,85,360,96C480,107,600,117,720,112C840,107,960,85,1080,80C1200,75,1320,85,1380,90L1440,96L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"/>
+    <defs>
         <linearGradient id="g" x1="0" x2="1" y1="0" y2="0">
           <stop offset="0%" stop-color="#ffffff" stop-opacity=".92"/>
-          <stop offset="100%" stop-color="#fdf7fb" stop-opacity=".92"/>
+  <stop offset="100%" stop-color="#f9fbf7" stop-opacity=".92"/>
         </linearGradient>
       </defs>
     </svg>
   </div>
-  <div class="container position-relative" style="z-index:1">
-    <div class="row align-items-center g-4">
-      <div class="col-lg-7" data-animate>
-        <h1 class="display-4 fw-bold mb-3 shine">Merhaba, ben Diyetisyen <span class="gradient-text">Riyaza Tair</span></h1>
-        <p class="lead mb-4">Bilimsel yaklaşımla kişiye özel beslenme planları. Sağlıklı yaşam yolculuğunuzda yanınızdayım.</p>
-        <div>
-          <a asp-controller="Appointment" asp-action="Create" class="btn btn-lg btn-primary btn-bling me-2">Randevu Al</a>
-          <a asp-controller="Blog" asp-action="Index" class="btn btn-lg btn-outline-secondary">Blog</a>
-        </div>
-      </div>
-      <div class="col-lg-5" data-animate>
-        <div class="glass p-4 d-flex align-items-center gap-3 hover-lift border-glow">
-          <img src="/images/profile-placeholder.jpg" alt="profil" class="avatar" onerror="this.style.display='none'" />
-          <div>
-            <div class="fw-semibold">Uzmanlık Alanları</div>
-            <ul class="mb-0 small text-muted">
-              <li>Kilo yönetimi ve vücut kompozisyonu</li>
-              <li>Sporcu beslenmesi</li>
-              <li>Metabolik hastalıklarda beslenne</li>
-            </ul>
+  <div class="container position-relative fv-text" style="z-index:1">
+    <div class="fv-surface border-glow p-4 p-md-5">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-7" data-animate>
+          <h1 class="display-4 fw-bold mb-3 shine">Merhaba Ben Diyetisyen <span class="gradient-text">Riyaza Tair</span></h1>
+          <p class="lead mb-4">Bilimsel yaklaşımla kişiye özel beslenme planları. Sağlıklı yaşam yolculuğunuzda yanınızdayım.</p>
+       <div>
+<a asp-controller="Appointment" asp-action="Create" class="btn btn-lg btn-primary btn-bling me-2">Randevu Al</a>
+            <a asp-controller="Blog" asp-action="Index" class="btn btn-lg btn-outline-secondary">Blog</a>
           </div>
         </div>
+      <div class="col-lg-5" data-animate>
+ <div class="glass p-4 d-flex align-items-center gap-3 hover-lift border-glow fv-surface-strong fv-text">
+       <img src="/images/profile-placeholder.jpg" alt="profil" class="avatar" onerror="this.style.display='none'" />
+         <div>
+  <div class="fw-semibold">Uzmanlık Alanları</div>
+           <ul class="mb-0 small text-muted">
+       <li>Kilo yönetimi ve vücut kompozisyonu</li>
+    <li>Sporcu beslenmesi</li>
+             <li>Metabolik hastalıklarda beslenme</li>
+        </ul>
+            </div>
+       </div>
+        </div>
       </div>
-    </div>
+</div>
   </div>
 </section>
 
 <!-- Ben Kimim -->
-<section class="section">
+<section class="section fv-nobg" style="background:transparent;">
   <div class="container">
-    <div class="row g-4">
+  <div class="row g-4">
       <div class="col-lg-5" data-animate>
-        <div class="glass p-4 h-100">
-          <h2 class="h3 fw-bold mb-3">Ben Kimim?</h2>
-          <p class="mb-3">Beslenme ve diyetetik alanında eğitimimi tamamladıktan sonra klinik ve bireysel danışmanlıkta deneyim kazandım. Her danışanımın yaşam tarzına uygun, sürdürülebilir planlar oluşturmayı hedefliyorum.</p>
-          <p class="mb-0">Amaç: kısa vadeli sonuçlar değil; uzun vadeli sağlıklı alışkanlıklar.</p>
-          <div class="mt-3">
+     <div class="glass p-4 h-100 fv-surface-strong fv-text">
+          <h2 class="h3 fw-bold mb-3">TANIŞALIM</h2>
+      <p class="mb-3">Beslenme ve diyetetik alanında eğitimimi tamamladıktan sonra klinik ve bireysel danışmanlıkta deneyim kazandım. Her danışanımın yaşam tarzına uygun, sürdürülebilir planlar oluşturmayı hedefliyorum.</p>
+      <div class="mt-3">
             <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="About">Daha Fazla</a>
           </div>
         </div>
       </div>
-      <div class="col-lg-7" data-animate>
-        <div class="glass p-4 h-100">
+  <div class="col-lg-7" data-animate>
+    <div class="glass p-4 h-100 fv-surface-strong fv-text">
           <h2 class="h3 fw-bold mb-3">Özgeçmiş</h2>
-          <div class="timeline">
-            <div class="timeline-item">
-              <div class="fw-semibold">Diyetisyen – Özel Klinik</div>
-              <div class="text-muted small">2022 - Günümüz</div>
-              <p class="mb-2">Bireysel beslenme danışmanlığı, sporcu ve kurumsal programlar.</p>
-            </div>
-            <div class="timeline-item">
-              <div class="fw-semibold">Beslenme ve Diyetetik – Lisans</div>
-              <div class="text-muted small">2018 - 2022</div>
-              <p class="mb-2">Araştırma projeleri ve saha çalışmaları.</p>
-            </div>
-            <div class="timeline-item">
-              <div class="fw-semibold">Staj – Hastane</div>
+   <div class="timeline">
+       <div class="timeline-item">
+   <div class="fw-semibold">Diyetisyen – Özel Klinik</div>
+    <div class="text-muted small">2022 - Günümüz</div>
+            <p class="mb-2">Bireysel beslenme danışmanlığı, sporcu ve kurumsal programlar.</p>
+        </div>
+  <div class="timeline-item">
+    <div class="fw-semibold">Beslenme ve Diyetetik – Lisans</div>
+            <div class="text-muted small">2018 - 2022</div>
+      <p class="mb-2">Araştırma projeleri ve saha çalışmaları.</p>
+    </div>
+        <div class="timeline-item">
+        <div class="fw-semibold">Staj – Hastane</div>
               <div class="text-muted small">2021</div>
-              <p class="mb-0">Klinik beslenme, menü planlama, hasta takibi.</p>
+          <p class="mb-0">Klinik beslenme, menü planlama, hasta takibi.</p>
             </div>
           </div>
         </div>
@@ -223,20 +147,19 @@
   </div>
 </section>
 
-<!-- NEW: Partners marquee band -->
-<section class="section" style="background:#fff;">
+<!-- Partners marquee band -->
+<section class="section fv-nobg" style="background:transparent;">
   <div class="container">
-    <div class="marquee border-glow" data-animate>
+  <div class="marquee border-glow fv-surface" data-animate>
       <div class="marquee-track">
-        <span class="logo-chip"><span class="logo-emoji">🏥</span> Sağlık Kliniği</span>
+      <span class="logo-chip"><span class="logo-emoji">🏥</span> Sağlık Kliniği</span>
         <span class="logo-chip"><span class="logo-emoji">🥗</span> FitLife</span>
         <span class="logo-chip"><span class="logo-emoji">🏃‍♂️</span> Atletika</span>
         <span class="logo-chip"><span class="logo-emoji">🧪</span> NutriLab</span>
-        <span class="logo-chip"><span class="logo-emoji">🏢</span> OfisWell</span>
+      <span class="logo-chip"><span class="logo-emoji">🏢</span> OfisWell</span>
         <span class="logo-chip"><span class="logo-emoji">💖</span> Wellness+</span>
-        <!-- duplicate for seamless loop -->
         <span class="logo-chip"><span class="logo-emoji">🏥</span> Sağlık Kliniği</span>
-        <span class="logo-chip"><span class="logo-emoji">🥗</span> FitLife</span>
+     <span class="logo-chip"><span class="logo-emoji">🥗</span> FitLife</span>
         <span class="logo-chip"><span class="logo-emoji">🏃‍♂️</span> Atletika</span>
         <span class="logo-chip"><span class="logo-emoji">🧪</span> NutriLab</span>
         <span class="logo-chip"><span class="logo-emoji">🏢</span> OfisWell</span>
@@ -246,162 +169,165 @@
   </div>
 </section>
 
-<!-- NEW: Themed wave services block (Hizmetlerimiz) with deck carousel -->
+<!-- Hizmetlerimiz with deck carousel -->
 <section class="section wave-section">
   <div class="wave-edge wave-top" aria-hidden="true">
-    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M0,64L60,69.3C120,75,240,85,360,96C480,107,600,117,720,112C840,107,960,85,1080,80C1200,75,1320,85,1380,90L1440,96L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path></svg>
+    <svg viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#F9FBF7" d="M0,30 Q150,10 300,30 T600,30 T900,30 T1200,30 L1200,0 L0,0 Z"></path>
+    </svg>
   </div>
   <div class="content container">
-    <h2 class="h3 fw-bold text-center mb-2 mt-4 fst-italic">Hizmetlerim</h2>
-    <div class="deck" role="region" aria-label="Hizmetlerim">
+  <h2 class="h3 fw-bold text-center mb-2 mt-4 fst-italic">Hizmetlerim</h2>
+<div class="deck" role="region" aria-label="Hizmetlerim">
       <button class="deck-nav prev" type="button" aria-label="Önceki">‹</button>
       <div class="deck-viewport">
         <div class="deck-slides">
-          <article class="c-card border-glow" data-title="Kilo Yönetimi">
-            <div class="icon-lg mb-2">🍽️</div>
+<article class="c-card border-glow" data-title="Kilo Yönetimi">
+         <div class="icon-lg mb-2">🍽️</div>
             <div class="title mb-2">Kilo Yönetimi</div>
-            <div class="text small mb-3">Kişiye özel kalori ve makro dağılımı ile sürdürülebilir kilo kaybı.</div>
-            <a class="btn btn-sm btn-outline-secondary" asp-controller="Appointment" asp-action="Create">İnceleyin</a>
-          </article>
+    <div class="text small mb-3">Kişiye özel kalori ve makro dağılımı ile sürdürülebilir kilo kaybı.</div>
+  <a class="btn btn-sm btn-outline-secondary" asp-controller="Appointment" asp-action="Create">İnceleyin</a>
+    </article>
           <article class="c-card border-glow" data-title="Sporcu Beslenmesi">
-            <div class="icon-lg mb-2">🏃‍♀️</div>
+      <div class="icon-lg mb-2">🏃‍♀️</div>
             <div class="title mb-2">Sporcu Beslenmesi</div>
-            <div class="text small mb-3">Performans hedeflerine göre peri-yemek planlaması.</div>
-            <a class="btn btn-sm btn-outline-secondary" asp-controller="Appointment" asp-action="Create">İnceleyin</a>
-          </article>
-          <article class="c-card border-glow" data-title="Klinik Beslenme">
-            <div class="icon-lg mb-2">🩺</div>
-            <div class="title mb-2">Klinik Beslenme</div>
-            <div class="text small mb-3">DM, HT, hiperlipidemi gibi durumlarda kanıta dayalı protokoller.</div>
-            <a class="btn btn-sm btn-outline-secondary" asp-controller="Appointment" asp-action="Create">İnceleyin</a>
+     <div class="text small mb-3">Performans hedeflerine göre peri-yemek planlaması.</div>
+       <a class="btn btn-sm btn-outline-secondary" asp-controller="Appointment" asp-action="Create">İnceleyin</a>
+        </article>
+ <article class="c-card border-glow" data-title="Klinik Beslenme">
+       <div class="icon-lg mb-2">🩺</div>
+      <div class="title mb-2">Klinik Beslenme</div>
+   <div class="text small mb-3">DM, HT, hiperlipidemi gibi durumlarda kanıta dayalı protokoller.</div>
+          <a class="btn btn-sm btn-outline-secondary" asp-controller="Appointment" asp-action="Create">İnceleyin</a>
           </article>
           <article class="c-card border-glow" data-title="Aile/Çocuk Beslenmesi">
-            <div class="icon-lg mb-2">👨‍👩‍👧‍👦</div>
+    <div class="icon-lg mb-2">👨‍👩‍👧‍👦</div>
             <div class="title mb-2">Aile/Çocuk Beslenmesi</div>
-            <div class="text small mb-3">Çocuk ve ergenlerde büyüme odaklı planlama.</div>
-            <a class="btn btn-sm btn-outline-secondary" asp-controller="Appointment" asp-action="Create">İnceleyin</a>
-          </article>
+      <div class="text small mb-3">Çocuk ve ergenlerde büyüme odaklı planlama.</div>
+ <a class="btn btn-sm btn-outline-secondary" asp-controller="Appointment" asp-action="Create">İnceleyin</a>
+  </article>
           <article class="c-card border-glow" data-title="Kurumsal Programlar">
-            <div class="icon-lg mb-2">🥗</div>
-            <div class="title mb-2">Kurumsal Programlar</div>
-            <div class="text small mb-3">Ofis wellness ve toplu beslenme danışmanlığı.</div>
-            <a class="btn btn-sm btn-outline-secondary" asp-controller="Contact" asp-action="Index">İnceleyin</a>
+     <div class="icon-lg mb-2">🥗</div>
+    <div class="title mb-2">Kurumsal Programlar</div>
+      <div class="text small mb-3">Ofis wellness ve toplu beslenme danışmanlığı.</div>
+      <a class="btn btn-sm btn-outline-secondary" asp-controller="Contact" asp-action="Index">İnceleyin</a>
           </article>
           <article class="c-card border-glow" data-title="Online Danışmanlık">
             <div class="icon-lg mb-2">💬</div>
-            <div class="title mb-2">Online Danışmanlık</div>
+  <div class="title mb-2">Online Danışmanlık</div>
             <div class="text small mb-3">Evden çıkmadan görüntülü görüşme ve takip.</div>
             <a class="btn btn-sm btn-outline-secondary" asp-controller="Appointment" asp-action="Create">İnceleyin</a>
-          </article>
+        </article>
         </div>
       </div>
       <button class="deck-nav next" type="button" aria-label="Sonraki">›</button>
     </div>
   </div>
   <div class="wave-edge wave-bottom" aria-hidden="true">
-    <svg viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"><path fill="#ffffff" d="M0,64L60,69.3C120,75,240,85,360,96C480,107,600,117,720,112C840,107,960,85,1080,80C1200,75,1320,85,1380,90L1440,96L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path></svg>
+    <svg viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path fill="#F9FBF7" d="M0,30 Q150,10 300,30 T600,30 T900,30 T1200,30 L1200,0 L0,0 Z"></path>
+    </svg>
   </div>
 </section>
 
 <!-- Danışan Yorumları -->
-<section class="section">
+@*<section class="section fv-nobg" style="background:transparent;">
   <div class="container">
     <h2 class="h3 fw-bold mb-3" data-animate>Danışan Yorumları</h2>
     <div id="testiCarousel" class="carousel slide" data-bs-ride="carousel" data-animate>
       <div class="carousel-inner">
         <div class="carousel-item active">
-          <div class="glass p-4">
-            <p class="mb-2">“3 ayda 8 kilo verdim ve enerji seviyem arttı. Planlar çok uygulanabilir ve esnek.”</p>
+          <div class="glass p-4 fv-surface fv-text">
+      <p class="mb-2">"3 ayda 8 kilo verdim ve enerji seviyem arttı. Planlar çok uygulanabilir ve esnek."</p>
             <div class="text-muted small">— A. K.</div>
           </div>
-        </div>
+   </div>
         <div class="carousel-item">
-          <div class="glass p-4">
-            <p class="mb-2">“Sporcu beslenmesi programı ile rekorumu geliştirdim. Her ayrıntı düşünülmüş.”</p>
-            <div class="text-muted small">— B. D.</div>
+          <div class="glass p-4 fv-surface fv-text">
+            <p class="mb-2">"Sporcu beslenmesi programı ile rekorumu geliştirdim. Her ayrıntı düşünülmüş."</p>
+       <div class="text-muted small">— B. D.</div>
           </div>
         </div>
         <div class="carousel-item">
-          <div class="glass p-4">
-            <p class="mb-2">“Online takip çok pratik. Haftalık geri bildirimlerle motivasyon kaybolmuyor.”</p>
-            <div class="text-muted small">— C. Y.</div>
-          </div>
+          <div class="glass p-4 fv-surface fv-text">
+      <p class="mb-2">"Online takip çok pratik. Haftalık geri bildirimlerle motivasyon kaybolmuyor."</p>
+ <div class="text-muted small">— C. Y.</div>
         </div>
-      </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#testiCarousel" data-bs-slide="prev">
+   </div>
+ </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#testiCarousel" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Önceki</span>
+     <span class="visually-hidden">Önceki</span>
       </button>
       <button class="carousel-control-next" type="button" data-bs-target="#testiCarousel" data-bs-slide="next">
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Sonraki</span>
-      </button>
+  </button>
     </div>
   </div>
-</section>
-
-<!-- NEW: Recipes teaser on homepage -->
-<section class="section" style="background:#fff;">
+</section>*@
+<!-- Recipes teaser -->
+<section class="section fv-nobg" style="background:transparent;">
   <div class="container">
-    <div class="d-flex align-items-center justify-content-between mb-3" data-animate>
+ <div class="d-flex align-items-center justify-content-between mb-3" data-animate>
       <h2 class="h3 fw-bold mb-0">Tarifler</h2>
       <a class="btn btn-sm btn-outline-secondary" asp-controller="Recipes" asp-action="Index">Tüm Tarifler</a>
     </div>
     <div class="row g-4">
       <div class="col-md-4" data-animate>
-        <div class="card shadow-sm border-glow recipe-card h-100">
-          <div class="recipe-cover" style="background:linear-gradient(135deg,#ffe4ec,#fff)" aria-hidden="true"></div>
-          <div class="card-body d-flex flex-column">
-            <div class="fw-semibold mb-1">Yulaflı Meyveli Kahvaltı Kasesi</div>
+        <div class="card shadow-sm border-glow recipe-card h-100 fv-surface">
+ <div class="recipe-cover" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1)" aria-hidden="true"></div>
+ <div class="card-body d-flex flex-column fv-text">
+   <div class="fw-semibold mb-1">Yulaflı Meyveli Kahvaltı Kasesi</div>
             <div class="text-muted small mb-2">10 dk • 320 kcal • Kolay</div>
-            <p class="small text-muted mb-3">Lif zengini, hızlı ve doyurucu kahvaltı.</p>
+    <p class="small text-muted mb-3">Lif zengini, hızlı ve doyurucu kahvaltı.</p>
             <div class="mt-auto">
-              <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
-                 data-title="Yulaflı Meyveli Kahvaltı Kasesi"
-                 data-prep="10 dk" data-cal="320 kcal" data-diff="Kolay"
-                 data-summary="Lif zengini, hızlı ve doyurucu kahvaltı."
-                 data-tags="kahvaltı|lif|vegan"
-                 data-ingredients="1/2 su bardağı yulaf|1/2 su bardağı süt/yoğurt|1/2 muz|Çilek/ yaban mersini|1 yk ceviz|Tarçın veya bal"
-                 data-steps="Yulafı süt/yoğurtla karıştırın.|Üzerine meyve ve kuruyemiş ekleyin.|Bal veya tarçın ile tatlandırın.">Daha Fazla</a>
-            </div>
+   <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
+               data-title="Yulaflı Meyveli Kahvaltı Kasesi"
+       data-prep="10 dk" data-cal="320 kcal" data-diff="Kolay"
+            data-summary="Lif zengini, hızlı ve doyurucu kahvaltı."
+      data-tags="kahvaltı|lif|vegan"
+           data-ingredients="1/2 su bardağı yulaf|1/2 su bardağı süt/yoğurt|1/2 muz|Çilek/ yaban mersini|1 yk ceviz|Tarçın veya bal"
+      data-steps="Yulafı süt/yoğurtla karıştırın.|Üzerine meyve ve kuruyemiş ekleyin.|Bal veya tarçın ile tatlandırın.">Daha Fazla</a>
+    </div>
           </div>
         </div>
       </div>
       <div class="col-md-4" data-animate>
-        <div class="card shadow-sm border-glow recipe-card h-100">
-          <div class="recipe-cover" style="background:linear-gradient(135deg,#ffd7e5,#fff)" aria-hidden="true"></div>
-          <div class="card-body d-flex flex-column">
-            <div class="fw-semibold mb-1">Izgara Tavuklu Fit Salata</div>
-            <div class="text-muted small mb-2">15 dk • 380 kcal • Kolay</div>
-            <p class="small text-muted mb-3">Protein dengeli, pratik öğle yemeği.</p>
-            <div class="mt-auto">
-              <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
-                 data-title="Izgara Tavuklu Fit Salata"
-                 data-prep="15 dk" data-cal="380 kcal" data-diff="Kolay"
-                 data-summary="Protein dengeli, pratik öğle yemeği."
-                 data-tags="öğle|protein|glutensiz"
-                 data-ingredients="120 g tavuk göğüs|Karışık yeşillik|Cherry domates|1/2 avokado|1 yk zeytinyağı|1/2 limon"
-                 data-steps="Tavuğu zeytinyağı ve baharatla marine edin.|Izgarada pişirin ve dilimleyin.|Yeşilliklerle karıştırıp soslayın.">Daha Fazla</a>
+        <div class="card shadow-sm border-glow recipe-card h-100 fv-surface">
+          <div class="recipe-cover" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1)" aria-hidden="true"></div>
+          <div class="card-body d-flex flex-column fv-text">
+     <div class="fw-semibold mb-1">Izgara Tavuklu Fit Salata</div>
+      <div class="text-muted small mb-2">15 dk • 380 kcal • Kolay</div>
+      <p class="small text-muted mb-3">Protein dengeli, pratik öğle yemeği.</p>
+  <div class="mt-auto">
+     <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
+      data-title="Izgara Tavuklu Fit Salata"
+      data-prep="15 dk" data-cal="380 kcal" data-diff="Kolay"
+        data-summary="Protein dengeli, pratik öğle yemeği."
+          data-tags="öğle|protein|glutensiz"
+    data-ingredients="120 g tavuk göğüs|Karışık yeşillik|Cherry domates|1/2 avokado|1 yk zeytinyağı|1/2 limon"
+       data-steps="Tavuğu zeytinyağı ve baharatla marine edin.|Izgarada pişirin ve dilimleyin.|Yeşilliklerle karıştırıp soslayın.">Daha Fazla</a>
             </div>
           </div>
-        </div>
+     </div>
       </div>
-      <div class="col-md-4" data-animate>
-        <div class="card shadow-sm border-glow recipe-card h-100">
-          <div class="recipe-cover" style="background:linear-gradient(135deg,#ffeef5,#fff)" aria-hidden="true"></div>
-          <div class="card-body d-flex flex-column">
-            <div class="fw-semibold mb-1">Fırında Sebzeli Somon</div>
-            <div class="text-muted small mb-2">20 dk • 420 kcal • Orta</div>
-            <p class="small text-muted mb-3">Omega-3 kaynağı, akşam yemeği.</p>
-            <div class="mt-auto">
+   <div class="col-md-4" data-animate>
+        <div class="card shadow-sm border-glow recipe-card h-100 fv-surface">
+          <div class="recipe-cover" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1)" aria-hidden="true"></div>
+     <div class="card-body d-flex flex-column fv-text">
+  <div class="fw-semibold mb-1">Fırında Sebzeli Somon</div>
+       <div class="text-muted small mb-2">20 dk • 420 kcal • Orta</div>
+        <p class="small text-muted mb-3">Omega-3 kaynağı, akşam yemeği.</p>
+    <div class="mt-auto">
               <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
-                 data-title="Fırında Sebzeli Somon"
-                 data-prep="20 dk" data-cal="420 kcal" data-diff="Orta"
-                 data-summary="Omega-3 kaynağı, akşam yemeği."
-                 data-tags="akşam|omega-3|düşük-karbonhidrat"
-                 data-ingredients="1 dilim somon|Brokoli, havuç, kabak|1 yk zeytinyağı|Limon, tuz, karabiber"
-                 data-steps="Somonu limon ve baharatla ovun.|Sebzeleri doğrayıp tepsiye dizin.|200°C fırında 15-18 dk pişirin.">Daha Fazla</a>
-            </div>
+     data-title="Fırında Sebzeli Somon"
+           data-prep="20 dk" data-cal="420 kcal" data-diff="Orta"
+        data-summary="Omega-3 kaynağı, akşam yemeği."
+            data-tags="akşam|omega-3|düşük-karbonhidrat"
+       data-ingredients="1 dilim somon|Brokoli, havuç, kabak|1 yk zeytinyağı|Limon, tuz, karabiber"
+   data-steps="Somonu limon ve baharatla ovun.|Sebzeleri doğrayıp tepsiye dizin.|200°C fırında 15-18 dk pişirin.">Daha Fazla</a>
+      </div>
           </div>
         </div>
       </div>
@@ -409,88 +335,108 @@
   </div>
 </section>
 
-<!-- NEW: collage grid -->
-<section class="section" style="background:#fef2f7;">
+<!-- collage grid -->
+<section class="section fv-nobg" style="background:transparent;">
   <div class="container">
-    <div class="d-flex align-items-center justify-content-between mb-3" data-animate>
+  <div class="d-flex align-items-center justify-content-between mb-3" data-animate>
       <h2 class="h3 fw-bold mb-0">Son Paylaşımlar</h2>
       <a class="btn btn-sm btn-outline-secondary" asp-controller="Blog" asp-action="Index">Tümünü Gör</a>
     </div>
     <div class="collage" data-animate>
-      @{
-        var tiles = Model?.Take(6).ToList() ?? new List<BlogPost>();
-        string span(int i){
-          return i switch
-          {
-            0 => "span-3x span-2y", // büyük
-            1 => "span-3x",
-            2 => "span-2x span-2y",
-            3 => "span-2x",
-            4 => "span-2x",
-            _ => "span-3x"
-          };
+      @for (int i = 0; i < 6; i++)
+      {
+        var p = i < tiles.Count ? tiles[i] : null;
+        var media = p?.Media?.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
+        var title = p != null ? (string.IsNullOrWhiteSpace(p.Title) ? (p.Summary ?? "Paylaşım") : p.Title) : "Paylaşım";
+        var slug = p?.Slug ?? "#";
+        var hasContent = p != null;
+      
+        @if (hasContent) {
+      <a class="tile fv-surface" href="/blog/@slug" title="@title">
+ <div class="bg" style="@(string.IsNullOrEmpty(media) ? "background:linear-gradient(135deg,#E8F5E9,#FFF8E1);" : $"background-image:url('{media}');")"></div>
+            <div class="cap">@title</div>
+          </a>
+        } else {
+ <div class="tile fv-surface" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1);opacity:0.5;">
+            <div class="cap">Yakında...</div>
+       </div>
         }
-      }
-      @for (int i = 0; i < tiles.Count; i++){
-        var p = tiles[i];
-        var media = p.Media?.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
-        var title = string.IsNullOrWhiteSpace(p.Title) ? (p.Summary ?? "") : p.Title;
-        var slug = p.Slug;
-        <a class="tile @span(i)" href="/blog/@slug" title="@title">
-          <div class="bg" style="@(string.IsNullOrEmpty(media) ? "background-image:linear-gradient(135deg,#ffd7e5,#fff);" : $"background-image:url('{media}')")"></div>
-          <div class="cap">@title</div>
-        </a>
       }
     </div>
   </div>
 </section>
 
 <!-- SSS -->
-<section class="section" style="background:#fff;">
+<section class="section fv-nobg" style="background:transparent;">
   <div class="container">
-    <h2 class="h3 fw-bold mb-3" data-animate>Sık Sorulan Sorular</h2>
-    <div class="accordion" id="faq" data-animate>
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="q1"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#a1">Seanslar nasıl ilerliyor?</button></h2>
-        <div id="a1" class="accordion-collapse collapse show" data-bs-parent="#faq"><div class="accordion-body">İlk görüşmede hedef belirliyoruz, haftalık/iki haftalık takipler ile ilerliyoruz.</div></div>
+  <h2 class="h3 fw-bold mb-4" data-animate>❓ Sık Sorulan Sorular</h2>
+    <div class="accordion faq-accordion" id="faq" data-animate>
+      <div class="accordion-item fv-surface">
+        <h2 class="accordion-header" id="q1">
+          <button class="accordion-button collapsed fv-text" type="button" data-bs-toggle="collapse" data-bs-target="#a1" aria-expanded="false" aria-controls="a1">
+            Seanslar nasıl ilerliyor?
+          </button>
+        </h2>
+        <div id="a1" class="accordion-collapse collapse" data-bs-parent="#faq" aria-labelledby="q1">
+        <div class="accordion-body fv-text">
+        İlk görüşmede hedef belirliyoruz, haftalık/iki haftalık takipler ile ilerliyoruz. Her seansta ilerleme değerlendirilir ve plan gerektiğinde güncellenir.
+     </div>
+        </div>
+    </div>
+      <div class="accordion-item fv-surface">
+        <h2 class="accordion-header" id="q2">
+          <button class="accordion-button collapsed fv-text" type="button" data-bs-toggle="collapse" data-bs-target="#a2" aria-expanded="false" aria-controls="a2">
+     Online hizmet veriyor musunuz?
+          </button>
+        </h2>
+        <div id="a2" class="accordion-collapse collapse" data-bs-parent="#faq" aria-labelledby="q2">
+          <div class="accordion-body fv-text">
+     Evet, görüntülü görüşme ve mesajlaşma ile düzenli takip yapıyorum. Online danışmanlık yüz yüze görüşme kadar etkilidir.
+          </div>
       </div>
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="q2"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2">Online hizmet veriyor musunuz?</button></h2>
-        <div id="a2" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">Evet, görüntülü görüşme ve mesajlaşma ile düzenli takip yapıyorum.</div></div>
-      </div>
-      <div class="accordion-item">
-        <h2 class="accordion-header" id="q3"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3">Ödeme ve iptal koşulları?</button></h2>
-        <div id="a3" class="accordion-collapse collapse" data-bs-parent="#faq"><div class="accordion-body">Ödemeler seans öncesi alınır; 24 saat önce haber verilirse ücretsiz erteleme yapılır.</div></div>
+  </div>
+      <div class="accordion-item fv-surface">
+   <h2 class="accordion-header" id="q3">
+          <button class="accordion-button collapsed fv-text" type="button" data-bs-toggle="collapse" data-bs-target="#a3" aria-expanded="false" aria-controls="a3">
+         Ödeme ve iptal koşulları?
+          </button>
+        </h2>
+    <div id="a3" class="accordion-collapse collapse" data-bs-parent="#faq" aria-labelledby="q3">
+       <div class="accordion-body fv-text">
+  Ödemeler seans öncesi alınır; 24 saat önce haber verilirse ücretsiz erteleme yapılır. İptal politikası detayları randevu sırasında paylaşılır.
+</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- CTA -->
-<section class="section">
+<section class="section fv-nobg" style="background:transparent;">
   <div class="container">
-    <div class="cta p-4 p-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between border-glow" data-animate>
+    <div class="cta p-4 p-md-5 d-flex flex-column flex-md-row align-items-center justify-content-between border-glow fv-surface-strong fv-text" data-animate>
       <div class="mb-3 mb-md-0">
-        <div class="h3 fw-bold mb-1">Hedeflerinizi birlikte planlayalım</div>
+  <div class="h3 fw-bold mb-1">Hedeflerinizi birlikte planlayalım</div>
         <div class="text-muted">Ücretsiz ön görüşme randevunuzu hemen oluşturun.</div>
       </div>
-      <a class="btn btn-lg btn-primary btn-bling" asp-controller="Appointment" asp-action="Create">Randevu Al</a>
+   <a class="btn btn-lg btn-primary btn-bling" asp-controller="Appointment" asp-action="Create">Randevu Al</a>
     </div>
   </div>
 </section>
 
+@section Scripts {
 <script>
   // Scroll reveal
   (function(){
     const els=[...document.querySelectorAll('[data-animate]')];
-    if(!('IntersectionObserver' in window)){ els.forEach(e=>e.classList.add('in')); return; }
+  if(!('IntersectionObserver' in window)){ els.forEach(e=>e.classList.add('in')); return; }
     const io=new IntersectionObserver((entries)=>{
       entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target);} });
     },{threshold:.12, rootMargin:'0px 0px -10% 0px'});
     els.forEach(e=>io.observe(e));
   })();
 
-  // Parallax for blobs + reactive glow on hero
+  // Parallax for blobs
   (function(){
     const blobs=[...document.querySelectorAll('.hero-gradient .blob')];
     const sec=document.querySelector('.hero-gradient');
@@ -499,12 +445,10 @@
       const r=sec.getBoundingClientRect();
       const cx=(e.clientX - r.left)/r.width - .5;
       const cy=(e.clientY - r.top)/r.height - .5;
-      blobs.forEach((b,i)=>{
+    blobs.forEach((b,i)=>{
         const m=8 + i*4;
-        b.style.transform=`translate(${cx*m}px, ${cy*m}px)`;
+      b.style.transform=`translate(${cx*m}px, ${cy*m}px)`;
       });
-      const glows=[...document.querySelectorAll('.border-glow')];
-      glows.forEach(el=>{ el.style.setProperty('--x', `${(cx+.5)*100}%`); el.style.setProperty('--y', `${(cy+.5)*100}%`); });
     };
     sec.addEventListener('mousemove', onMove);
   })();
@@ -516,7 +460,7 @@
     const onMove=(e)=>{
       const el=e.currentTarget; const r=el.getBoundingClientRect();
       const px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
-      const rx=(.5-py)*max, ry=(px-.5)*max;
+  const rx=(.5-py)*max, ry=(px-.5)*max;
       el.style.transform=`perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
     };
     const onLeave=(e)=>{e.currentTarget.style.transform='';};
@@ -529,6 +473,7 @@
     const slides=[...deck.querySelectorAll('.c-card')];
     const prev=deck.querySelector('.deck-nav.prev');
     const next=deck.querySelector('.deck-nav.next');
+    if(!slides || slides.length === 0) return;
     let i=0;
     function render(){
       const base=320; // px offset between slides
@@ -537,10 +482,10 @@
         let rel=dx; if(rel>slides.length/2) rel=rel - slides.length; // choose shortest side left/right
         const abs=Math.abs(rel);
         const z=100-abs;
-        const scale=rel===0?1:0.86;
-        const op=rel===0?1:0.6;
-        const blur=rel===0?0:1.2;
-        el.style.zIndex=String(z);
+    const scale=rel===0?1:0.86;
+  const op=rel===0?1:0.6;
+      const blur=rel===0?0:1.2;
+    el.style.zIndex=String(z);
         el.style.opacity=String(op);
         el.style.filter=`blur(${blur}px)`;
         el.style.transform=`translateX(calc(-50% + ${rel*base}px)) scale(${scale})`;
@@ -549,10 +494,10 @@
       });
     }
     function mod(n,m){ return ((n%m)+m)%m; }
-    prev?.addEventListener('click',()=>{ i=mod(i-1, slides.length); render(); });
-    next?.addEventListener('click',()=>{ i=mod(i+1, slides.length); render(); });
-    deck.addEventListener('keydown',(e)=>{ if(e.key==='ArrowLeft'){ prev?.click(); } else if(e.key==='ArrowRight'){ next?.click(); }});
-    render();
+    if(prev) prev.addEventListener('click',()=>{ i=mod(i-1, slides.length); render(); });
+    if(next) next.addEventListener('click',()=>{ i=mod(i+1, slides.length); render(); });
+    deck.addEventListener('keydown',(e)=>{ if(e.key==='ArrowLeft' && prev){ prev.click(); } else if(e.key==='ArrowRight' && next){ next.click(); }});
+ render();
   })();
 
   // Recipe popup (homepage)
@@ -565,25 +510,25 @@
         <button class="lb-close" aria-label="Kapat">×</button>
         <div class="lb-header">
           <div class="lb-title"></div>
-          <div class="lb-meta"></div>
+      <div class="lb-meta"></div>
         </div>
-        <div class="lb-body">
+   <div class="lb-body">
           <p class="lb-summary"></p>
-          <div class="lb-tags"></div>
+     <div class="lb-tags"></div>
           <h6>Malzemeler</h6>
           <div class="lb-ings"></div>
           <h6 class="mt-3">Adımlar</h6>
           <ol class="lb-steps"></ol>
           <div class="mt-3 text-end">
             <a class="btn btn-sm btn-primary" href="/Recipes">Tüm Tarifler</a>
-          </div>
+       </div>
         </div>
       </div>
     </div>`;
 
     if(!document.getElementById('recipeLb')){
       const wrap=document.createElement('div');
-      wrap.innerHTML=tpl; document.body.appendChild(wrap.firstElementChild);
+  wrap.innerHTML=tpl; document.body.appendChild(wrap.firstElementChild);
     }
 
     // Styles for popup
@@ -592,13 +537,13 @@
     .lb-recipes{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:1055}
     .lb-recipes.open{display:flex}
     .lb-recipes .lb-backdrop{position:absolute;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(4px);opacity:0;animation:lbFade .25s ease forwards}
-    .lb-dialog{position:relative;max-width:min(900px,94vw);width:100%;max-height:88vh;overflow:hidden;border-radius:18px;background:#fff;border:1px solid rgba(233,30,99,.25);box-shadow:0 30px 80px rgba(0,0,0,.35);transform:translateY(12px) scale(.98);opacity:.0;animation:lbIn .28s ease forwards}
-    .lb-header{padding:14px 18px 8px;background:linear-gradient(90deg, rgba(233,30,99,.10), rgba(255,255,255,.10));border-bottom:1px solid #f1f5f9}
+    .lb-dialog{position:relative;max-width:min(900px,94vw);width:100%;max-height:88vh;overflow:hidden;border-radius:18px;background:#fff;border:1px solid rgba(76,175,80,.25);box-shadow:0 30px 80px rgba(0,0,0,.35);transform:translateY(12px) scale(.98);opacity:.0;animation:lbIn .28s ease forwards}
+    .lb-header{padding:14px 18px 8px;background:linear-gradient(90deg, rgba(76,175,80,.10), rgba(255,255,255,.10));border-bottom:1px solid #f1f5f9}
     .lb-title{font-size:20px;font-weight:800}
     .lb-meta{font-size:12px;color:#6b7280}
     .lb-body{padding:16px;overflow:auto;max-height:calc(88vh - 70px)}
     .lb-tags{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
-    .lb-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(233,30,99,.08);border:1px solid rgba(233,30,99,.25);color:#e91e63;font-weight:600;font-size:12px}
+.lb-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(76,175,80,.08);border:1px solid rgba(76,175,80,.25);color:#4CAF50;font-weight:600;font-size:12px}
     .lb-ings{display:flex;flex-wrap:wrap;gap:8px}
     .lb-ings .chip{border-radius:10px;border:1px solid #eee;background:#fafafa;padding:6px 10px;font-size:12px}
     .lb-steps{margin:0;padding-left:18px}
@@ -609,7 +554,9 @@
     `;
     if(!document.getElementById('recipeLbStyles')){ style.id='recipeLbStyles'; document.head.appendChild(style); }
 
-    const box = document.getElementById('recipeLb');
+  const box = document.getElementById('recipeLb');
+    if(!box) return;
+    
     const title = box.querySelector('.lb-title');
     const meta = box.querySelector('.lb-meta');
     const summary = box.querySelector('.lb-summary');
@@ -618,8 +565,9 @@
     const steps = box.querySelector('.lb-steps');
 
     function open(data){
+      if(!data || !data.title) return;
       title.textContent = data.title;
-      meta.textContent = `${data.prep} • ${data.cal} • ${data.diff}`;
+      meta.textContent = `${data.prep || ''} • ${data.cal || ''} • ${data.diff || ''}`;
       summary.textContent = data.summary || '';
       tags.innerHTML = (data.tags||[]).map(t=>`<span class="lb-tag">#${t}</span>`).join('');
       ings.innerHTML = (data.ingredients||[]).map(i=>`<span class="chip">${i}</span>`).join('');
@@ -627,26 +575,30 @@
       box.classList.add('open');
       document.body.style.overflow='hidden';
     }
-    function close(){ box.classList.remove('open'); document.body.style.overflow=''; }
+    function close(){ 
+      box.classList.remove('open'); 
+      document.body.style.overflow=''; 
+    }
 
     box.addEventListener('click', (e)=>{ if(e.target===box || e.target.classList.contains('lb-backdrop')) close(); });
-    box.querySelector('.lb-close').addEventListener('click', close);
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') close(); });
+    const closeBtn = box.querySelector('.lb-close');
+    if(closeBtn) closeBtn.addEventListener('click', close);
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && box.classList.contains('open')) close(); });
 
     document.querySelectorAll('.js-recipe-open').forEach(btn=>{
       btn.addEventListener('click', (e)=>{
         e.preventDefault();
         const el = e.currentTarget;
-        const toArr=(s)=> (s||'').split('|').map(x=>x.trim()).filter(Boolean);
+     const toArr=(s)=> s ? s.split('|').map(x=>x.trim()).filter(Boolean) : [];
         open({
-          title: el.getAttribute('data-title')||'',
-          prep: el.getAttribute('data-prep')||'',
-          cal: el.getAttribute('data-cal')||'',
-          diff: el.getAttribute('data-diff')||'',
-          summary: el.getAttribute('data-summary')||'',
-          tags: toArr(el.getAttribute('data-tags')),
-          ingredients: toArr(el.getAttribute('data-ingredients')),
-          steps: toArr(el.getAttribute('data-steps'))
+          title: el.getAttribute('data-title') || '',
+        prep: el.getAttribute('data-prep') || '',
+    cal: el.getAttribute('data-cal') || '',
+          diff: el.getAttribute('data-diff') || '',
+  summary: el.getAttribute('data-summary') || '',
+       tags: toArr(el.getAttribute('data-tags')),
+     ingredients: toArr(el.getAttribute('data-ingredients')),
+        steps: toArr(el.getAttribute('data-steps'))
         });
       });
     });
@@ -658,9 +610,10 @@
     const update=()=>{
       const h=document.documentElement; const sc=h.scrollTop; const m=h.scrollHeight - h.clientHeight; const p=m? (sc/m):0;
       bar.style.transform=`scaleX(${p})`;
-    };
+};
     update();
     window.addEventListener('scroll', update, {passive:true});
     window.addEventListener('resize', update);
   })();
 </script>
+}

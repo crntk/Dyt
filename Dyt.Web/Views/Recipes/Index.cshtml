@@ -3,57 +3,262 @@
     ViewData["Title"] = "Tarifler";
 }
 <style>
-  .recipes-hero{background:radial-gradient(1200px 480px at 10% -10%, rgba(233,30,99,.18), transparent),radial-gradient(900px 360px at 90% -10%, rgba(255,255,255,.25), transparent);padding:48px 0 36px}
-  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
-  .rcard{position:relative;grid-column:span 6;border-radius:16px;background:#fff;overflow:hidden;border:1px solid #eee;box-shadow:0 14px 40px rgba(0,0,0,.08);transition:transform .18s ease, box-shadow .18s ease}
-  .rcard:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.12)}
-  .rcard .cover{height:180px;background:linear-gradient(135deg,#ffe4ec,#fff)}
-  .rcard .body{padding:16px}
-  .tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(233,30,99,.08);border:1px solid rgba(233,30,99,.25);color:#e91e63;font-weight:600;font-size:12px}
-  .badge-pill{border-radius:999px;padding:4px 10px;font-size:12px;background:#f3f4f6}
-  .steps{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
-  .steps li{background:#fafafa;border:1px solid #eee;border-radius:10px;padding:8px;list-style:none}
-  .ingredients{display:flex;flex-wrap:wrap;gap:8px}
-  .ingredients .badge-pill{background:rgba(233,30,99,.08);border:1px solid rgba(233,30,99,.2);color:#e91e63}
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  
+  /* Hero with green gradient */
+  .recipes-hero{
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+    radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+padding:64px 0 48px;
+  }
+  .recipes-hero:before{
+    content:"";
+    position:absolute;
+inset:-20%;
+    background:
+    radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+      radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+ background-size:32px 32px, 64px 64px;
+    background-position:0 0, 16px 16px;
+    opacity:.4;
+    animation:dotMove 25s linear infinite;
+  }
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
+  
+  /* Grid */
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px;padding:20px 0}
+  
+  /* Recipe Cards */
+  .rcard{
+  position:relative;
+    grid-column:span 6;
+    border-radius:18px;
+    background:#fff;
+    overflow:hidden;
+    border:1px solid rgba(76,175,80,.2);
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+    transition:all .3s ease;
+  }
+  .rcard:hover{
+    transform:translateY(-8px);
+    box-shadow:0 20px 50px rgba(76,175,80,.2);
+ border-color:#4CAF50;
+  }
+  
+  .rcard .cover{
+    height:200px;
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:64px;
+  }
+  
+  .rcard .body{padding:20px}
+  
+  /* Tags */
+  .tag{
+    display:inline-flex;
+  align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    border-radius:999px;
+    background:rgba(76,175,80,.08);
+    border:1px solid rgba(76,175,80,.25);
+    color:#4CAF50;
+    font-weight:600;
+    font-size:12px;
+    transition:all .3s ease;
+  }
+  .tag:hover{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    color:#fff;
+  transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(76,175,80,.3);
+  }
+  
+  /* Badges */
+  .badge-pill{
+    border-radius:999px;
+    padding:6px 12px;
+    font-size:12px;
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+    border:1px solid rgba(76,175,80,.2);
+    font-weight:600;
+    color:#666;
+  }
+  
+  /* Steps */
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+  gap:10px;
+    margin-top:12px;
+    padding:0;
+  }
+  .steps li{
+    background:linear-gradient(135deg, rgba(76,175,80,.05), rgba(255,152,0,.03));
+  border:1px solid rgba(76,175,80,.15);
+    border-radius:12px;
+    padding:10px;
+    list-style:none;
+    font-size:14px;
+    transition:all .3s ease;
+  }
+  .steps li:hover{
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.06));
+    border-color:#4CAF50;
+    transform:translateX(3px);
+  }
+  
+  /* Ingredients */
+  .ingredients{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .ingredients .badge-pill{
+    background:rgba(76,175,80,.08);
+    border:1px solid rgba(76,175,80,.2);
+    color:#4CAF50;
+  }
+  
+  /* Reveal animation */
+  [data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-reveal].in{opacity:1;transform:translateY(0)}
+  
+  /* Icons */
+  .recipe-icon{
+    font-size:48px;
+    margin-bottom:12px;
+    display:block;
+  }
+  
+  /* Info badges */
+  .info-badge{
+    display:inline-flex;
+    align-items:center;
+gap:6px;
+    padding:6px 12px;
+    border-radius:999px;
+    background:#fff;
+    border:1px solid rgba(76,175,80,.2);
+    font-size:12px;
+    font-weight:600;
+    box-shadow:0 2px 8px rgba(76,175,80,.1);
+  }
 </style>
 <style>
-@* keep separate style block to escape Razor *@
-@@media (max-width: 992px){ .rcard{grid-column:span 12} .steps{grid-template-columns:1fr} }
+@@media (max-width: 992px){ 
+  .rcard{grid-column:span 12} 
+  .steps{grid-template-columns:1fr}
+}
+@@media (max-width: 576px){
+  .grid{gap:16px}
+}
 </style>
 
-<div class="recipes-hero">
-  <div class="container">
-    <h1 class="display-5 fw-bold mb-2">Tarifler</h1>
-    <p class="lead mb-0">Pratik, dengeli ve lezzetli tarifler.</p>
+<!-- Hero -->
+<section class="recipes-hero fv-nobg">
+  <div class="container position-relative" style="z-index:1">
+    <div class="text-center fv-text" data-reveal>
+      <h1 class="display-4 fw-bold mb-3">&#127859; Tarifler</h1>
+      <p class="lead mb-0">Pratik, dengeli ve lezzetli tarifler ile saðlýklý beslenme.</p>
+    </div>
   </div>
-</div>
+</section>
 
-<div class="container py-4">
-  <div class="grid">
+<div class="container">
+<div class="grid">
     @foreach(var r in Model){
-      <article class="rcard">
-        <div class="cover" aria-hidden="true"></div>
-        <div class="body">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <h3 class="h5 mb-0">@r.Title</h3>
-            <span class="badge-pill">@r.PrepTime</span>
-          </div>
-          <div class="text-muted mb-2">@r.Summary</div>
-          <div class="d-flex gap-2 mb-2">
-            <span class="badge-pill">@r.Calories</span>
-            <span class="badge-pill">@r.Difficulty</span>
-          </div>
-          <div class="mb-2">
-            @foreach(var t in r.Tags){ <span class="tag me-1">#@t</span> }
-          </div>
-          <div class="ingredients mb-2">
-            @foreach(var ing in r.Ingredients){ <span class="badge-pill">@ing</span> }
-          </div>
-          <ol class="steps mb-0">
-            @foreach(var s in r.Steps){ <li>@s</li> }
-          </ol>
+var icon = r.Title.ToLower() switch {
+     var t when t.Contains("kahvaltý") => "&#129379;",
+        var t when t.Contains("salata") => "&#129367;",
+var t when t.Contains("somon") => "&#128031;",
+     var t when t.Contains("tavuk") => "&#127831;",
+var t when t.Contains("omlet") => "&#127859;",
+      var t when t.Contains("smoothie") => "&#129380;",
+      var t when t.Contains("çorba") => "&#127858;",
+ var t when t.Contains("makarna") => "&#127837;",
+  _ => "&#127869;"
+};
+      
+    <article class="rcard fv-surface-strong fv-text" data-reveal>
+   <div class="cover">
+        <span class="recipe-icon">@Html.Raw(icon)</span>
         </div>
+<div class="body">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+ <h3 class="h5 mb-0 fw-bold">@r.Title</h3>
+    <span class="info-badge">&#9200; @r.PrepTime</span>
+    </div>
+  
+       <p class="text-muted mb-3 small">@r.Summary</p>
+
+          <div class="d-flex gap-2 mb-3">
+ <span class="info-badge">&#128293; @r.Calories</span>
+     <span class="info-badge">
+   @Html.Raw(r.Difficulty.ToLower() switch {
+        "kolay" => "&#9989; Kolay",
+     "orta" => "&#9889; Orta",
+ "zor" => "&#128293; Zor",
+      _ => r.Difficulty
+        })
+         </span>
+    </div>
+    
+          <div class="mb-3">
+      <div class="small fw-bold mb-2">&#127991; Etiketler:</div>
+    @foreach(var t in r.Tags){ 
+  <span class="tag me-1 mb-1">#@t</span> 
+       }
+ </div>
+   
+    <div class="mb-3">
+ <div class="small fw-bold mb-2">&#129368; Malzemeler:</div>
+   <div class="ingredients">
+     @foreach(var ing in r.Ingredients){ 
+   <span class="badge-pill">@ing</span> 
+       }
+        </div>
+ </div>
+      
+       <div>
+   <div class="small fw-bold mb-2">&#128221; Adýmlar:</div>
+    <ol class="steps mb-0">
+   @foreach(var s in r.Steps){ 
+   <li>@s</li> 
+ }
+      </ol>
+       </div>
+     </div>
       </article>
     }
-  </div>
 </div>
+  
+  @if(!Model.Any()){
+ <div class="text-center py-5" data-reveal>
+      <div class="display-1 mb-3">&#127869;</div>
+      <h3 class="h4 fw-bold mb-2">Henüz tarif eklenmedi</h3>
+      <p class="text-muted">Yakýnda lezzetli tarifler eklenecek!</p>
+    </div>
+  }
+</div>
+<script>
+  // Reveal animation
+  (function(){
+    const reveals=[...document.querySelectorAll('[data-reveal]')];
+    if('IntersectionObserver' in window){
+      const io=new IntersectionObserver((entries)=>{
+   entries.forEach(en=>{ 
+          if(en.isIntersecting){ 
+            setTimeout(()=>en.target.classList.add('in'), 100); 
+       io.unobserve(en.target); 
+          } 
+        });
+      },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
+      reveals.forEach(e=>io.observe(e));
+    } else {
+      reveals.forEach(e=>e.classList.add('in'));
+    }
+  })();
+</script>
