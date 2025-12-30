@@ -424,17 +424,26 @@ font-size:15px;
 @section Scripts{
 <script>
 (function(){
-  // Password Toggle
+  // Password Toggle - Şifre Göster/Gizle
   const passwordInput = document.getElementById('password');
   const toggleBtn = document.getElementById('togglePassword');
-  const eyeOpen = '&#128065;';
-  const eyeClosed = '&#128586;
   
-  toggleBtn?.addEventListener('click', function(){
-    const type = passwordInput.type === 'password' ? 'text' : 'password';
-    passwordInput.type = type;
-    this.innerHTML = type === 'password' ? eyeOpen : eyeClosed;
-  });
+  if(toggleBtn && passwordInput){
+    toggleBtn.addEventListener('click', function(){
+      if(passwordInput.type === 'password'){
+        passwordInput.type = 'text';
+        this.innerHTML = '&#128586;'; // Kapalı göz ikonu
+        this.setAttribute('title', 'Şifreyi Gizle');
+      } else {
+        passwordInput.type = 'password';
+        this.innerHTML = '&#128065;'; // Açık göz ikonu
+        this.setAttribute('title', 'Şifreyi Göster');
+      }
+    });
+    
+    // Başlangıç tooltip'i
+    toggleBtn.setAttribute('title', 'Şifreyi Göster');
+  }
   
   // Form Submit Animation
   const form = document.getElementById('loginForm');
@@ -444,19 +453,19 @@ font-size:15px;
   form?.addEventListener('submit', function(){
     if(btnLogin){
       btnLogin.classList.add('loading');
-      btnLogin.disabled = true;
+btnLogin.disabled = true;
       if(btnText) btnText.textContent = 'Giriş yapılıyor...';
     }
   });
   
-// Input Focus Animation
+  // Input Focus Animation
   const inputs = document.querySelectorAll('.form-group input');
   inputs.forEach(input => {
     input.addEventListener('focus', function(){
       this.parentElement?.classList.add('focused');
     });
-  input.addEventListener('blur', function(){
-this.parentElement?.classList.remove('focused');
+    input.addEventListener('blur', function(){
+      this.parentElement?.classList.remove('focused');
     });
   });
   
@@ -466,7 +475,7 @@ this.parentElement?.classList.remove('focused');
     setTimeout(() => {
       errorMsg.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
       errorMsg.style.opacity = '0';
-    errorMsg.style.transform = 'translateY(-10px)';
+  errorMsg.style.transform = 'translateY(-10px)';
       setTimeout(() => errorMsg.remove(), 500);
   }, 5000);
   }

@@ -120,6 +120,12 @@ app.MapControllerRoute(
     pattern: string.Empty,
     defaults: new { controller = "Home", action = "Index" });
 
+// Özel Admin giriş route'u
+app.MapControllerRoute(
+    name: "adminLogin",
+    pattern: "diyetisyen",
+    defaults: new { controller = "Account", action = "Login" });
+
 // Area yönlendirmesi (Admin gibi alanlar için önce area route'u ekliyorum)
 app.MapControllerRoute(
     name: "areas",

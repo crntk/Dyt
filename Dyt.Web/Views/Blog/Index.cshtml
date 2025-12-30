@@ -23,7 +23,7 @@
     position:relative;
     overflow:hidden;
     background:
-      radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
       radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
     padding:64px 0 48px;
   }
@@ -37,7 +37,7 @@
     background-size:32px 32px, 64px 64px;
   background-position:0 0, 16px 16px;
     opacity:.4;
-    animation:dotMove 25s linear infinite;
+  animation:dotMove 25s linear infinite;
   }
   @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
   
@@ -55,7 +55,7 @@
     color:#4CAF50;
     transition:all .3s ease;
   }
-  .chip:hover{ background:rgba(76,175,80,.15); transform:translateY(-2px); }
+.chip:hover{ background:rgba(76,175,80,.15); transform:translateY(-2px); }
   .chip.active{
     background:linear-gradient(135deg, #4CAF50, #81C784);
     border-color:#4CAF50;
@@ -68,7 +68,7 @@
   .search-wrap .form-control{
     padding-left:40px;
     border-radius:12px;
-    border:1px solid rgba(76,175,80,.3);
+ border:1px solid rgba(76,175,80,.3);
     transition:all .3s ease;
   }
   .search-wrap .form-control:focus{
@@ -79,11 +79,11 @@
 
   /* Cards */
   .blog-card{
-    transition:transform .3s ease, box-shadow .3s ease;
+  transition:transform .3s ease, box-shadow .3s ease;
     border-radius:18px;
     overflow:hidden;
     border:1px solid rgba(76,175,80,.15);
-    background:#fff;
+  background:#fff;
   }
   .blog-card:hover{
     transform:translateY(-8px);
@@ -103,13 +103,13 @@
 
   .card-badge{
     position:absolute;
-    left:12px;
+left:12px;
     top:12px;
     background:linear-gradient(135deg, #4CAF50, #81C784);
     color:#fff;
     border-radius:999px;
 font-size:12px;
-    font-weight:700;
+ font-weight:700;
     padding:6px 12px;
     box-shadow:0 4px 12px rgba(76,175,80,.3);
   }
@@ -144,11 +144,11 @@ font-size:12px;
     padding:12px;
     border-radius:12px;
     border:1px solid rgba(76,175,80,.15);
-    margin-bottom:12px;
-    background:#fff;
+  margin-bottom:12px;
+ background:#fff;
     transition:all .3s ease;
   }
-  .article-mini:hover{
+.article-mini:hover{
   transform:translateY(-3px);
     box-shadow:0 10px 26px rgba(76,175,80,.15);
     border-color:#4CAF50;
@@ -178,14 +178,14 @@ font-size:12px;
   .lb-img{ width:auto; height:auto; max-width:calc(95vw - 48px); max-height:calc(85vh - 80px); object-fit:contain; display:block; border-radius:10px; }
   .lb-caption{ margin-top:12px; color:#374151; max-width:90vw; font-size:14px }
   .lb-close{
-    position:absolute;
+  position:absolute;
     right:16px;
     top:16px;
     width:36px;
-    height:36px;
+ height:36px;
     border-radius:50%;
     border:0;
-    background:#111827;
+ background:#111827;
     color:#fff;
     opacity:.9;
     cursor:pointer;
@@ -213,7 +213,7 @@ font-size:12px;
     font-weight:600;
     font-size:11px;
     color:#4CAF50;
-    transition:all .3s ease;
+transition:all .3s ease;
     text-decoration:none;
     margin:3px;
   }
@@ -235,21 +235,21 @@ font-size:12px;
   <div class="container position-relative" style="z-index:1">
   <div class="row align-items-end g-4 fv-text" data-reveal>
       <div class="col-md-7">
-        <h1 class="display-4 fw-bold mb-2">?? Blog</h1>
+    <h1 class="display-4 fw-bold mb-2">&#128221; Blog</h1>
         <p class="lead mb-0">Beslenme, saðlýk ve yaþam tarzý üzerine paylaþýmlar</p>
       </div>
       <div class="col-md-5">
-        <div class="search-wrap">
+    <div class="search-wrap">
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
           <input id="blogSearch" class="form-control" placeholder="Ara: baþlýk, özet, açýklama..." />
         </div>
-      </div>
+    </div>
     </div>
 
     <div class="mt-4 d-flex flex-wrap gap-2" data-reveal>
-      <button class="chip active" data-filter="all">? Hepsi</button>
-      <button class="chip" data-filter="photo">?? Görseller</button>
-      <button class="chip" data-filter="article">?? Makaleler</button>
+      <button class="chip active" data-filter="all">&#127759; Hepsi</button>
+      <button class="chip" data-filter="photo">&#128247; Görseller</button>
+      <button class="chip" data-filter="article">&#128196; Makaleler</button>
     </div>
   </div>
 </section>
@@ -259,7 +259,7 @@ font-size:12px;
     <div class="col-lg-8">
 <div class="row g-4" id="photoGrid">
  @foreach (var p in Model)
-      {
+    {
    var cover = p.Media.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
     var isPhoto = string.IsNullOrWhiteSpace(p.Title);
        <div class="col-md-6 blog-item" data-type="@(isPhoto?"photo":"article")" data-text="@((p.Title + " " + p.Summary).Trim())" data-reveal>
@@ -267,47 +267,47 @@ font-size:12px;
       @if (!string.IsNullOrWhiteSpace(cover))
           {
    <div class="position-relative">
-         <img src="@cover" class="card-img-top @(isPhoto?"js-photo-img":"")" alt="@(!string.IsNullOrWhiteSpace(p.Title)?p.Title:p.Summary)" loading="lazy" />
-   <span class="card-badge">@(isPhoto?"?? Görsel":"?? Makale")</span>
-   <span class="card-date">?? @((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM"))</span>
-        </div>
+      <img src="@cover" class="card-img-top @(isPhoto?"js-photo-img":"")" alt="@(!string.IsNullOrWhiteSpace(p.Title)?p.Title:p.Summary)" loading="lazy" />
+   <span class="card-badge">@Html.Raw(isPhoto?"&#128247; Görsel":"&#128196; Makale")</span>
+   <span class="card-date">&#128197; @((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM"))</span>
+    </div>
 }
    <div class="card-body d-flex flex-column fv-surface-strong fv-text">
-     @if(!string.IsNullOrWhiteSpace(p.Title))
+   @if(!string.IsNullOrWhiteSpace(p.Title))
    {
      <h5 class="card-title mb-2 fw-bold">@p.Title</h5>
-            }
+    }
     <p class="card-text text-muted small mb-3">@p.Summary</p>
   <div class="mt-auto d-flex justify-content-between align-items-center">
-        <span class="text-secondary small">?? @((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM yyyy"))</span>
+        <span class="text-secondary small">&#128197; @((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM yyyy"))</span>
       @if(!string.IsNullOrWhiteSpace(p.Title))
  {
-           <a asp-controller="Blog" asp-action="Post" asp-route-slug="@p.Slug" class="btn btn-sm btn-primary">Oku ??</a>
-       }
+       <a asp-controller="Blog" asp-action="Post" asp-route-slug="@p.Slug" class="btn btn-sm btn-primary">Oku &#128073;</a>
+     }
+</div>
        </div>
-       </div>
-            </div>
+</div>
  </div>
  }
       </div>
 
       @{
-        var total = (int)(ViewBag.Total ?? 0);
+  var total = (int)(ViewBag.Total ?? 0);
         var currentPage = (int)(ViewBag.Page ?? 1);
-        var size = (int)(ViewBag.PageSize ?? 10);
+     var size = (int)(ViewBag.PageSize ?? 10);
         var pageCount = (int)Math.Ceiling(total / (double)size);
   }
       @if (pageCount > 1)
     {
-        <nav class="mt-4" data-reveal>
+      <nav class="mt-4" data-reveal>
     <ul class="pagination justify-content-center">
-            @for (var i = 1; i <= pageCount; i++)
-            {
+ @for (var i = 1; i <= pageCount; i++)
+       {
       <li class="page-item @(i==currentPage?"active":"")">
-                <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-pageSize="@size" asp-route-apage="@apage" asp-route-apageSize="@asize">@i</a>
+<a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-pageSize="@size" asp-route-apage="@apage" asp-route-apageSize="@asize">@i</a>
   </li>
   }
-       </ul>
+    </ul>
         </nav>
 }
     </div>
@@ -315,24 +315,24 @@ font-size:12px;
     <div class="col-lg-4">
       <!-- Popüler Etiketler Kartý -->
     <div class="card sidebar-card mb-4 fv-surface-strong fv-text" data-reveal>
-        <div class="card-body">
-   <h5 class="card-title fw-bold mb-3">??? Popüler Etiketler</h5>
+  <div class="card-body">
+   <h5 class="card-title fw-bold mb-3">&#127991; Popüler Etiketler</h5>
  <div class="d-flex flex-wrap">
- <a href="#" class="tag-chip" data-tag="beslenme">?? beslenme</a>
- <a href="#" class="tag-chip" data-tag="kilo">?? kilo</a>
- <a href="#" class="tag-chip" data-tag="diyet">??? diyet</a>
-   <a href="#" class="tag-chip" data-tag="saðlýklý">?? saðlýklý</a>
-   <a href="#" class="tag-chip" data-tag="spor">?? spor</a>
- <a href="#" class="tag-chip" data-tag="tarif">????? tarif</a>
-            <a href="#" class="tag-chip" data-tag="protein">?? protein</a>
-            <a href="#" class="tag-chip" data-tag="vitamin">?? vitamin</a>
-            <a href="#" class="tag-chip" data-tag="kahvaltý">?? kahvaltý</a>
-            <a href="#" class="tag-chip" data-tag="metabolizma">? metabolizma</a>
-            <a href="#" class="tag-chip" data-tag="detoks">?? detoks</a>
-            <a href="#" class="tag-chip" data-tag="vegan">?? vegan</a>
-       <a href="#" class="tag-chip" data-tag="glutensiz">?? glutensiz</a>
-    <a href="#" class="tag-chip" data-tag="þeker">?? þeker</a>
-            <a href="#" class="tag-chip" data-tag="kolesterol">?? kolesterol</a>
+ <a href="#" class="tag-chip" data-tag="beslenme">&#127823; beslenme</a>
+ <a href="#" class="tag-chip" data-tag="kilo">&#9878; kilo</a>
+ <a href="#" class="tag-chip" data-tag="diyet">&#129367; diyet</a>
+   <a href="#" class="tag-chip" data-tag="saðlýklý">&#128154; saðlýklý</a>
+   <a href="#" class="tag-chip" data-tag="spor">&#127947; spor</a>
+ <a href="#" class="tag-chip" data-tag="tarif">&#127858; tarif</a>
+            <a href="#" class="tag-chip" data-tag="protein">&#129385; protein</a>
+        <a href="#" class="tag-chip" data-tag="vitamin">&#128138; vitamin</a>
+     <a href="#" class="tag-chip" data-tag="kahvaltý">&#127859; kahvaltý</a>
+         <a href="#" class="tag-chip" data-tag="metabolizma">&#128293; metabolizma</a>
+    <a href="#" class="tag-chip" data-tag="detoks">&#127812; detoks</a>
+     <a href="#" class="tag-chip" data-tag="vegan">&#129361; vegan</a>
+       <a href="#" class="tag-chip" data-tag="glutensiz">&#127806; glutensiz</a>
+    <a href="#" class="tag-chip" data-tag="þeker">&#127849; þeker</a>
+          <a href="#" class="tag-chip" data-tag="kolesterol">&#10084; kolesterol</a>
         </div>
      </div>
       </div>
@@ -340,68 +340,68 @@ font-size:12px;
     <!-- Yazar Hakkýnda -->
       <div class="card sidebar-card mb-4 fv-surface-strong fv-text" data-reveal>
    <div class="card-body">
-        <h5 class="card-title fw-bold mb-3">????? Yazar Hakkýnda</h5>
+        <h5 class="card-title fw-bold mb-3">&#128100; Yazar Hakkýnda</h5>
       <div class="d-flex align-items-center gap-3">
    <img src="/images/profile-placeholder.jpg" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;border:3px solid #4CAF50" onerror="this.style.display='none'" />
          <div>
-              <div class="fw-bold">Diyetisyen Riyaza Tair</div>
-              <div class="text-muted small">Bilimsel yaklaþým, kiþiye özel planlar.</div>
-         </div>
+        <div class="fw-bold">Diyetisyen Riyaza Tair</div>
+           <div class="text-muted small">Bilimsel yaklaþým, kiþiye özel planlar.</div>
+  </div>
       </div>
       </div>
-      </div>
+   </div>
 
    <!-- Yazýlar ve Makaleler -->
       <div class="card sidebar-card mb-4 fv-surface-strong fv-text" data-reveal>
         <div class="card-body">
- <h5 class="card-title fw-bold mb-3">?? Yazýlar ve Makaleler</h5>
-          <div id="articleList">
+ <h5 class="card-title fw-bold mb-3">&#128196; Yazýlar ve Makaleler</h5>
+      <div id="articleList">
   @if(articles.Count==0){
       <div class="text-muted small">Henüz makale yok.</div>
        } else {
-              foreach(var a in articles){
-        var aCover = a.Media.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
-           <a class="article-mini d-block text-reset text-decoration-none blog-item" data-type="article" data-text="@a.Title @a.Summary" asp-controller="Blog" asp-action="Post" asp-route-slug="@a.Slug">
+          foreach(var a in articles){
+ var aCover = a.Media.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
+   <a class="article-mini d-block text-reset text-decoration-none blog-item" data-type="article" data-text="@a.Title @a.Summary" asp-controller="Blog" asp-action="Post" asp-route-slug="@a.Slug">
          @if(!string.IsNullOrWhiteSpace(aCover)){
        <img src="@aCover" alt="@a.Title" loading="lazy" />
         }
    <div>
         <div class="fw-semibold small">@a.Title</div>
-         <div class="text-muted" style="font-size:11px">?? @((a.PublishDateUtc ?? a.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy"))</div>
+         <div class="text-muted" style="font-size:11px">&#128197; @((a.PublishDateUtc ?? a.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy"))</div>
         </div>
           </a>
      }
    }
           </div>
-          @if(apages > 1){
+     @if(apages > 1){
         <nav class="mt-3">
       <ul class="pagination pagination-sm mb-0 justify-content-center">
       <li class="page-item @(apage==1?"disabled":"")">
-     <a class="page-link" asp-action="Index" asp-route-apage="@(apage-1)" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">‹</a>
+     <a class="page-link" asp-action="Index" asp-route-apage="@(apage-1)" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">&#8249;</a>
   </li>
 @for(int i=1;i<=apages;i++){
-         <li class="page-item @(i==apage?"active":"")">
+  <li class="page-item @(i==apage?"active":"")">
       <a class="page-link" asp-action="Index" asp-route-apage="@i" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">@i</a>
    </li>
-          }
+  }
      <li class="page-item @(apage==apages?"disabled":"")">
-                  <a class="page-link" asp-action="Index" asp-route-apage="@(apage+1)" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">›</a>
-              </li>
+      <a class="page-link" asp-action="Index" asp-route-apage="@(apage+1)" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">&#8250;</a>
+      </li>
       </ul>
   </nav>
  }
         </div>
    </div>
 
-      <!-- Bültene Katýl -->
+   <!-- Bültene Katýl -->
       <div class="card sidebar-card newsletter mb-4 fv-surface-strong fv-text" data-reveal>
         <div class="card-body">
-        <h5 class="card-title fw-bold mb-2">?? Bültene Katýl</h5>
+        <h5 class="card-title fw-bold mb-2">&#128231; Bültene Katýl</h5>
       <p class="text-muted small mb-3">Yeni yazýlardan haberdar olmak için e-posta adresinizi býrakýn.</p>
      <div class="input-group">
-          <input type="email" class="form-control" placeholder="mail@ornek.com" />
+      <input type="email" class="form-control" placeholder="mail@ornek.com" />
     <button class="btn btn-primary" type="button" onclick="alert('Kayýt alýndý!')">Abone Ol</button>
-       </div>
+     </div>
         </div>
       </div>
     </div>
@@ -411,7 +411,7 @@ font-size:12px;
 <!-- Lightbox -->
 <div class="lb" id="photoLightbox" aria-hidden="true">
   <div class="lb-dialog" role="dialog" aria-modal="true">
-    <button class="lb-close" aria-label="Kapat">×</button>
+    <button class="lb-close" aria-label="Kapat">&times;</button>
     <div class="lb-body">
   <img class="lb-img" alt="Paylaþým görseli" />
       <div class="lb-caption"></div>
@@ -438,7 +438,7 @@ font-size:12px;
   if(lb){
   const img = lb.querySelector('.lb-img');
 const caption = lb.querySelector('.lb-caption');
-    const closeBtn = lb.querySelector('.lb-close');
+  const closeBtn = lb.querySelector('.lb-close');
   function openLb(src, text){ if(!src) return; img.src=src; caption.textContent=text||''; lb.classList.add('open'); document.body.style.overflow='hidden'; }
     function closeLb(){ lb.classList.remove('open'); document.body.style.overflow=''; img.removeAttribute('src'); }
     
@@ -447,14 +447,14 @@ const caption = lb.querySelector('.lb-caption');
       const photoImg = e.target.closest('.js-photo-img');
       if(photoImg){
         e.preventDefault();
-        const card = photoImg.closest('.js-photo-card');
+      const card = photoImg.closest('.js-photo-card');
    if(card){ openLb(card.getAttribute('data-img'), card.getAttribute('data-summary')); }
-      }
+   }
     });
     
     lb.addEventListener('click', function(e){ if(e.target === lb) closeLb(); });
     closeBtn?.addEventListener('click', closeLb);
-    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLb(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLb(); });
   }
 
   // Search + filter
@@ -464,11 +464,11 @@ const caption = lb.querySelector('.lb-caption');
     const q = (search?.value || '').toLowerCase();
     const active = chips.find(c=>c.classList.contains('active'))?.getAttribute('data-filter') || 'all';
     const items = Array.from(document.querySelectorAll('.blog-item'));
-    items.forEach(el=>{
+  items.forEach(el=>{
       const text = (el.getAttribute('data-text')||'').toLowerCase();
       const type = el.getAttribute('data-type');
     const matchesQ = !q || text.includes(q);
-      const matchesType = active==='all' || active===type;
+  const matchesType = active==='all' || active===type;
  el.style.display = (matchesQ && matchesType) ? '' : 'none';
     });
   }
@@ -483,7 +483,7 @@ const caption = lb.querySelector('.lb-caption');
 
    // Aktif etiketi iþaretle
       document.querySelectorAll('.tag-chip').forEach(tc=>tc.classList.remove('active'));
-      this.classList.add('active');
+  this.classList.add('active');
       
       // Arama kutusuna etiketi yaz ve filtrele
       if(search){ 
@@ -493,12 +493,12 @@ const caption = lb.querySelector('.lb-caption');
   // Sayfayý içerik alanýna kaydýr
     setTimeout(()=>{
           const contentTop = document.querySelector('.col-lg-8')?.offsetTop || 0;
-          window.scrollTo({top: contentTop - 100, behavior:'smooth'});
+   window.scrollTo({top: contentTop - 100, behavior:'smooth'});
   }, 100);
       }
     });
   });
-  
+
   // Arama kutusunda deðiþiklik olduðunda etiket iþaretlemelerini temizle
   search?.addEventListener('input', function(){
     if(!this.value){
