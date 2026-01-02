@@ -31,6 +31,8 @@ namespace Dyt.Data.Context // Veritabanı bağlamının bulunduğu ad alanı
         public DbSet<BlogPostTag> BlogPostTags => Set<BlogPostTag>(); // Blog-etiket köprüleri
         public DbSet<MediaFile> MediaFiles => Set<MediaFile>(); // Medya dosyaları
         public DbSet<BlogPostMedia> BlogPostMedias => Set<BlogPostMedia>(); // Blog-medya eşleşmeleri
+        public DbSet<NewsletterSubscriber> NewsletterSubscribers => Set<NewsletterSubscriber>(); // Blog bülteni aboneleri
+        public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>(); // İletişim mesajları
 
         // Zamanlama/randevu DbSet'leri
         public DbSet<WorkingHourException> WorkingHourExceptions => Set<WorkingHourException>(); // İstisna gün/saatler

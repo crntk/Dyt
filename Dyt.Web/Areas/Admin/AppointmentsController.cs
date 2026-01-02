@@ -59,12 +59,12 @@ namespace Dyt.Web.Areas.Admin.Controllers // Admin Area controller'ları için a
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetConfirmation(int id, string state, CancellationToken ct)
+        public async Task<IActionResult> SetConfirmation(int id, string state, string? returnUrl = null, CancellationToken ct = default)
         {
             if (!Enum.TryParse<ConfirmationState>(state, out var s))
             {
                 TempData["Msg"] = "Geçersiz onay durumu.";
-                return RedirectToAction(nameof(Index));
+                return string.IsNullOrEmpty(returnUrl) ? RedirectToAction(nameof(Index)) : Redirect(returnUrl);
             }
             var ok = await _appointments.AdminSetConfirmationAsync(id, s, ct);
 
@@ -79,7 +79,7 @@ namespace Dyt.Web.Areas.Admin.Controllers // Admin Area controller'ları için a
             }
 
             TempData["Msg"] = ok ? "Güncellendi." : "Güncellenemedi.";
-            return RedirectToAction(nameof(Index));
+            return string.IsNullOrEmpty(returnUrl) ? RedirectToAction(nameof(Index)) : Redirect(returnUrl);
         }
 
         /// <summary>

@@ -396,12 +396,19 @@ transition:all .3s ease;
    <!-- Bültene Katýl -->
       <div class="card sidebar-card newsletter mb-4 fv-surface-strong fv-text" data-reveal>
         <div class="card-body">
-        <h5 class="card-title fw-bold mb-2">&#128231; Bültene Katýl</h5>
-      <p class="text-muted small mb-3">Yeni yazýlardan haberdar olmak için e-posta adresinizi býrakýn.</p>
-     <div class="input-group">
-      <input type="email" class="form-control" placeholder="mail@ornek.com" />
-    <button class="btn btn-primary" type="button" onclick="alert('Kayýt alýndý!')">Abone Ol</button>
+        <h5 class="card-title fw-bold mb-2">?? Bültene Katýl</h5>
+  <p class="text-muted small mb-3">Yeni yazýlardan haberdar olmak için e-posta adresinizi býrakýn.</p>
+     <form id="newsletterForm" asp-controller="Newsletter" asp-action="Subscribe" method="post">
+     @Html.AntiForgeryToken()
+          <div class="input-group">
+      <input type="email" name="email" class="form-control" placeholder="mail@ornek.com" required id="newsletterEmail" />
+    <button class="btn btn-primary" type="submit" id="newsletterBtn">
+       <span class="btn-text">Abone Ol</span>
+        <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+            </button>
      </div>
+        <div id="newsletterMessage" class="mt-2 small" style="display:none"></div>
+    </form>
         </div>
       </div>
     </div>
@@ -505,6 +512,67 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLb()
    document.querySelectorAll('.tag-chip').forEach(tc=>tc.classList.remove('active'));
     }
   });
+
+  // Newsletter form submission
+  (function(){
+    const form = document.getElementById('newsletterForm');
+    const btn = document.getElementById('newsletterBtn');
+    const btnText = btn?.querySelector('.btn-text');
+    const spinner = btn?.querySelector('.spinner-border');
+    const messageEl = document.getElementById('newsletterMessage');
+const emailInput = document.getElementById('newsletterEmail');
+
+    form?.addEventListener('submit', async function(e){
+      e.preventDefault();
+      
+      if(!emailInput || !btn || !btnText || !spinner || !messageEl) return;
+
+      // Button loading state
+      btnText.classList.add('d-none');
+      spinner.classList.remove('d-none');
+      btn.disabled = true;
+
+      const formData = new FormData(form);
+
+      try {
+    const response = await fetch(form.action, {
+          method: 'POST',
+  body: formData,
+   headers: {
+  'X-Requested-With': 'XMLHttpRequest'
+ }
+        });
+
+        const result = await response.json();
+
+  // Show message
+        messageEl.style.display = 'block';
+        if(result.ok){
+          messageEl.className = 'mt-2 small text-success';
+          messageEl.textContent = result.message;
+  emailInput.value = '';
+      } else {
+          messageEl.className = 'mt-2 small text-danger';
+messageEl.textContent = result.message;
+    }
+
+     // Hide message after 5 seconds
+     setTimeout(() => {
+      messageEl.style.display = 'none';
+        }, 5000);
+
+      } catch(error) {
+   messageEl.style.display = 'block';
+        messageEl.className = 'mt-2 small text-danger';
+        messageEl.textContent = '? Bir hata oluþtu. Lütfen tekrar deneyin.';
+      } finally {
+        // Reset button state
+        btnText.classList.remove('d-none');
+        spinner.classList.add('d-none');
+        btn.disabled = false;
+      }
+    });
+  })();
 })();
 </script>
 }

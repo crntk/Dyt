@@ -109,16 +109,17 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
 
             return new Dyt.Contracts.Appointments.Responses.AppointmentDto // DTO hazırlayıp döndürüyorum
             {
-                Id = entity.Id,                         // Kimliği set ediyorum
+                Id = entity.Id,       // Kimliği set ediyorum
                 Date = entity.AppointmentDate,          // Tarihi set ediyorum
-                StartTime = entity.StartTime,           // Başlangıcı set ediyorum
-                EndTime = entity.EndTime,               // Bitişi set ediyorum
+                StartTime = entity.StartTime,// Başlangıcı set ediyorum
+                EndTime = entity.EndTime,   // Bitişi set ediyorum
                 ClientName = entity.ClientName,         // İsim set ediyorum
                 ClientPhone = entity.ClientPhone,       // Telefon set ediyorum
-                ClientEmail = entity.ClientEmail,       // E-posta set ediyorum
+                ClientEmail = entity.ClientEmail,     // E-posta set ediyorum
                 Status = MapStatus(entity.Status),      // Durumu metin olarak set ediyorum
                 ConfirmationState = MapConfirmation(entity.ConfirmationState), // Onay durumunu metin olarak set ediyorum
-                Channel = entity.Channel
+                Channel = entity.Channel,
+                CreatedAtUtc = entity.CreatedAtUtc
             };
         }
 
@@ -134,7 +135,7 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
             return new Dyt.Contracts.Appointments.Responses.AppointmentDto // DTO'ya projekte edip döndürüyorum
             {
                 Id = a.Id,                          // Kimliği set ediyorum
-                Date = a.AppointmentDate,           // Tarihi set ediyorum
+                Date = a.AppointmentDate,          // Tarihi set ediyorum
                 StartTime = a.StartTime,            // Başlangıcı set ediyorum
                 EndTime = a.EndTime,                // Bitişi set ediyorum
                 ClientName = a.ClientName,          // İsim set ediyorum
@@ -142,7 +143,8 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
                 ClientEmail = a.ClientEmail,        // E-posta set ediyorum
                 Status = MapStatus(a.Status),       // Durumu set ediyorum
                 ConfirmationState = MapConfirmation(a.ConfirmationState), // Onay durumunu set ediyorum
-                Channel = a.Channel
+                Channel = a.Channel,
+                CreatedAtUtc = a.CreatedAtUtc
             };
         }
 
@@ -270,7 +272,8 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
                     ClientEmail = a.ClientEmail, // E-posta
                     Status = MapStatus(a.Status), // Durum
                     ConfirmationState = MapConfirmation(a.ConfirmationState), // Onay durumu
-                    Channel = a.Channel
+                    Channel = a.Channel,
+                    CreatedAtUtc = a.CreatedAtUtc
                 })
                 .ToListAsync(ct); // Listeye çeviriyorum
 

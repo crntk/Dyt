@@ -9,11 +9,11 @@ using Dyt.Business.Background;                 // ReminderHostedService için
 using Dyt.Business.Interfaces.Appointments;    // IAppointmentService için
 using Dyt.Business.Interfaces.Notifications;   // ISmsSender, INotificationTemplateService için
 using Dyt.Business.Interfaces.Scheduling;      // IScheduleService için
-using Dyt.Business.Options;                    // ReminderOptions, SmsOptions, SecurityOptions için
+using Dyt.Business.Options;                    // ReminderOptions, SmsOptions, SecurityOptions, EmailOptions için
 using Dyt.Business.Security.Sanitization;      // IContentSanitizer için
 using Dyt.Business.Security.Url;               // ISignedUrlService için
 using Dyt.Business.Services.Appointments;      // AppointmentService, ConfirmationTokenService için
-using Dyt.Business.Services.Notifications;     // SmsSenderMock, NotificationTemplateService için
+using Dyt.Business.Services.Notifications;     // SmsSenderMock, NotificationTemplateService, EmailSenderSmtp için
 using Dyt.Business.Services.Scheduling;        // ScheduleService için
 using Dyt.Business.Utils;                      // IDateTimeProvider, DateTimeProvider için
 
@@ -86,7 +86,8 @@ builder.Services.AddSingleton<ISmsSender, SmsSenderMock>();                     
 builder.Services.AddSingleton<INotificationTemplateService, NotificationTemplateService>(); // SMS şablon üretimi (stateless)
 builder.Services.AddScoped<IContentSanitizer, ContentSanitizer>();                 // İçerik temizleyici (XSS'e karşı)
 builder.Services.AddSingleton<ISignedUrlService, SignedUrlService>();              // İmzalı URL üretimi (stateless)
-builder.Services.AddSingleton<IEmailSender, EmailSenderStub>();                    // E-posta gönderici stub
+builder.Services.AddSingleton<IEmailSender, EmailSenderSmtp>();                    // SMTP email gönderici (stateless)
+builder.Services.AddScoped<INewsletterNotificationService, NewsletterNotificationService>(); // Newsletter bildirimi
 builder.Services.AddHostedService<ReminderHostedService>();                        // Arka plan hatırlatma servisini ekliyorum
 
 // -----------------------------------------------------------------------------
@@ -95,6 +96,7 @@ builder.Services.AddHostedService<ReminderHostedService>();                     
 builder.Services.Configure<ReminderOptions>(builder.Configuration.GetSection(ReminderOptions.SectionName)); // "Reminder" bölümü
 builder.Services.Configure<SmsOptions>(builder.Configuration.GetSection(SmsOptions.SectionName));           // "Sms" bölümü
 builder.Services.Configure<SecurityOptions>(builder.Configuration.GetSection(SecurityOptions.SectionName)); // "Security" bölümü
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection(EmailOptions.SectionName));       // "Email" bölümü
 
 // Uygulama nesnesini oluşturuyorum; bundan sonra middleware zincirini yapılandıracağım
 var app = builder.Build(); // <-- WebApplication.Build(builder) değil

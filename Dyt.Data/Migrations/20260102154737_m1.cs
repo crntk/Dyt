@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Dyt.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class m1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,6 +31,7 @@ namespace Dyt.Data.Migrations
                     ReminderSent = table.Column<bool>(type: "bit", nullable: false),
                     TwoHourNoResponseAlertShown = table.Column<bool>(type: "bit", nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Channel = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
@@ -160,7 +161,29 @@ namespace Dyt.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SmsTemplates",
+                name: "NewsletterSubscribers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    UnsubscribeToken = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IsVerified = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    LastNotificationSentAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NewsletterSubscribers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SmsTemplate",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -175,7 +198,7 @@ namespace Dyt.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SmsTemplates", x => x.Id);
+                    table.PrimaryKey("PK_SmsTemplate", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -235,28 +258,6 @@ namespace Dyt.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_WorkingHourExceptions", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "WorkingHourTemplates",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DayOfWeek = table.Column<int>(type: "int", nullable: false),
-                    StartTime = table.Column<TimeOnly>(type: "time", nullable: false),
-                    EndTime = table.Column<TimeOnly>(type: "time", nullable: false),
-                    SlotMinutes = table.Column<int>(type: "int", nullable: false, defaultValue: 30),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RowVersion = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
-                    DeletedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_WorkingHourTemplates", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -518,8 +519,20 @@ namespace Dyt.Data.Migrations
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SmsTemplates_TemplateKey",
-                table: "SmsTemplates",
+                name: "IX_NewsletterSubscribers_Email",
+                table: "NewsletterSubscribers",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_NewsletterSubscribers_UnsubscribeToken",
+                table: "NewsletterSubscribers",
+                column: "UnsubscribeToken",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SmsTemplate_TemplateKey",
+                table: "SmsTemplate",
                 column: "TemplateKey",
                 unique: true);
 
@@ -567,16 +580,16 @@ namespace Dyt.Data.Migrations
                 name: "DietitianProfiles");
 
             migrationBuilder.DropTable(
-                name: "SmsTemplates");
+                name: "NewsletterSubscribers");
+
+            migrationBuilder.DropTable(
+                name: "SmsTemplate");
 
             migrationBuilder.DropTable(
                 name: "SystemSettings");
 
             migrationBuilder.DropTable(
                 name: "WorkingHourExceptions");
-
-            migrationBuilder.DropTable(
-                name: "WorkingHourTemplates");
 
             migrationBuilder.DropTable(
                 name: "Appointments");

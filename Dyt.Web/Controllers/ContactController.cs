@@ -2,6 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Dyt.Business.Interfaces.Notifications;
+using Dyt.Data.Context;
+using Dyt.Data.Entities.Content;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dyt.Web.Controllers
@@ -10,10 +12,13 @@ namespace Dyt.Web.Controllers
     {
         private readonly IEmailSender _email;
         private readonly IConfiguration _cfg;
-        public ContactController(IEmailSender email, IConfiguration cfg)
+        private readonly AppDbContext _db;
+        
+        public ContactController(IEmailSender email, IConfiguration cfg, AppDbContext db)
         {
             _email = email;
             _cfg = cfg;
+            _db = db;
         }
 
         public class ContactForm
@@ -55,25 +60,41 @@ namespace Dyt.Web.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(ContactForm model, CancellationToken ct)
+      public async Task<IActionResult> Index(ContactForm model, CancellationToken ct)
         {
             // KVKK consent kontrolü
-   if (!model.KvkkConsent)
-   {
-         ModelState.AddModelError(nameof(model.KvkkConsent), "KVKK aydýnlatma metnini kabul etmelisiniz.");
-         }
+            if (!model.KvkkConsent)
+            {
+           ModelState.AddModelError(nameof(model.KvkkConsent), "KVKK aydýnlatma metnini kabul etmelisiniz.");
+            }
 
-  if (!ModelState.IsValid)
-    return View(model);
+         if (!ModelState.IsValid)
+         return View(model);
 
-            // Alýcý e-posta: appsettings: Admin:Email veya Contact:ToEmail
+   // Veritabanýna kaydet
+    var contactMessage = new ContactMessage
+ {
+      Name = model.Name,
+     Email = model.Email,
+            Phone = model.Phone,
+        Subject = model.Subject,
+           Message = model.Message,
+                KvkkConsent = model.KvkkConsent,
+                IsRead = false,
+     IsReplied = false
+  };
+
+            _db.ContactMessages.Add(contactMessage);
+     await _db.SaveChangesAsync(ct);
+
+   // Alýcý e-posta: appsettings: Admin:Email veya Contact:ToEmail
             var to = _cfg["Contact:ToEmail"] ?? _cfg["Admin:Email"] ?? "admin@dyt.local";
-            var subject = $"[Ýletiþim] {model.Subject}";
-     var body = $"<p><b>Gönderen:</b> {model.Name} &lt;{model.Email}&gt;</p><p><b>Telefon:</b> {model.Phone}</p><p><b>Mesaj:</b><br/>{System.Net.WebUtility.HtmlEncode(model.Message).Replace("\n","<br/>")}</p>";
+ var subject = $"[Ýletiþim] {model.Subject}";
+            var body = $"<p><b>Gönderen:</b> {model.Name} &lt;{model.Email}&gt;</p><p><b>Telefon:</b> {model.Phone}</p><p><b>Mesaj:</b><br/>{System.Net.WebUtility.HtmlEncode(model.Message).Replace("\n","<br/>")}</p>";
 
-       await _email.SendAsync(to, subject, body, ct);
-        TempData["Msg"] = "Mesajýnýz gönderildi. En kýsa sürede dönüþ yapýlacaktýr.";
+     await _email.SendAsync(to, subject, body, ct);
+ TempData["Msg"] = "Mesajýnýz gönderildi. En kýsa sürede dönüþ yapýlacaktýr.";
      return RedirectToAction(nameof(Index));
-      }
+        }
     }
 }

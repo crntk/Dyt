@@ -271,10 +271,10 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
 <section class="admin-hero">
   <div class="container">
     <div class="admin-hero-content" data-reveal>
-      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+   <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
   <div>
-          <h1 class="admin-title">
-            <span>🎯</span>
+ <h1 class="admin-title">
+  <span>🎯</span>
             <span>Yönetim Paneli</span>
   </h1>
           <p class="admin-subtitle">Randevu, müsaitlik ve içerik yönetimi için kontrol merkezi</p>
@@ -293,22 +293,22 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
   <div class="quick-stats" data-reveal>
     <div class="stat-box">
       <div class="stat-icon">📅</div>
-  <div class="stat-number">-</div>
+  <div class="stat-number">@ViewBag.TotalAppointments</div>
       <div class="stat-label">Toplam Randevu</div>
     </div>
     <div class="stat-box">
     <div class="stat-icon">✅</div>
-      <div class="stat-number">-</div>
+      <div class="stat-number">@ViewBag.ApprovedAppointments</div>
       <div class="stat-label">Onaylı</div>
     </div>
     <div class="stat-box">
    <div class="stat-icon">⏳</div>
-    <div class="stat-number">-</div>
-      <div class="stat-label">Bekleyen</div>
+    <div class="stat-number">@ViewBag.PendingAppointments</div>
+    <div class="stat-label">Bekleyen</div>
     </div>
     <div class="stat-box">
       <div class="stat-icon">📝</div>
-      <div class="stat-number">-</div>
+<div class="stat-number">@ViewBag.TotalBlogPosts</div>
       <div class="stat-label">Blog Yazısı</div>
   </div>
   </div>
