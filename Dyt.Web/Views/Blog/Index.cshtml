@@ -20,30 +20,30 @@
   
   /* Hero with green gradient */
   .blog-hero{
-    position:relative;
+  position:relative;
     overflow:hidden;
     background:
-radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
-      radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+      radial-gradient(2000px 900px at 20% -10%, rgba(76,175,80,.18), transparent),
+      radial-gradient(1500px 650px at 80% -10%, rgba(255,152,0,.15), transparent);
     padding:64px 0 48px;
   }
   .blog-hero:before{
     content:"";
-    position:absolute;
+ position:absolute;
     inset:-20%;
     background:
       radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
- radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
-    background-size:32px 32px, 64px 64px;
-  background-position:0 0, 16px 16px;
+   radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size:64px 64px, 128px 128px;
+ background-position:0 0, 32px 32px;
     opacity:.4;
-  animation:dotMove 25s linear infinite;
+    animation:dotMove 25s linear infinite;
   }
-  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(64px,64px)}}
   
   /* Chips */
   .chip{
-    display:inline-flex;
+ display:inline-flex;
     align-items:center;
     gap:8px;
     padding:10px 16px;
@@ -51,7 +51,7 @@ radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
  border:1px solid rgba(76,175,80,.3);
     background:rgba(76,175,80,.08);
     cursor:pointer;
-    font-weight:600;
+  font-weight:600;
     color:#4CAF50;
     transition:all .3s ease;
   }
@@ -92,7 +92,7 @@ radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
   .blog-card .card-img-top{ 
     width:100%; 
     height:280px; 
-    object-fit:cover;
+  object-fit:cover;
     display:block;
     cursor:pointer;
   }
@@ -119,7 +119,7 @@ font-size:12px;
     top:12px;
     background:#fff;
     border-radius:10px;
-    padding:6px 10px;
+  padding:6px 10px;
     font-size:12px;
     color:#666;
   box-shadow:0 4px 12px rgba(0,0,0,.1);
@@ -130,7 +130,7 @@ font-size:12px;
     border-radius:16px;
     border:1px solid rgba(76,175,80,.2);
     background:#fff;
-    box-shadow:0 8px 24px rgba(0,0,0,.06);
+box-shadow:0 8px 24px rgba(0,0,0,.06);
     transition:all .3s ease;
   }
   .sidebar-card:hover{
@@ -201,20 +201,20 @@ font-size:12px;
   [data-reveal].in{opacity:1;transform:translateY(0)}
 
   /* Tag chip - Sidebar için kompakt stil */
-  .tag-chip{
+.tag-chip{
     display:inline-flex;
     align-items:center;
     gap:4px;
   padding:5px 10px;
     border-radius:999px;
     border:1px solid rgba(76,175,80,.25);
-    background:#fff;
+background:#fff;
     cursor:pointer;
     font-weight:600;
     font-size:11px;
     color:#4CAF50;
 transition:all .3s ease;
-    text-decoration:none;
+  text-decoration:none;
     margin:3px;
   }
   .tag-chip:hover{
@@ -234,29 +234,29 @@ transition:all .3s ease;
 <section class="blog-hero fv-nobg">
   <div class="container position-relative" style="z-index:1">
   <div class="row align-items-end g-4 fv-text" data-reveal>
-      <div class="col-md-7">
-    <h1 class="display-4 fw-bold mb-2">&#128221; Blog</h1>
-        <p class="lead mb-0">Beslenme, saðlýk ve yaþam tarzý üzerine paylaþýmlar</p>
+   <div class="col-md-7">
+    <h1 class="display-4 fw-bold mb-2">@Html.Raw("&#128240;") Blog</h1>
+   <p class="lead mb-0">Beslenme, saðlýk ve yaþam tarzý üzerine paylaþýmlar</p>
       </div>
-      <div class="col-md-5">
+<div class="col-md-5">
     <div class="search-wrap">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
           <input id="blogSearch" class="form-control" placeholder="Ara: baþlýk, özet, açýklama..." />
         </div>
-    </div>
+</div>
     </div>
 
     <div class="mt-4 d-flex flex-wrap gap-2" data-reveal>
-      <button class="chip active" data-filter="all">&#127759; Hepsi</button>
-      <button class="chip" data-filter="photo">&#128247; Görseller</button>
-      <button class="chip" data-filter="article">&#128196; Makaleler</button>
+      <button class="chip active" data-filter="all">@Html.Raw("&#127760;") Hepsi</button>
+      <button class="chip" data-filter="photo">@Html.Raw("&#128247;") Görseller</button>
+      <button class="chip" data-filter="article">@Html.Raw("&#128221;") Makaleler</button>
     </div>
   </div>
 </section>
 
 <div class="container py-5">
   <div class="row g-4">
-    <div class="col-lg-8">
+  <div class="col-lg-8">
 <div class="row g-4" id="photoGrid">
  @foreach (var p in Model)
     {
@@ -265,27 +265,27 @@ transition:all .3s ease;
        <div class="col-md-6 blog-item" data-type="@(isPhoto?"photo":"article")" data-text="@((p.Title + " " + p.Summary).Trim())" data-reveal>
          <div class="card blog-card shadow-sm @(isPhoto?"js-photo-card":"")" data-img="@cover" data-summary="@p.Summary">
       @if (!string.IsNullOrWhiteSpace(cover))
-          {
+        {
    <div class="position-relative">
       <img src="@cover" class="card-img-top @(isPhoto?"js-photo-img":"")" alt="@(!string.IsNullOrWhiteSpace(p.Title)?p.Title:p.Summary)" loading="lazy" />
-   <span class="card-badge">@Html.Raw(isPhoto?"&#128247; Görsel":"&#128196; Makale")</span>
-   <span class="card-date">&#128197; @((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM"))</span>
+   <span class="card-badge">@Html.Raw(isPhoto ? "&#128247; Görsel" : "&#128221; Makale")</span>
+   <span class="card-date">@Html.Raw("&#128197;") @((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM"))</span>
     </div>
 }
    <div class="card-body d-flex flex-column fv-surface-strong fv-text">
    @if(!string.IsNullOrWhiteSpace(p.Title))
    {
-     <h5 class="card-title mb-2 fw-bold">@p.Title</h5>
+   <h5 class="card-title mb-2 fw-bold">@p.Title</h5>
     }
-    <p class="card-text text-muted small mb-3">@p.Summary</p>
+ <p class="card-text text-muted small mb-3">@p.Summary</p>
   <div class="mt-auto d-flex justify-content-between align-items-center">
-        <span class="text-secondary small">&#128197; @((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM yyyy"))</span>
+    <span class="text-secondary small">@Html.Raw("&#128197;") @((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM yyyy"))</span>
       @if(!string.IsNullOrWhiteSpace(p.Title))
  {
-       <a asp-controller="Blog" asp-action="Post" asp-route-slug="@p.Slug" class="btn btn-sm btn-primary">Oku &#128073;</a>
-     }
+       <a asp-controller="Blog" asp-action="Post" asp-route-slug="@p.Slug" class="btn btn-sm btn-primary">Oku @Html.Raw("&#10140;")</a>
+}
 </div>
-       </div>
+</div>
 </div>
  </div>
  }
@@ -297,96 +297,96 @@ transition:all .3s ease;
      var size = (int)(ViewBag.PageSize ?? 10);
         var pageCount = (int)Math.Ceiling(total / (double)size);
   }
-      @if (pageCount > 1)
-    {
+    @if (pageCount > 1)
+  {
       <nav class="mt-4" data-reveal>
     <ul class="pagination justify-content-center">
  @for (var i = 1; i <= pageCount; i++)
-       {
+    {
       <li class="page-item @(i==currentPage?"active":"")">
 <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-pageSize="@size" asp-route-apage="@apage" asp-route-apageSize="@asize">@i</a>
   </li>
   }
     </ul>
-        </nav>
+    </nav>
 }
     </div>
 
-    <div class="col-lg-4">
-      <!-- Popüler Etiketler Kartý -->
+<div class="col-lg-4">
+   <!-- Popüler Etiketler Kartý -->
     <div class="card sidebar-card mb-4 fv-surface-strong fv-text" data-reveal>
   <div class="card-body">
-   <h5 class="card-title fw-bold mb-3">&#127991; Popüler Etiketler</h5>
+   <h5 class="card-title fw-bold mb-3">@Html.Raw("&#127991;&#65039;") Popüler Etiketler</h5>
  <div class="d-flex flex-wrap">
- <a href="#" class="tag-chip" data-tag="beslenme">&#127823; beslenme</a>
- <a href="#" class="tag-chip" data-tag="kilo">&#9878; kilo</a>
- <a href="#" class="tag-chip" data-tag="diyet">&#129367; diyet</a>
-   <a href="#" class="tag-chip" data-tag="saðlýklý">&#128154; saðlýklý</a>
-   <a href="#" class="tag-chip" data-tag="spor">&#127947; spor</a>
- <a href="#" class="tag-chip" data-tag="tarif">&#127858; tarif</a>
-            <a href="#" class="tag-chip" data-tag="protein">&#129385; protein</a>
-        <a href="#" class="tag-chip" data-tag="vitamin">&#128138; vitamin</a>
-     <a href="#" class="tag-chip" data-tag="kahvaltý">&#127859; kahvaltý</a>
-         <a href="#" class="tag-chip" data-tag="metabolizma">&#128293; metabolizma</a>
-    <a href="#" class="tag-chip" data-tag="detoks">&#127812; detoks</a>
-     <a href="#" class="tag-chip" data-tag="vegan">&#129361; vegan</a>
-       <a href="#" class="tag-chip" data-tag="glutensiz">&#127806; glutensiz</a>
-    <a href="#" class="tag-chip" data-tag="þeker">&#127849; þeker</a>
-          <a href="#" class="tag-chip" data-tag="kolesterol">&#10084; kolesterol</a>
+ <a href="#" class="tag-chip" data-tag="beslenme">@Html.Raw("&#127869;") beslenme</a>
+ <a href="#" class="tag-chip" data-tag="kilo">@Html.Raw("&#9878;&#65039;") kilo</a>
+ <a href="#" class="tag-chip" data-tag="diyet">@Html.Raw("&#129367;") diyet</a>
+   <a href="#" class="tag-chip" data-tag="saðlýklý">@Html.Raw("&#128154;") saðlýklý</a>
+   <a href="#" class="tag-chip" data-tag="spor">@Html.Raw("&#127947;") spor</a>
+ <a href="#" class="tag-chip" data-tag="tarif">@Html.Raw("&#127859;") tarif</a>
+        <a href="#" class="tag-chip" data-tag="protein">@Html.Raw("&#129385;") protein</a>
+        <a href="#" class="tag-chip" data-tag="vitamin">@Html.Raw("&#128138;") vitamin</a>
+     <a href="#" class="tag-chip" data-tag="kahvaltý">@Html.Raw("&#129374;") kahvaltý</a>
+    <a href="#" class="tag-chip" data-tag="metabolizma">@Html.Raw("&#128293;") metabolizma</a>
+    <a href="#" class="tag-chip" data-tag="detoks">@Html.Raw("&#127820;") detoks</a>
+     <a href="#" class="tag-chip" data-tag="vegan">@Html.Raw("&#127793;") vegan</a>
+       <a href="#" class="tag-chip" data-tag="glutensiz">@Html.Raw("&#127806;") glutensiz</a>
+    <a href="#" class="tag-chip" data-tag="þeker">@Html.Raw("&#127852;") þeker</a>
+     <a href="#" class="tag-chip" data-tag="kolesterol">@Html.Raw("&#128137;") kolesterol</a>
         </div>
      </div>
       </div>
 
     <!-- Yazar Hakkýnda -->
-      <div class="card sidebar-card mb-4 fv-surface-strong fv-text" data-reveal>
+    <div class="card sidebar-card mb-4 fv-surface-strong fv-text" data-reveal>
    <div class="card-body">
-        <h5 class="card-title fw-bold mb-3">&#128100; Yazar Hakkýnda</h5>
-      <div class="d-flex align-items-center gap-3">
+        <h5 class="card-title fw-bold mb-3">@Html.Raw("&#128100;") Yazar Hakkýnda</h5>
+    <div class="d-flex align-items-center gap-3">
    <img src="/images/profile-placeholder.jpg" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;border:3px solid #4CAF50" onerror="this.style.display='none'" />
-         <div>
+ <div>
         <div class="fw-bold">Diyetisyen Riyaza Tair</div>
-           <div class="text-muted small">Bilimsel yaklaþým, kiþiye özel planlar.</div>
+    <div class="text-muted small">Bilimsel yaklaþým, kiþiye özel planlar.</div>
   </div>
       </div>
-      </div>
+    </div>
    </div>
 
    <!-- Yazýlar ve Makaleler -->
       <div class="card sidebar-card mb-4 fv-surface-strong fv-text" data-reveal>
         <div class="card-body">
- <h5 class="card-title fw-bold mb-3">&#128196; Yazýlar ve Makaleler</h5>
-      <div id="articleList">
+ <h5 class="card-title fw-bold mb-3">@Html.Raw("&#128221;") Yazýlar ve Makaleler</h5>
+<div id="articleList">
   @if(articles.Count==0){
       <div class="text-muted small">Henüz makale yok.</div>
        } else {
-          foreach(var a in articles){
+     foreach(var a in articles){
  var aCover = a.Media.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
    <a class="article-mini d-block text-reset text-decoration-none blog-item" data-type="article" data-text="@a.Title @a.Summary" asp-controller="Blog" asp-action="Post" asp-route-slug="@a.Slug">
          @if(!string.IsNullOrWhiteSpace(aCover)){
        <img src="@aCover" alt="@a.Title" loading="lazy" />
-        }
+    }
    <div>
         <div class="fw-semibold small">@a.Title</div>
-         <div class="text-muted" style="font-size:11px">&#128197; @((a.PublishDateUtc ?? a.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy"))</div>
-        </div>
+   <div class="text-muted" style="font-size:11px">@Html.Raw("&#128197;") @((a.PublishDateUtc ?? a.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy"))</div>
+   </div>
           </a>
      }
    }
-          </div>
+ </div>
      @if(apages > 1){
         <nav class="mt-3">
       <ul class="pagination pagination-sm mb-0 justify-content-center">
       <li class="page-item @(apage==1?"disabled":"")">
-     <a class="page-link" asp-action="Index" asp-route-apage="@(apage-1)" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">&#8249;</a>
+     <a class="page-link" asp-action="Index" asp-route-apage="@(apage-1)" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">‹</a>
   </li>
 @for(int i=1;i<=apages;i++){
   <li class="page-item @(i==apage?"active":"")">
-      <a class="page-link" asp-action="Index" asp-route-apage="@i" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">@i</a>
+  <a class="page-link" asp-action="Index" asp-route-apage="@i" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">@i</a>
    </li>
   }
      <li class="page-item @(apage==apages?"disabled":"")">
-      <a class="page-link" asp-action="Index" asp-route-apage="@(apage+1)" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">&#8250;</a>
-      </li>
+    <a class="page-link" asp-action="Index" asp-route-apage="@(apage+1)" asp-route-apageSize="@asize" asp-route-page="@currentPage" asp-route-pageSize="@size">›</a>
+    </li>
       </ul>
   </nav>
  }
@@ -394,24 +394,24 @@ transition:all .3s ease;
    </div>
 
    <!-- Bültene Katýl -->
-      <div class="card sidebar-card newsletter mb-4 fv-surface-strong fv-text" data-reveal>
+    <div class="card sidebar-card newsletter mb-4 fv-surface-strong fv-text" data-reveal>
         <div class="card-body">
-        <h5 class="card-title fw-bold mb-2">?? Bültene Katýl</h5>
+  <h5 class="card-title fw-bold mb-2">@Html.Raw("&#128231;") Bültene Katýl</h5>
   <p class="text-muted small mb-3">Yeni yazýlardan haberdar olmak için e-posta adresinizi býrakýn.</p>
      <form id="newsletterForm" asp-controller="Newsletter" asp-action="Subscribe" method="post">
      @Html.AntiForgeryToken()
-          <div class="input-group">
+      <div class="input-group">
       <input type="email" name="email" class="form-control" placeholder="mail@ornek.com" required id="newsletterEmail" />
     <button class="btn btn-primary" type="submit" id="newsletterBtn">
-       <span class="btn-text">Abone Ol</span>
-        <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+<span class="btn-text">Abone Ol</span>
+      <span class="spinner-border spinner-border-sm d-none" role="status"></span>
             </button>
      </div>
-        <div id="newsletterMessage" class="mt-2 small" style="display:none"></div>
+  <div id="newsletterMessage" class="mt-2 small" style="display:none"></div>
     </form>
-        </div>
-      </div>
-    </div>
+</div>
+</div>
+ </div>
 </div>
 </div>
 
@@ -452,8 +452,8 @@ const caption = lb.querySelector('.lb-caption');
     // Sadece fotoðraf görseline týklandýðýnda lightbox aç
     document.addEventListener('click', function(e){
       const photoImg = e.target.closest('.js-photo-img');
-      if(photoImg){
-        e.preventDefault();
+   if(photoImg){
+    e.preventDefault();
       const card = photoImg.closest('.js-photo-card');
    if(card){ openLb(card.getAttribute('data-img'), card.getAttribute('data-summary')); }
    }
@@ -465,7 +465,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLb()
   }
 
   // Search + filter
-  const search = document.getElementById('blogSearch');
+const search = document.getElementById('blogSearch');
   const chips = Array.from(document.querySelectorAll('.chip[data-filter]'));
   function applyFilter(){
     const q = (search?.value || '').toLowerCase();
@@ -491,7 +491,7 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLb()
    // Aktif etiketi iþaretle
       document.querySelectorAll('.tag-chip').forEach(tc=>tc.classList.remove('active'));
   this.classList.add('active');
-      
+   
       // Arama kutusuna etiketi yaz ve filtrele
       if(search){ 
     search.value=t; 
@@ -499,16 +499,16 @@ document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeLb()
   
   // Sayfayý içerik alanýna kaydýr
     setTimeout(()=>{
-          const contentTop = document.querySelector('.col-lg-8')?.offsetTop || 0;
+  const contentTop = document.querySelector('.col-lg-8')?.offsetTop || 0;
    window.scrollTo({top: contentTop - 100, behavior:'smooth'});
   }, 100);
       }
     });
-  });
+});
 
   // Arama kutusunda deðiþiklik olduðunda etiket iþaretlemelerini temizle
   search?.addEventListener('input', function(){
-    if(!this.value){
+ if(!this.value){
    document.querySelectorAll('.tag-chip').forEach(tc=>tc.classList.remove('active'));
     }
   });
@@ -530,13 +530,13 @@ const emailInput = document.getElementById('newsletterEmail');
       // Button loading state
       btnText.classList.add('d-none');
       spinner.classList.remove('d-none');
-      btn.disabled = true;
+    btn.disabled = true;
 
       const formData = new FormData(form);
 
-      try {
+try {
     const response = await fetch(form.action, {
-          method: 'POST',
+ method: 'POST',
   body: formData,
    headers: {
   'X-Requested-With': 'XMLHttpRequest'
@@ -549,9 +549,9 @@ const emailInput = document.getElementById('newsletterEmail');
         messageEl.style.display = 'block';
         if(result.ok){
           messageEl.className = 'mt-2 small text-success';
-          messageEl.textContent = result.message;
+messageEl.textContent = result.message;
   emailInput.value = '';
-      } else {
+ } else {
           messageEl.className = 'mt-2 small text-danger';
 messageEl.textContent = result.message;
     }
@@ -564,7 +564,7 @@ messageEl.textContent = result.message;
       } catch(error) {
    messageEl.style.display = 'block';
         messageEl.className = 'mt-2 small text-danger';
-        messageEl.textContent = '? Bir hata oluþtu. Lütfen tekrar deneyin.';
+        messageEl.textContent = '?? Bir hata oluþtu. Lütfen tekrar deneyin.';
       } finally {
         // Reset button state
         btnText.classList.remove('d-none');

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization; // [Authorize] için ekliyorum
 using Microsoft.AspNetCore.Mvc;    // Controller için ekliyorum
 using Dyt.Business.Interfaces.Appointments; // Randevu servisi için
+using Dyt.Business.Interfaces.Recipes; // Recipe servisi için
 using Dyt.Data.Context; // AppDbContext için
 using Microsoft.EntityFrameworkCore;      // LINQ sorguları için
 
@@ -14,16 +15,18 @@ namespace Dyt.Web.Areas.Admin.Controllers
     public class DashboardController : Controller
     {
         private readonly IAppointmentService _appointments;
+     private readonly IRecipeService _recipes; // Recipe servisi
      private readonly AppDbContext _db;
 
-        public DashboardController(IAppointmentService appointments, AppDbContext db)
+        public DashboardController(IAppointmentService appointments, IRecipeService recipes, AppDbContext db)
     {
  _appointments = appointments;
+        _recipes = recipes;
     _db = db;
-        }
+  }
 
   /// <summary>
-        /// Özet metrikler ve kısayolların yer alacağı sayfa.
+     /// Özet metrikler ve kısayolların yer alacağı sayfa.
   /// </summary>
         public async Task<IActionResult> Index(CancellationToken ct)   // GET /Admin/Dashboard
     {
@@ -37,18 +40,24 @@ namespace Dyt.Web.Areas.Admin.Controllers
          .CountAsync(ct);
 
   var pendingAppointments = await _db.Appointments
-        .Where(a => !a.IsDeleted && a.ConfirmationState == Data.Enums.ConfirmationState.Yanıtlanmadı)
+      .Where(a => !a.IsDeleted && a.ConfirmationState == Data.Enums.ConfirmationState.Yanıtlanmadı)
  .CountAsync(ct);
 
-          // Blog istatistikleri
+// Blog istatistikleri
     var totalBlogPosts = await _db.BlogPosts
-            .Where(b => !b.IsDeleted && b.IsPublished)
+    .Where(b => !b.IsDeleted && b.IsPublished)
     .CountAsync(ct);
+
+    // Tarif istatistikleri
+        var totalRecipes = await _db.Recipes
+            .Where(r => !r.IsDeleted && r.IsPublished)
+     .CountAsync(ct);
 
   ViewBag.TotalAppointments = totalAppointments;
     ViewBag.ApprovedAppointments = approvedAppointments;
-    ViewBag.PendingAppointments = pendingAppointments;
-            ViewBag.TotalBlogPosts = totalBlogPosts;
+  ViewBag.PendingAppointments = pendingAppointments;
+     ViewBag.TotalBlogPosts = totalBlogPosts;
+        ViewBag.TotalRecipes = totalRecipes; // Tarif sayısı
 
       return View();   
         }

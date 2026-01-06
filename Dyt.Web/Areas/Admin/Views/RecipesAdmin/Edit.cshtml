@@ -1,0 +1,228 @@
+@model Dyt.Contracts.Recipes.Responses.RecipeDto
+@{
+  ViewData["Title"] = "Tarif Düzenle";
+}
+
+<style>
+  :root{ 
+    --brand:#4CAF50; 
+    --brand-orange:#FF9800;
+  }
+
+  .form-hero{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+    padding:48px 0 36px;
+    margin-bottom:32px;
+    border-radius:0 0 24px 24px;
+  }
+  
+  .form-card{
+    border-radius:18px;
+    border:2px solid rgba(76,175,80,.2);
+    background:#fff;
+    padding:32px;
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+  }
+  
+  .form-label{
+    font-weight:600;
+ color:#333;
+    margin-bottom:8px;
+  }
+  
+  .form-control:focus{
+    border-color:#4CAF50;
+    box-shadow:0 0 0 0.2rem rgba(76,175,80,.25);
+  }
+  
+  .btn-primary{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    border:none;
+    font-weight:600;
+  padding:12px 32px;
+    border-radius:12px;
+    transition:all .3s ease;
+  }
+  .btn-primary:hover{
+    background:linear-gradient(135deg, #388E3C, #4CAF50);
+    transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(76,175,80,.3);
+  }
+  
+  .form-hint{
+    font-size:12px;
+    color:#64748b;
+    margin-top:4px;
+  }
+  
+  .image-preview-container{
+    margin-top:12px;
+  }
+  .image-preview-container.show{
+  display:block;
+  }
+  .image-preview{
+    max-width:100%;
+    max-height:300px;
+border-radius:12px;
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
+  }
+  .current-image-label{
+    font-size:12px;
+    color:#666;
+    margin-bottom:8px;
+  }
+  
+  [data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-reveal].in{opacity:1;transform:translateY(0)}
+</style>
+
+<!-- Hero -->
+<section class="form-hero">
+  <div class="container">
+    <div class="text-center" data-reveal>
+   <h1 class="h3 fw-bold mb-2">@Html.Raw("&#9999;&#65039;") Tarif Düzenle</h1>
+      <p class="text-muted mb-0">@Model.Title</p>
+    </div>
+  </div>
+</section>
+
+<div class="container pb-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8" data-reveal>
+ <div class="form-card">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+          @Html.AntiForgeryToken()
+          
+          <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+          <input type="hidden" name="currentImageUrl" value="@Model.ImageUrl" />
+
+          <!-- Baþlýk -->
+        <div class="mb-4">
+ <label class="form-label">@Html.Raw("&#128221;") Tarif Baþlýðý <span class="text-danger">*</span></label>
+    <input type="text" name="title" class="form-control" value="@Model.Title" required />
+      <div class="form-hint">Tarif için çekici ve açýklayýcý bir baþlýk yazýn</div>
+  </div>
+          
+          <!-- Özet -->
+          <div class="mb-4">
+       <label class="form-label">@Html.Raw("&#128172;") Kýsa Özet <span class="text-danger">*</span></label>
+      <input type="text" name="summary" class="form-control" value="@Model.Summary" required />
+ <div class="form-hint">Tarifi özetleyen tek cümle</div>
+    </div>
+  
+          <!-- Fotoðraf -->
+    <div class="mb-4">
+            <label class="form-label">@Html.Raw("&#128247;") Tarif Fotoðrafý</label>
+    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+         {
+              <div class="current-image-label">Mevcut görsel:</div>
+    <div class="image-preview-container">
+                <img src="@Model.ImageUrl" class="image-preview" alt="Mevcut görsel" />
+   </div>
+              <div class="form-hint mb-2">Yeni bir görsel yüklerseniz mevcut görsel deðiþtirilecektir</div>
+        }
+      <input type="file" name="image" id="recipeImage" class="form-control" accept="image/*" />
+            <div class="form-hint">Yeni görsel yükleyin veya mevcut görseli koruyun (isteðe baðlý)</div>
+  <div class="image-preview-container" id="imagePreviewContainer" style="display:none;">
+       <div class="current-image-label">Yeni görsel önizlemesi:</div>
+       <img id="imagePreview" class="image-preview" alt="Önizleme" />
+  </div>
+   </div>
+    
+       <!-- Hazýrlýk Süresi -->
+  <div class="row g-3 mb-4">
+  <div class="col-md-4">
+              <label class="form-label">@Html.Raw("&#9201;&#65039;") Hazýrlýk Süresi</label>
+    <input type="text" name="prepTime" class="form-control" value="@Model.PrepTime" />
+     </div>
+          <div class="col-md-4">
+        <label class="form-label">@Html.Raw("&#128293;") Kalori</label>
+     <input type="text" name="calories" class="form-control" value="@Model.Calories" />
+  </div>
+     <div class="col-md-4">
+    <label class="form-label">@Html.Raw("&#128200;") Zorluk</label>
+         <select name="difficulty" class="form-control">
+         <option value="Kolay" selected="@(Model.Difficulty == "Kolay")">Kolay</option>
+     <option value="Orta" selected="@(Model.Difficulty == "Orta")">Orta</option>
+     <option value="Zor" selected="@(Model.Difficulty == "Zor")">Zor</option>
+         </select>
+            </div>
+          </div>
+          
+          <!-- Etiketler -->
+        <div class="mb-4">
+        <label class="form-label">@Html.Raw("&#127991;&#65039;") Etiketler</label>
+     <input type="text" name="tags" class="form-control" value="@string.Join(",", Model.Tags)" />
+            <div class="form-hint">Virgülle ayýrarak yazýn</div>
+          </div>
+     
+          <!-- Malzemeler -->
+          <div class="mb-4">
+       <label class="form-label">@Html.Raw("&#129368;") Malzemeler <span class="text-danger">*</span></label>
+     <textarea name="ingredients" rows="6" class="form-control" required>@string.Join(Environment.NewLine, Model.Ingredients.Select(i => i.Name))</textarea>
+ <div class="form-hint">Her satýra bir malzeme yazýn</div>
+          </div>
+          
+          <!-- Hazýrlama Adýmlarý -->
+          <div class="mb-4">
+       <label class="form-label">@Html.Raw("&#128104;&#8205;&#127859;") Hazýrlama Adýmlarý <span class="text-danger">*</span></label>
+      <textarea name="steps" rows="8" class="form-control" required>@string.Join(Environment.NewLine, Model.Steps.Select(s => s.Description))</textarea>
+  <div class="form-hint">Her satýra bir adým yazýn</div>
+  </div>
+     
+     <!-- Butonlar -->
+   <div class="d-flex gap-3 justify-content-end">
+ <a asp-action="Index" class="btn btn-outline-secondary">@Html.Raw("&#10060;") Ýptal</a>
+            <button type="submit" class="btn btn-primary">@Html.Raw("&#10004;&#65039;") Deðiþiklikleri Kaydet</button>
+          </div>
+        </form>
+  </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts{
+<script>
+(function(){
+  const reveals=[...document.querySelectorAll('[data-reveal]')];
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{ 
+        if(en.isIntersecting){ 
+     setTimeout(()=>en.target.classList.add('in'), 100); 
+      io.unobserve(en.target); 
+        } 
+  });
+    },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
+    reveals.forEach(e=>io.observe(e));
+  } else {
+    reveals.forEach(e=>e.classList.add('in'));
+  }
+  
+  // Image preview functionality
+  const imageInput = document.getElementById('recipeImage');
+  const previewContainer = document.getElementById('imagePreviewContainer');
+  const previewImage = document.getElementById('imagePreview');
+  
+  if(imageInput && previewContainer && previewImage) {
+    imageInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if(file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImage.src = e.target.result;
+          previewContainer.style.display = 'block';
+        };
+ reader.readAsDataURL(file);
+      } else {
+      previewContainer.style.display = 'none';
+      }
+    });
+  }
+})();
+</script>
+}

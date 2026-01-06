@@ -293,17 +293,17 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
   <div class="quick-stats" data-reveal>
     <div class="stat-box">
       <div class="stat-icon">📅</div>
-  <div class="stat-number">@ViewBag.TotalAppointments</div>
-      <div class="stat-label">Toplam Randevu</div>
+<div class="stat-number">@ViewBag.TotalAppointments</div>
+    <div class="stat-label">Toplam Randevu</div>
     </div>
-    <div class="stat-box">
+<div class="stat-box">
     <div class="stat-icon">✅</div>
       <div class="stat-number">@ViewBag.ApprovedAppointments</div>
       <div class="stat-label">Onaylı</div>
     </div>
     <div class="stat-box">
    <div class="stat-icon">⏳</div>
-    <div class="stat-number">@ViewBag.PendingAppointments</div>
+ <div class="stat-number">@ViewBag.PendingAppointments</div>
     <div class="stat-label">Bekleyen</div>
     </div>
     <div class="stat-box">
@@ -311,6 +311,11 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
 <div class="stat-number">@ViewBag.TotalBlogPosts</div>
       <div class="stat-label">Blog Yazısı</div>
   </div>
+    <div class="stat-box">
+      <div class="stat-icon">🍳</div>
+      <div class="stat-number">@ViewBag.TotalRecipes</div>
+      <div class="stat-label">Tarif</div>
+    </div>
   </div>
 
   <!-- Main Cards -->
@@ -320,9 +325,9 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
       <div class="dashboard-card">
     <div class="card-icon">
      <span class="card-icon-emoji">📅</span>
-        </div>
+      </div>
         <h3 class="card-title-main">Randevular</h3>
-        <p class="card-description">
+   <p class="card-description">
   Randevu taleplerini görüntüleyin, onaylayın veya reddedin. Detaylı filtreleme ve arama yapabilirsiniz.
      </p>
         <div class="card-actions">
@@ -330,7 +335,7 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
        <span>📋</span>
    <span>Randevuları Görüntüle</span>
  </a>
-   </div>
+ </div>
       </div>
     </div>
 
@@ -343,13 +348,13 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
 <h3 class="card-title-main">Müsaitlik Yönetimi</h3>
         <p class="card-description">
     Çalışma saatlerinizi belirleyin, tatil günleri ekleyin ve randevu slotlarını yönetin.
-        </p>
+  </p>
         <div class="card-actions">
-          <a class="btn-admin btn-admin-primary" asp-area="Admin" asp-controller="WorkingHours" asp-action="Index">
+       <a class="btn-admin btn-admin-primary" asp-area="Admin" asp-controller="WorkingHours" asp-action="Index">
         <span>⚙️</span>
             <span>Müsaitliği Düzenle</span>
        </a>
-        </div>
+    </div>
       </div>
     </div>
 
@@ -357,7 +362,7 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
     <div class="col-lg-4" data-reveal>
   <div class="dashboard-card">
     <div class="card-icon">
-        <span class="card-icon-emoji">✍️</span>
+     <span class="card-icon-emoji">✍️</span>
    </div>
  <h3 class="card-title-main">Blog Yönetimi</h3>
         <p class="card-description">
@@ -368,6 +373,29 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
   <span>📸</span>
       <span>İçerik Paylaş</span>
           </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tarif Yönetimi -->
+    <div class="col-lg-4" data-reveal>
+      <div class="dashboard-card">
+  <div class="card-icon">
+          <span class="card-icon-emoji">🍳</span>
+        </div>
+   <h3 class="card-title-main">Tarif Yönetimi</h3>
+     <p class="card-description">
+          Sağlıklı tarifler ekleyin, düzenleyin ve paylaşın. Pratik ve besleyici yemek tarifleri.
+        </p>
+        <div class="card-actions">
+  <a class="btn-admin btn-admin-primary" asp-area="Admin" asp-controller="RecipesAdmin" asp-action="Index">
+<span>🍽️</span>
+     <span>Tarifleri Yönet</span>
+          </a>
+        <a class="btn-admin btn-admin-outline" asp-area="Admin" asp-controller="RecipesAdmin" asp-action="Create">
+     <span>➕</span>
+     <span>Yeni Tarif Ekle</span>
+ </a>
         </div>
       </div>
     </div>

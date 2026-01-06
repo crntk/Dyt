@@ -51,7 +51,7 @@ namespace Dyt.Web.Areas.Admin.Controllers
    [ValidateAntiForgeryToken]
   public async Task<IActionResult> SharePhoto(IFormFile? image, string? caption, CancellationToken ct)
         {
-            if (image == null || image.Length == 0)
+ if (image == null || image.Length == 0)
    return BadRequest(new { ok = false, message = "Görsel seçiniz" });
 
    var (url, contentType, size) = await SaveFileAsync(image, ct);
@@ -59,12 +59,12 @@ namespace Dyt.Web.Areas.Admin.Controllers
             var post = new BlogPost
   {
          Title = string.Empty,
-        Slug = CreateSlug(Guid.NewGuid().ToString("n")),
+      Slug = CreateSlug(Guid.NewGuid().ToString("n")),
    Summary = caption?.Length > 140 ? caption!.Substring(0, 140) + "…" : (caption ?? string.Empty),
      ContentMarkdown = caption ?? string.Empty,
-       IsPublished = true,
-         PublishDateUtc = DateTime.UtcNow,
-          CreatedAtUtc = DateTime.UtcNow
+    IsPublished = true,
+     PublishDateUtc = DateTime.UtcNow,
+       CreatedAtUtc = DateTime.UtcNow
    };
       var media = new MediaFile
     {
@@ -78,18 +78,18 @@ namespace Dyt.Web.Areas.Admin.Controllers
       await _db.SaveChangesAsync(ct);
 
             // Newsletter bildirimi gönder (arka planda, kendi scope'unda)
-            var postId = post.Id;
+         var postId = post.Id;
  _ = Task.Run(async () => {
-        try
+    try
     {
           await _newsletterService.NotifyNewBlogPostAsync(postId);
     _logger.LogInformation("Newsletter bildirimi tamamlandý. BlogPostId={Id}", postId);
-        }
+      }
    catch (Exception ex)
       {
     _logger.LogError(ex, "Newsletter bildirimi gönderilemedi. BlogPostId={Id} Error={Error}", 
-      postId, ex.Message);
-      }
+ postId, ex.Message);
+ }
        }, CancellationToken.None);
 
    return Json(new { ok = true, redirect = Url.Action("Index", "Blog", new { area = "" }) });
@@ -97,54 +97,54 @@ namespace Dyt.Web.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ShareArticle(string title, string summary, string contentMarkdown, IFormFile? cover, CancellationToken ct)
+  public async Task<IActionResult> ShareArticle(string title, string summary, string contentMarkdown, IFormFile? cover, CancellationToken ct)
         {
-        if (string.IsNullOrWhiteSpace(title)) return BadRequest(new { ok = false, message = "Baþlýk zorunlu" });
+     if (string.IsNullOrWhiteSpace(title)) return BadRequest(new { ok = false, message = "Baþlýk zorunlu" });
 
             var post = new BlogPost
      {
-       Title = title.Trim(),
-             Slug = CreateSlug(title),
+     Title = title.Trim(),
+           Slug = CreateSlug(title),
     Summary = summary?.Trim() ?? string.Empty,
     ContentMarkdown = contentMarkdown ?? string.Empty,
  IsPublished = true,
     PublishDateUtc = DateTime.UtcNow,
  CreatedAtUtc = DateTime.UtcNow
-       };
+     };
 
-         if (cover != null && cover.Length > 0)
+   if (cover != null && cover.Length > 0)
             {
  var (url, contentType, size) = await SaveFileAsync(cover, ct);
-       var media = new MediaFile
+     var media = new MediaFile
    {
-     Url = url,
+Url = url,
        ContentType = contentType,
    SizeBytes = size,
      OwnerType = MediaOwnerType.BlogPost
      };
     var bpm = new BlogPostMedia { BlogPost = post, MediaFile = media, DisplayOrder = 0 };
        _db.BlogPostMedias.Add(bpm);
-       }
+    }
     else
         {
-        await _db.BlogPosts.AddAsync(post, ct);
+   await _db.BlogPosts.AddAsync(post, ct);
   }
 
-            await _db.SaveChangesAsync(ct);
+ await _db.SaveChangesAsync(ct);
 
   // Newsletter bildirimi gönder (arka planda, kendi scope'unda)
    var postId = post.Id;
       _ = Task.Run(async () => {
-          try
+       try
           {
-              await _newsletterService.NotifyNewBlogPostAsync(postId);
+  await _newsletterService.NotifyNewBlogPostAsync(postId);
         _logger.LogInformation("Newsletter bildirimi tamamlandý. BlogPostId={Id}", postId);
     }
   catch (Exception ex)
   {
-            _logger.LogError(ex, "Newsletter bildirimi gönderilemedi. BlogPostId={Id} Error={Error}", 
+_logger.LogError(ex, "Newsletter bildirimi gönderilemedi. BlogPostId={Id} Error={Error}", 
   postId, ex.Message);
-      }
+    }
     }, CancellationToken.None);
 
     return Json(new { ok = true, redirect = Url.Action("Index", "Blog", new { area = "" }) });

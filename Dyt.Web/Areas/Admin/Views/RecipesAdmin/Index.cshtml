@@ -1,0 +1,352 @@
+@model List<Dyt.Contracts.Recipes.Responses.RecipeDto>
+@{
+  ViewData["Title"] = "Tarif Yönetimi";
+}
+
+<style>
+  :root{ 
+    --brand:#4CAF50; 
+    --brand-orange:#FF9800;
+  --admin-primary: #4CAF50; 
+    --admin-primary-dark: #388E3C;
+  }
+
+  /* Hero */
+  .admin-hero{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+    padding:48px 0 36px;
+    margin-bottom:32px;
+    border-radius:0 0 24px 24px;
+  }
+  
+  /* Cards */
+  .recipe-admin-card{
+    border-radius:18px;
+    border:2px solid rgba(76,175,80,.2);
+    overflow:hidden;
+    transition:all .3s ease;
+    background:#fff;
+ margin-bottom:20px;
+    display:flex;
+    flex-direction:row;
+  }
+  .recipe-admin-card:hover{
+    border-color:#4CAF50;
+ transform:translateY(-4px);
+    box-shadow:0 12px 30px rgba(76,175,80,.2);
+  }
+  
+  .recipe-image-container{
+  width:200px;
+  height:200px;
+    flex-shrink:0;
+    background:linear-gradient(135deg, #E8F5E9, #FFF8E1);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .recipe-image-container img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+  .recipe-image-placeholder{
+    font-size:48px;
+    opacity:0.5;
+  }
+  
+  .recipe-content{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+  }
+  
+  .recipe-card-header{
+ display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:16px 20px;
+    background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border-bottom:2px solid rgba(76,175,80,.1);
+  }
+  
+  .recipe-card-body{
+    padding:20px;
+    flex:1;
+  }
+  
+  .recipe-title{
+    font-weight:700;
+    font-size:18px;
+    color:#1e293b;
+    margin-bottom:8px;
+  }
+  
+  .recipe-summary{
+    color:#64748b;
+    font-size:14px;
+    margin-bottom:12px;
+  }
+  
+  /* Tags */
+  .tag-chip{
+    display:inline-flex;
+  align-items:center;
+    gap:4px;
+ padding:5px 10px;
+    border-radius:999px;
+ border:1px solid rgba(76,175,80,.25);
+    background:rgba(76,175,80,.08);
+    font-weight:600;
+    font-size:11px;
+    color:#4CAF50;
+    margin:3px;
+  }
+  
+  /* Buttons */
+  .btn-admin-primary{
+    background:linear-gradient(135deg, var(--admin-primary), #81C784);
+    border:none;
+    color:#fff;
+    font-weight:600;
+    padding:10px 24px;
+    border-radius:12px;
+    transition:all .3s ease;
+  }
+  .btn-admin-primary:hover{
+    background:linear-gradient(135deg, #388E3C, var(--admin-primary));
+    transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(76,175,80,.3);
+    color:#fff;
+  }
+  
+  /* Stats */
+  .stat-card{
+    background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border:2px solid rgba(76,175,80,.2);
+    border-radius:16px;
+    padding:20px;
+    text-align:center;
+    transition:all .3s ease;
+  }
+  .stat-card:hover{
+    border-color:#4CAF50;
+    box-shadow:0 8px 24px rgba(76,175,80,.15);
+    transform:translateY(-2px);
+  }
+  .stat-number{
+    font-size:40px;
+    font-weight:800;
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+    background-clip:text;
+    line-height:1;
+    margin-bottom:8px;
+  }
+  .stat-label{
+    font-size:14px;
+    font-weight:600;
+    color:#64748b;
+  }
+  
+  /* Empty State */
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:#94a3b8;
+  }
+  .empty-state-icon{
+    font-size:64px;
+    margin-bottom:16px;
+ opacity:.5;
+  }
+  
+  /* Reveal animation */
+  [data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-reveal].in{opacity:1;transform:translateY(0)}
+  
+  @@media (max-width: 768px) {
+    .recipe-admin-card {
+      flex-direction: column;
+    }
+    .recipe-image-container {
+width: 100%;
+      height: 150px;
+    }
+  }
+</style>
+
+<!-- Hero -->
+<section class="admin-hero">
+  <div class="container position-relative" style="z-index:1">
+ <div class="d-flex justify-content-between align-items-center" data-reveal>
+<div>
+        <h1 class="h3 fw-bold mb-2">&#127860; Tarif Yönetimi</h1>
+  <p class="text-muted mb-0">Tarifleri ekleyin, düzenleyin ve yönetin</p>
+      </div>
+   <a asp-action="Create" class="btn btn-admin-primary">
+        &#10133; Yeni Tarif Ekle
+   </a>
+    </div>
+  </div>
+</section>
+
+<div class="container pb-5">
+  <!-- Ýstatistikler -->
+  <div class="row g-4 mb-4" data-reveal>
+ <div class="col-md-4">
+      <div class="stat-card">
+  <div style="font-size:32px;margin-bottom:12px;">&#128218;</div>
+        <div class="stat-number">@Model.Count</div>
+ <div class="stat-label">Toplam Tarif</div>
+      </div>
+    </div>
+  <div class="col-md-4">
+      <div class="stat-card">
+      <div style="font-size:32px;margin-bottom:12px;">&#9989;</div>
+ <div class="stat-number">@Model.Count(r => r.Difficulty == "Kolay")</div>
+ <div class="stat-label">Kolay Tarifler</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card">
+        <div style="font-size:32px;margin-bottom:12px;">&#128293;</div>
+  <div class="stat-number">@Model.Count(r => r.Difficulty == "Orta" || r.Difficulty == "Zor")</div>
+   <div class="stat-label">Orta/Zor Tarifler</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tarif Listesi -->
+  @if (!Model.Any())
+  {
+  <div class="empty-state" data-reveal>
+      <div class="empty-state-icon">&#128237;</div>
+    <h5>Henüz tarif yok</h5>
+   <p class="text-muted">Yukarýdaki "Yeni Tarif Ekle" butonunu kullanarak ilk tarifinizi ekleyin</p>
+    </div>
+  }
+  else
+  {
+    <div data-reveal>
+    @foreach(var recipe in Model)
+    {
+        var icon = recipe.Title.ToLower() switch {
+  var t when t.Contains("kahvaltý") || t.Contains("kahvalti") => "&#129379;",
+   var t when t.Contains("salata") => "&#129367;",
+       var t when t.Contains("somon") => "&#128031;",
+     var t when t.Contains("tavuk") => "&#127831;",
+var t when t.Contains("omlet") => "&#127859;",
+        var t when t.Contains("smoothie") => "&#129380;",
+   var t when t.Contains("çorba") || t.Contains("corba") => "&#127858;",
+    var t when t.Contains("makarna") => "&#127837;",
+      var t when t.Contains("kurabiye") => "&#127850;",
+  _ => "&#127860;"
+        };
+        
+        <div class="recipe-admin-card">
+       <!-- Image Section -->
+          <div class="recipe-image-container">
+    @if (!string.IsNullOrEmpty(recipe.ImageUrl))
+     {
+      <img src="@recipe.ImageUrl" alt="@recipe.Title" />
+         }
+  else
+    {
+   <div class="recipe-image-placeholder">@Html.Raw(icon)</div>
+        }
+     </div>
+          
+   <!-- Content Section -->
+ <div class="recipe-content">
+  <div class="recipe-card-header">
+    <div class="d-flex align-items-center gap-2">
+    <div>
+   <div class="recipe-title">@recipe.Title</div>
+      <div class="text-muted small">
+ @Html.Raw("&#9201;&#65039;") @recipe.PrepTime &bull; @Html.Raw("&#128293;") @recipe.Calories &bull; 
+ @if(recipe.Difficulty == "Kolay")
+       {
+        @Html.Raw("&#9989; Kolay")
+  }
+         else if(recipe.Difficulty == "Orta")
+    {
+         @Html.Raw("&#9889; Orta")
+      }
+     else
+   {
+   @Html.Raw("&#128293; Zor")
+  }
+    </div>
+   </div>
+              </div>
+     <div class="d-flex gap-2">
+ <a asp-action="Edit" asp-route-id="@recipe.Id" class="btn btn-sm btn-outline-primary">
+         @Html.Raw("&#9999;&#65039; Düzenle")
+   </a>
+       <form asp-action="Delete" asp-route-id="@recipe.Id" method="post" class="d-inline" onsubmit="return confirm('Bu tarifi silmek istediðinizden emin misiniz?');">
+    @Html.AntiForgeryToken()
+<button type="submit" class="btn btn-sm btn-outline-danger">
+        @Html.Raw("&#128465;&#65039; Sil")
+    </button>
+</form>
+        </div>
+        </div>
+  
+ <div class="recipe-card-body">
+  <p class="recipe-summary">@recipe.Summary</p>
+
+    <div class="mb-3">
+  <div class="small fw-bold mb-2">@Html.Raw("&#127991;&#65039;") Etiketler:</div>
+       @foreach(var tag in recipe.Tags)
+ {
+ <span class="tag-chip">#@tag</span>
+   }
+      </div>
+      
+   <div class="mb-3">
+    <div class="small fw-bold mb-2">@Html.Raw("&#129368;") Malzemeler (@recipe.Ingredients.Count):</div>
+     <div class="text-muted small">
+@string.Join(", ", recipe.Ingredients.Take(3).Select(i => i.Name))@(recipe.Ingredients.Count > 3 ? "..." : "")
+    </div>
+     </div>
+      
+      <div>
+ <div class="small fw-bold mb-2">@Html.Raw("&#128104;&#8205;&#127859;") Adýmlar:</div>
+      <div class="text-muted small">
+  @recipe.Steps.Count adým
+     </div>
+</div>
+          </div>
+          </div>
+  </div>
+  }
+    </div>
+  }
+</div>
+
+@section Scripts{
+<script>
+(function(){
+  // Reveal animation
+  const reveals=[...document.querySelectorAll('[data-reveal]')];
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver((entries)=>{
+   entries.forEach(en=>{ 
+        if(en.isIntersecting){ 
+     setTimeout(()=>en.target.classList.add('in'), 100); 
+  io.unobserve(en.target); 
+        } 
+      });
+    },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
+    reveals.forEach(e=>io.observe(e));
+  } else {
+    reveals.forEach(e=>e.classList.add('in'));
+  }
+})();
+</script>
+}

@@ -33,6 +33,10 @@ namespace Dyt.Data.Context // Veritabanı bağlamının bulunduğu ad alanı
         public DbSet<BlogPostMedia> BlogPostMedias => Set<BlogPostMedia>(); // Blog-medya eşleşmeleri
         public DbSet<NewsletterSubscriber> NewsletterSubscribers => Set<NewsletterSubscriber>(); // Blog bülteni aboneleri
         public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>(); // İletişim mesajları
+        public DbSet<Recipe> Recipes => Set<Recipe>(); // Tarifler
+        public DbSet<RecipeIngredient> RecipeIngredients => Set<RecipeIngredient>(); // Tarif malzemeleri
+        public DbSet<RecipeStep> RecipeSteps => Set<RecipeStep>(); // Tarif adımları
+        public DbSet<RecipeTag> RecipeTags => Set<RecipeTag>(); // Tarif-etiket köprüleri
 
         // Zamanlama/randevu DbSet'leri
         public DbSet<WorkingHourException> WorkingHourExceptions => Set<WorkingHourException>(); // İstisna gün/saatler

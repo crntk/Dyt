@@ -19,7 +19,7 @@ radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
 
   /* TIMELINE: continuous line + big stops aligned to the line */
   .timeline{position:relative; --pad:64px; --line-x:28px; --dot:16px; padding-left:var(--pad)}
-  .timeline:before{content:"";position:absolute;left:var(--line-x);top:0;bottom:0;width:2px;background:linear-gradient(180deg, rgba(76,175,80,.35), rgba(255,152,0,.12));z-index:0}
+  .timeline:before{content:"";position:absolute;left:var(--line-x);top:0;bottom:0;width=2px;background:linear-gradient(180deg, rgba(76,175,80,.35), rgba(255,152,0,.12));z-index:0}
   .timeline-item{position:relative;margin:0 0 28px;min-height:34px}
   /* place dot center exactly on the line: left = line-x - pad - dot/2  */
   .timeline-item:before{content:"";position:absolute;left:calc(var(--line-x) - var(--pad) - (var(--dot) / 2));top:8px;width:var(--dot);height:var(--dot);border-radius:50%;background:var(--brand);border:2px solid #fff;box-shadow:0 0 0 6px rgba(76,175,80,.18);z-index:1}
@@ -269,69 +269,117 @@ radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
 <!-- Recipes teaser -->
 <section class="section fv-nobg" style="background:transparent;">
   <div class="container">
- <div class="d-flex align-items-center justify-content-between mb-3" data-animate>
-      <h2 class="h3 fw-bold mb-0">Tarifler</h2>
+    <div class="d-flex align-items-center justify-content-between mb-3" data-animate>
+   <h2 class="h3 fw-bold mb-0">Tarifler</h2>
       <a class="btn btn-sm btn-outline-secondary" asp-controller="Recipes" asp-action="Index">Tüm Tarifler</a>
     </div>
-    <div class="row g-4">
-      <div class="col-md-4" data-animate>
-        <div class="card shadow-sm border-glow recipe-card h-100 fv-surface">
- <div class="recipe-cover" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1)" aria-hidden="true"></div>
- <div class="card-body d-flex flex-column fv-text">
-   <div class="fw-semibold mb-1">Yulaflı Meyveli Kahvaltı Kasesi</div>
-            <div class="text-muted small mb-2">10 dk • 320 kcal • Kolay</div>
-    <p class="small text-muted mb-3">Lif zengini, hızlı ve doyurucu kahvaltı.</p>
-            <div class="mt-auto">
-   <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
-               data-title="Yulaflı Meyveli Kahvaltı Kasesi"
-       data-prep="10 dk" data-cal="320 kcal" data-diff="Kolay"
-            data-summary="Lif zengini, hızlı ve doyurucu kahvaltı."
-      data-tags="kahvaltı|lif|vegan"
-           data-ingredients="1/2 su bardağı yulaf|1/2 su bardağı süt/yoğurt|1/2 muz|Çilek/ yaban mersini|1 yk ceviz|Tarçın veya bal"
-      data-steps="Yulafı süt/yoğurtla karıştırın.|Üzerine meyve ve kuruyemiş ekleyin.|Bal veya tarçın ile tatlandırın.">Daha Fazla</a>
-    </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4" data-animate>
-        <div class="card shadow-sm border-glow recipe-card h-100 fv-surface">
-          <div class="recipe-cover" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1)" aria-hidden="true"></div>
-          <div class="card-body d-flex flex-column fv-text">
-     <div class="fw-semibold mb-1">Izgara Tavuklu Fit Salata</div>
-      <div class="text-muted small mb-2">15 dk • 380 kcal • Kolay</div>
-      <p class="small text-muted mb-3">Protein dengeli, pratik öğle yemeği.</p>
+    
+    @{
+        var recipes = ViewBag.LatestRecipes as List<Dyt.Data.Entities.Content.Recipe> ?? new List<Dyt.Data.Entities.Content.Recipe>();
+    }
+    
+    @if (recipes.Any())
+    {
+        <div class="row g-4">
+            @foreach (var recipe in recipes)
+      {
+ <div class="col-md-4" data-animate>
+              <div class="card shadow-sm border-glow recipe-card h-100 fv-surface">
+     @if (!string.IsNullOrEmpty(recipe.ImageUrl))
+                  {
+        <div class="recipe-cover" style="background:linear-gradient(135deg,rgba(76,175,80,0.1),rgba(255,152,0,0.08)),url('@recipe.ImageUrl') center/cover" aria-hidden="true"></div>
+     }
+     else
+    {
+                <div class="recipe-cover" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1)" aria-hidden="true"></div>
+               }
+             
+  <div class="card-body d-flex flex-column fv-text">
+           <div class="fw-semibold mb-1">@recipe.Title</div>
+     <div class="text-muted small mb-2">@recipe.PrepTime • @recipe.Calories • @recipe.Difficulty</div>
+   <p class="small text-muted mb-3">@recipe.Summary</p>
+          
   <div class="mt-auto">
-     <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
-      data-title="Izgara Tavuklu Fit Salata"
-      data-prep="15 dk" data-cal="380 kcal" data-diff="Kolay"
-        data-summary="Protein dengeli, pratik öğle yemeği."
-          data-tags="öğle|protein|glutensiz"
-    data-ingredients="120 g tavuk göğüs|Karışık yeşillik|Cherry domates|1/2 avokado|1 yk zeytinyağı|1/2 limon"
-       data-steps="Tavuğu zeytinyağı ve baharatla marine edin.|Izgarada pişirin ve dilimleyin.|Yeşilliklerle karıştırıp soslayın.">Daha Fazla</a>
-            </div>
-          </div>
+           <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
+   data-title="@recipe.Title"
+     data-prep="@recipe.PrepTime" 
+  data-cal="@recipe.Calories" 
+    data-diff="@recipe.Difficulty"
+  data-summary="@recipe.Summary"
+              data-tags="@string.Join("|", recipe.RecipeTags.Select(rt => rt.Tag.Name))"
+               data-ingredients="@string.Join("|", recipe.Ingredients.OrderBy(i => i.DisplayOrder).Select(i => i.Name))"
+               data-steps="@string.Join("|", recipe.Steps.OrderBy(s => s.StepNumber).Select(s => s.Description))">
+          Daha Fazla
+      </a>
+              </div>
+   </div>
+  </div>
+ </div>
+            }
+        </div>
+    }
+ else
+    {
+   <div class="row g-4">
+            <div class="col-md-4" data-animate>
+      <div class="card shadow-sm border-glow recipe-card h-100 fv-surface">
+             <div class="recipe-cover" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1)" aria-hidden="true"></div>
+    <div class="card-body d-flex flex-column fv-text">
+      <div class="fw-semibold mb-1">Yulaflı Meyveli Kahvaltı Kasesi</div>
+              <div class="text-muted small mb-2">10 dk • 320 kcal • Kolay</div>
+              <p class="small text-muted mb-3">Lif zengini, hızlı ve doyurucu kahvaltı.</p>
+              <div class="mt-auto">
+  <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
+        data-title="Yulaflı Meyveli Kahvaltı Kasesi"
+              data-prep="10 dk" data-cal="320 kcal" data-diff="Kolay"
+             data-summary="Lif zengini, hızlı ve doyurucu kahvaltı."
+  data-tags="kahvaltı|lif|vegan"
+        data-ingredients="1/2 su bardağı yulaf|1/2 su bardağı süt/yoğurt|1/2 muz|Çilek/ yaban mersini|1 yk ceviz|Tarçın veya bal"
+       data-steps="Yulafı süt/yoğurtla karıştırın.|Üzerine meyve ve kuruyemiş ekleyin.|Bal veya tarçın ile tatlandırın.">Daha Fazla</a>
+           </div>
      </div>
-      </div>
+        </div>
+            </div>
+     <div class="col-md-4" data-animate>
+           <div class="card shadow-sm border-glow recipe-card h-100 fv-surface">
+     <div class="recipe-cover" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1)" aria-hidden="true"></div>
+          <div class="card-body d-flex flex-column fv-text">
+      <div class="fw-semibold mb-1">Izgara Tavuklu Fit Salata</div>
+   <div class="text-muted small mb-2">15 dk • 380 kcal • Kolay</div>
+ <p class="small text-muted mb-3">Protein dengeli, pratik öğle yemeği.</p>
+           <div class="mt-auto">
+<a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
+     data-title="Izgara Tavuklu Fit Salata"
+    data-prep="15 dk" data-cal="380 kcal" data-diff="Kolay"
+                  data-summary="Protein dengeli, pratik öğle yemeği."
+         data-tags="öğle|protein|glutensiz"
+  data-ingredients="120 g tavuk göğüs|Karışık yeşillik|Cherry domates|1/2 avokado|1 yk zeytinyağı|1/2 limon"
+    data-steps="Tavuğu zeytinyağı ve baharatla marine edin.|Izgarada pişirin ve dilimleyin.|Yeşilliklerle karıştırıp soslayın.">Daha Fazla</a>
+       </div>
+    </div>
+           </div>
+         </div>
    <div class="col-md-4" data-animate>
-        <div class="card shadow-sm border-glow recipe-card h-100 fv-surface">
-          <div class="recipe-cover" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1)" aria-hidden="true"></div>
-     <div class="card-body d-flex flex-column fv-text">
-  <div class="fw-semibold mb-1">Fırında Sebzeli Somon</div>
-       <div class="text-muted small mb-2">20 dk • 420 kcal • Orta</div>
-        <p class="small text-muted mb-3">Omega-3 kaynağı, akşam yemeği.</p>
-    <div class="mt-auto">
+       <div class="card shadow-sm border-glow recipe-card h-100 fv-surface">
+    <div class="recipe-cover" style="background:linear-gradient(135deg,#E8F5E9,#FFF8E1)" aria-hidden="true"></div>
+      <div class="card-body d-flex flex-column fv-text">
+    <div class="fw-semibold mb-1">Fırında Sebzeli Somon</div>
+     <div class="text-muted small mb-2">20 dk • 420 kcal • Orta</div>
+      <p class="small text-muted mb-3">Omega-3 kaynağı, akşam yemeği.</p>
+             <div class="mt-auto">
               <a href="#" class="btn btn-sm btn-outline-secondary js-recipe-open"
      data-title="Fırında Sebzeli Somon"
-           data-prep="20 dk" data-cal="420 kcal" data-diff="Orta"
-        data-summary="Omega-3 kaynağı, akşam yemeği."
-            data-tags="akşam|omega-3|düşük-karbonhidrat"
-       data-ingredients="1 dilim somon|Brokoli, havuç, kabak|1 yk zeytinyağı|Limon, tuz, karabiber"
-   data-steps="Somonu limon ve baharatla ovun.|Sebzeleri doğrayıp tepsiye dizin.|200°C fırında 15-18 dk pişirin.">Daha Fazla</a>
-      </div>
-          </div>
+        data-prep="20 dk" data-cal="420 kcal" data-diff="Orta"
+           data-summary="Omega-3 kaynağı, akşam yemeği."
+       data-tags="akşam|omega-3|düşük-karbonhidrat"
+           data-ingredients="1 dilim somon|Brokoli, havuç, kabak|1 yk zeytinyağı|Limon, tuz, karabiber"
+         data-steps="Somonu limon ve baharatla ovun.|Sebzeleri doğrayıp tepsiye dizin.|200°C fırında 15-18 dk pişirin.">Daha Fazla</a>
+       </div>
+            </div>
+     </div>
+     </div>
         </div>
-      </div>
-    </div>
+    }
   </div>
 </section>
 

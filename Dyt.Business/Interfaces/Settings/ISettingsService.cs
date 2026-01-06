@@ -1,22 +1,22 @@
-ï»¿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dyt.Contracts.Settings;
-using Dyt.Contracts.Settings.Responses; // Ayar DTO'larÄ±nÄ± kullanmak iÃ§in ekliyorum
+using Dyt.Contracts.Settings.Responses; // Ayar DTO'larını kullanmak için ekliyorum
 
-namespace Dyt.Business.Interfaces.Settings // Ayarlar servisleri iÃ§in ad alanÄ±nÄ± tanÄ±mlÄ±yorum
+namespace Dyt.Business.Interfaces.Settings // Ayarlar servisleri için ad alanını tanımlıyorum
 {
     /// <summary>
-    /// Uygulama genel ayarlarÄ±nÄ±n okunmasÄ± ve gÃ¼ncellenmesi iÃ§in servis sÃ¶zleÅŸmesi.
+    /// Uygulama genel ayarlarının okunması ve güncellenmesi için servis sözleşmesi.
     /// </summary>
-    public interface ISettingsService // Ayar servisi arayÃ¼zÃ¼
+    public interface ISettingsService // Ayar servisi arayüzü
     {
-        Task<SystemSettingDto?> GetAsync(string key, CancellationToken ct = default); // Anahtara gÃ¶re ayar deÄŸeri getiren metodu bildiriyorum
-        Task<bool> SetAsync(string key, string value, CancellationToken ct = default); // Anahtara gÃ¶re ayar deÄŸerini gÃ¼ncelleyen/ekleyen metodu bildiriyorum
-        int GetReminderHoursBeforeDefault(); // VarsayÄ±lan hatÄ±rlatma saatini dÃ¶nen yardÄ±mcÄ± metodu bildiriyorum
-        int GetTwoHourAlertBeforeDefault(); // VarsayÄ±lan 2 saat uyarÄ± sÃ¼resini dÃ¶nen yardÄ±mcÄ± metodu bildiriyorum
+        Task<SystemSettingDto?> GetAsync(string key, CancellationToken ct = default); // Anahtara göre ayar değeri getiren metodu bildiriyorum
+        Task<bool> SetAsync(string key, string value, CancellationToken ct = default); // Anahtara göre ayar değerini güncelleyen/ekleyen metodu bildiriyorum
+        int GetReminderHoursBeforeDefault(); // Varsayılan hatırlatma saatini dönen yardımcı metodu bildiriyorum
+        int GetTwoHourAlertBeforeDefault(); // Varsayılan 2 saat uyarı süresini dönen yardımcı metodu bildiriyorum
     }
 }
 

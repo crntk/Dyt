@@ -251,8 +251,8 @@ namespace Dyt.Business.Services.Appointments // Servis implementasyonlarının a
             // Toplam kayıt sayısını alıyorum (sayfalama için)
             var total = await q.CountAsync(ct); // Toplam adedi sayıyorum
 
-            // Varsayılan sıralama: en yakın randevu en üstte olacak şekilde tarih/saat
-            q = q.OrderBy(a => a.AppointmentDate).ThenBy(a => a.StartTime); // Tarih ve saat bazlı sıralama yapıyorum
+            // Varsayılan sıralama: en yeni randevu en üstte olacak şekilde tarih/saat (ters sıralı)
+            q = q.OrderByDescending(a => a.AppointmentDate).ThenByDescending(a => a.StartTime); // Tarih ve saat bazlı ters sıralama yapıyorum
 
             // Sayfalama hesapları
             var page = request.Page <= 0 ? 1 : request.Page; // Sayfa 1'den küçükse 1 yapıyorum

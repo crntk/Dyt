@@ -7,48 +7,505 @@
 @model Dyt.Contracts.Appointments.Responses.AppointmentDto
 
 @{
-    // Sayfa başlığını ayarlıyorum
     ViewData["Title"] = "Randevu Detayı";
+  ViewData["FvEnable"] = true;
 }
 
-<div class="container" style="max-width:720px;margin:40px auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;">
-    <h1 style="font-size:22px;margin:0 0 16px 0;">Randevu Detayı</h1>
+<style>
+  :root {
+    --brand: #4CAF50;
+    --brand-orange: #FF9800;
+    --brand-light: #81C784;
+  }
 
-    <dl style="display:grid;grid-template-columns:160px 1fr;gap:8px 16px;">
-        <dt>Tarih</dt>
-        <dd>@Model.Date.ToString("yyyy-MM-dd")</dd>
+  /* Global emoji and icon font support */
+  * {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, 
+ "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !important;
+  }
 
-        <dt>Başlangıç</dt>
-        <dd>@Model.StartTime.ToString("HH\\:mm")</dd>
+  .appointment-hero {
+position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+      radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+    padding: 48px 0 32px;
+    margin-bottom: 32px;
+  }
 
-        <dt>Bitiş</dt>
-        <dd>@Model.EndTime.ToString("HH\\:mm")</dd>
+  .appointment-hero:before {
+ content: "";
+    position: absolute;
+    inset: -20%;
+    background:
+  radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+      radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size: 32px 32px, 64px 64px;
+    background-position: 0 0, 16px 16px;
+    opacity: .4;
+    animation: dotMove 25s linear infinite;
+  }
 
-        <dt>Görüşme Türü</dt>
-        <dd>@(string.IsNullOrWhiteSpace(Model.Channel) ? "—" : Model.Channel)</dd>
+  @@keyframes dotMove {
+    from { transform: translate(0,0); }
+    to { transform: translate(32px,32px); }
+  }
 
-        <dt>Danışan</dt>
-        <dd>@Model.ClientName</dd>
+  .appointment-card {
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(76,175,80,.12);
+    overflow: hidden;
+    margin: 0 auto;
+    max-width: 800px;
+    border: 1px solid rgba(76,175,80,.15);
+  }
 
-        <dt>Telefon</dt>
-        <dd>@Model.ClientPhone</dd>
+  .appointment-header {
+    background: linear-gradient(135deg, #4CAF50, #81C784);
+    padding: 32px;
+    text-align: center;
+    color: white;
+    position: relative;
+  }
 
-        @if (!string.IsNullOrWhiteSpace(Model.ClientEmail))
-        {
-            <dt>E-posta</dt>
-            <dd>@Model.ClientEmail</dd>
-        }
+  .appointment-header::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+  left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(135deg, #4CAF50, #81C784);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 50%, 0 100%);
+  }
 
-        <dt>Durum</dt>
-        <dd>@Model.Status</dd>
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+    background: rgba(255,255,255,.2);
+    border-radius: 50%;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+    animation: scaleIn 0.5s ease;
+  }
 
-        <dt>Onay</dt>
-        <dd>@Model.ConfirmationState</dd>
-    </dl>
+  @@keyframes scaleIn {
+ from {
+      transform: scale(0);
+opacity: 0;
+    }
+  to {
+      transform: scale(1);
+      opacity: 1;
+ }
+  }
 
-    <div style="margin-top:16px;">
-        <a href="~/" style="display:inline-block;padding:10px 16px;border-radius:8px;border:1px solid #e5e7eb;text-decoration:none;">
-            Ana sayfa
-        </a>
+  .success-icon svg {
+    width: 48px;
+  height: 48px;
+ fill: white;
+  }
+
+  .appointment-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+  }
+
+  .appointment-header p {
+    font-size: 16px;
+    margin: 0;
+    opacity: 0.95;
+  }
+
+  .appointment-body {
+  padding: 48px 32px 32px;
+  }
+
+  .info-grid {
+    display: grid;
+ gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .info-item {
+display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+border-radius: 16px;
+  background: linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border: 2px solid rgba(76,175,80,.15);
+    transition: all 0.3s ease;
+  }
+
+.info-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(76,175,80,.15);
+    border-color: #4CAF50;
+  }
+
+  .info-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+ justify-content: center;
+ flex-shrink: 0;
+    background: linear-gradient(135deg, #4CAF50, #81C784);
+    box-shadow: 0 4px 12px rgba(76,175,80,.3);
+  }
+
+  .info-icon svg {
+    width: 24px;
+ height: 24px;
+    fill: white;
+  }
+
+.info-content {
+    flex: 1;
+  }
+
+  .info-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  }
+
+  .info-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .status-badge.pending {
+    background: linear-gradient(135deg, #FF9800, #FFB74D);
+    color: white;
+    box-shadow: 0 4px 12px rgba(255,152,0,.3);
+  }
+
+  .status-badge.confirmed {
+    background: linear-gradient(135deg, #4CAF50, #81C784);
+    color: white;
+    box-shadow: 0 4px 12px rgba(76,175,80,.3);
+  }
+
+  .status-badge.cancelled {
+    background: linear-gradient(135deg, #F44336, #E57373);
+    color: white;
+    box-shadow: 0 4px 12px rgba(244,67,54,.3);
+  }
+
+  .action-buttons {
+  display: flex;
+    gap: 12px;
+ flex-wrap: wrap;
+  }
+
+  .btn-modern {
+    flex: 1;
+    min-width: 200px;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 15px;
+ text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+  border: none;
+  }
+
+  .btn-primary-modern {
+    background: linear-gradient(135deg, #4CAF50, #81C784);
+    color: white;
+    box-shadow: 0 4px 12px rgba(76,175,80,.3);
+  }
+
+  .btn-primary-modern:hover {
+    background: linear-gradient(135deg, #388E3C, #4CAF50);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76,175,80,.5);
+    color: white;
+  }
+
+  .btn-secondary-modern {
+    background: white;
+  color: #4CAF50;
+    border: 2px solid rgba(76,175,80,.3);
+  }
+
+  .btn-secondary-modern:hover {
+    background: linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border-color: #4CAF50;
+    transform: translateY(-2px);
+ box-shadow: 0 6px 16px rgba(76,175,80,.15);
+  color: #4CAF50;
+  }
+
+  .appointment-footer {
+    background: linear-gradient(135deg, rgba(76,175,80,.06), rgba(255,152,0,.04));
+    padding: 24px 32px;
+    border-top: 2px solid rgba(76,175,80,.1);
+    text-align: center;
+  }
+
+  .footer-note {
+    display: flex;
+ align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .footer-note svg {
+  width: 20px;
+    height: 20px;
+    fill: #4CAF50;
+  }
+
+  @@media (max-width: 768px) {
+    .appointment-hero {
+      padding: 32px 0 24px;
+    }
+
+    .appointment-header {
+   padding: 24px;
+    }
+
+    .appointment-header h1 {
+      font-size: 24px;
+    }
+
+    .appointment-body {
+      padding: 32px 20px 20px;
+    }
+
+  .info-item {
+      padding: 16px;
+    }
+
+    .info-icon {
+    width: 40px;
+    height: 40px;
+    }
+
+    .info-icon svg {
+   width: 20px;
+   height: 20px;
+    }
+
+    .info-value {
+      font-size: 16px;
+    }
+
+    .action-buttons {
+    flex-direction: column;
+}
+
+    .btn-modern {
+    width: 100%;
+    min-width: auto;
+  }
+
+    .appointment-footer {
+      padding: 20px;
+    }
+  }
+
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  [data-reveal].in {
+ opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+
+<section class="appointment-hero fv-nobg">
+  <div class="container position-relative" style="z-index:1">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+ <div class="text-center fv-text" data-reveal>
+     <h1 class="display-5 fw-bold mb-2">✅ Randevunuz Oluşturuldu</h1>
+          <p class="lead mb-0">Randevu detaylarınızı aşağıda inceleyebilirsiniz</p>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
+
+<div class="container pb-5">
+  <div class="appointment-card fv-surface-strong fv-text" data-reveal>
+    <div class="appointment-header">
+      <div class="success-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+    </svg>
+    </div>
+      <h1>Randevu Başarıyla Oluşturuldu</h1>
+      <p>Randevu onayı için tarafınıza kısa süre içinde dönüş yapılacaktır</p>
+    </div>
+
+    <div class="appointment-body">
+   <div class="info-grid">
+        <div class="info-item">
+   <div class="info-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+    </svg>
+       </div>
+ <div class="info-content">
+  <div class="info-label">📅 Randevu Tarihi</div>
+<div class="info-value">@Model.Date.ToString("dd MMMM yyyy, dddd")</div>
+          </div>
+        </div>
+
+        <div class="info-item">
+    <div class="info-icon">
+     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+  </svg>
+        </div>
+      <div class="info-content">
+      <div class="info-label">🕐 Saat Aralığı</div>
+<div class="info-value">@Model.StartTime.ToString("HH:mm") - @Model.EndTime.ToString("HH:mm")</div>
+     </div>
+        </div>
+
+      @if (!string.IsNullOrWhiteSpace(Model.Channel))
+        {
+    <div class="info-item">
+<div class="info-icon" style="background: linear-gradient(135deg, #FF9800, #FFB74D);">
+       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+   </svg>
+   </div>
+     <div class="info-content">
+  <div class="info-label">💬 Görüşme Türü</div>
+       <div class="info-value">@Model.Channel</div>
+       </div>
 </div>
+    }
+
+        <div class="info-item">
+     <div class="info-icon" style="background: linear-gradient(135deg, #2196F3, #64B5F6);">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+       </svg>
+          </div>
+   <div class="info-content">
+      <div class="info-label">👤 Danışan Bilgileri</div>
+ <div class="info-value">@Model.ClientName</div>
+     <div style="font-size: 14px; color: #666; margin-top: 4px;">📞 @Model.ClientPhone</div>
+      @if (!string.IsNullOrWhiteSpace(Model.ClientEmail))
+{
+ <div style="font-size: 14px; color: #666; margin-top: 2px;">📧 @Model.ClientEmail</div>
+   }
+          </div>
+        </div>
+
+        <div class="info-item">
+        <div class="info-icon" style="background: linear-gradient(135deg, #9C27B0, #BA68C8);">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+   </svg>
+        </div>
+   <div class="info-content">
+     <div class="info-label">📊 Durum</div>
+        <div class="info-value">
+     <span class="status-badge @(Model.Status.ToLower() == "confirmed" ? "confirmed" : Model.Status.ToLower() == "cancelled" ? "cancelled" : "pending")">
+       @if (Model.Status.ToLower() == "confirmed")
+       {
+   <text>✓ Onaylandı</text>
+  }
+    else if (Model.Status.ToLower() == "cancelled")
+     {
+    <text>✗ İptal Edildi</text>
+ }
+  else
+     {
+    <text>⏳ @Model.Status</text>
+      }
+    </span>
+          </div>
+            <div style="font-size: 14px; color: #666; margin-top: 8px;">
+  Onay Durumu: <strong>@Model.ConfirmationState</strong>
+  </div>
+    </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <a href="~/" class="btn-modern btn-primary-modern">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor">
+ <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+  </svg>
+          Ana Sayfaya Dön
+        </a>
+<a href="~/Contact" class="btn-modern btn-secondary-modern">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor">
+    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+    </svg>
+          İletişime Geç
+        </a>
+  </div>
+    </div>
+
+    <div class="appointment-footer">
+  <p class="footer-note">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+ </svg>
+        <span>Randevu değişikliği veya iptal için lütfen bizimle iletişime geçin</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+(function(){
+  // Reveal animation
+  const reveals = [...document.querySelectorAll('[data-reveal]')];
+  if('IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries) => {
+  entries.forEach(en => {
+        if(en.isIntersecting){
+       setTimeout(() => en.target.classList.add('in'), 100);
+          io.unobserve(en.target);
+   }
+  });
+    }, {threshold: .1, rootMargin: '0px 0px -50px 0px'});
+    reveals.forEach(e => io.observe(e));
+  } else {
+    reveals.forEach(e => e.classList.add('in'));
+  }
+})();
+</script>
+}

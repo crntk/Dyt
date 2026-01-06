@@ -304,7 +304,7 @@ max-width:100%;
   /* Empty State */
   .empty-state{
     text-align:center;
-    padding:60px 20px;
+padding:60px 20px;
     color:#94a3b8;
   }
   .empty-state-icon{
@@ -312,13 +312,166 @@ max-width:100%;
     margin-bottom:16px;
     opacity:.5;
   }
+
+  /* Popular Tags Section */
+  .popular-tags-reminder{
+    background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border:2px solid rgba(76,175,80,.2);
+    border-radius:18px;
+ padding:20px 24px;
+    margin-top:16px;
+  }
+  .popular-tags-reminder-header{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .popular-tags-reminder-icon{
+    font-size:20px;
+  }
+  .popular-tags-reminder-title{
+    font-weight:700;
+    font-size:16px;
+    color:#1e293b;
+    margin:0;
+  }
+  .popular-tags-reminder-subtitle{
+font-size:13px;
+    color:#64748b;
+    margin:0;
+  }
+  .popular-tags-list{
+ display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .popular-tag{
+    display:inline-flex;
+    align-items:center;
+ gap:6px;
+    padding:8px 14px;
+    background:#fff;
+  border:2px solid rgba(76,175,80,.2);
+    border-radius:999px;
+    font-size:13px;
+  font-weight:600;
+  color:#1e293b;
+    transition:all .3s ease;
+    cursor:pointer;
+  }
+  .popular-tag:hover{
+    border-color:#4CAF50;
+  background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+    transform:translateY(-2px);
+    box-shadow:0 4px 12px rgba(76,175,80,.15);
+  }
+  .popular-tag:active{
+    transform:scale(0.95);
+  }
+  .popular-tag-icon{
+    font-size:14px;
+  }
+
+  /* Emoji Picker Styles */
+  .emoji-picker-btn{
+    position:absolute;
+    right:10px;
+ bottom:10px;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    border:2px solid rgba(76,175,80,.3);
+    background:#fff;
+    color:#4CAF50;
+    font-size:20px;
+    cursor:pointer;
+    display:flex;
+  align-items:center;
+    justify-content:center;
+    transition:all .3s ease;
+    z-index:5;
+  }
+  .emoji-picker-btn:hover{
+    background:rgba(76,175,80,.1);
+    border-color:#4CAF50;
+    transform:scale(1.1);
+  }
+  .emoji-picker-container{
+    position:relative;
+  }
+  .emoji-picker-popup{
+    position:absolute;
+    bottom:45px;
+    right:0;
+    background:#fff;
+    border:2px solid rgba(76,175,80,.3);
+    border-radius:16px;
+    box-shadow:0 12px 40px rgba(0,0,0,.15);
+padding:12px;
+    width:320px;
+    max-height:280px;
+    overflow-y:auto;
+  display:none;
+    z-index:1000;
+  }
+  .emoji-picker-popup.show{
+    display:block;
+    animation:slideUpFade .3s ease;
+  }
+  @@keyframes slideUpFade{
+    from{
+      opacity:0;
+      transform:translateY(10px);
+    }
+    to{
+  opacity:1;
+      transform:translateY(0);
+    }
+  }
+  .emoji-picker-header{
+    font-size:13px;
+  font-weight:700;
+    color:#4CAF50;
+    margin-bottom:10px;
+    padding-bottom:8px;
+    border-bottom:2px solid rgba(76,175,80,.15);
+  }
+  .emoji-grid{
+    display:grid;
+    grid-template-columns:repeat(8, 1fr);
+    gap:4px;
+  }
+  .emoji-item{
+    width:32px;
+    height:32px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    cursor:pointer;
+    border-radius:8px;
+    transition:all .2s ease;
+  }
+  .emoji-item:hover{
+    background:rgba(76,175,80,.15);
+    transform:scale(1.2);
+  }
+  .emoji-category{
+    font-size:11px;
+    font-weight:600;
+    color:#64748b;
+    margin:10px 0 6px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
 </style>
 
 <!-- Hero -->
 <section class="blog-hero">
   <div class="container position-relative" style="z-index:1">
-    <div class="text-center" data-reveal>
-      <h1 class="display-5 fw-bold mb-3">📝 Blog Yönetimi</h1>
+ <div class="text-center" data-reveal>
+      <h1 class="display-5 fw-bold mb-3">@Html.Raw("&#128221;") Blog Yönetimi</h1>
       <p class="lead mb-0">Fotoğraf ve makale paylaşın, içeriklerinizi yönetin</p>
     </div>
   </div>
@@ -328,22 +481,22 @@ max-width:100%;
   <!-- Statistics -->
   <div class="row g-4 mb-5" data-reveal>
     <div class="col-md-4">
-    <div class="stat-card">
-        <div class="stat-icon">📊</div>
+  <div class="stat-card">
+        <div class="stat-icon">@Html.Raw("&#128202;")</div>
         <div class="stat-number">@Model.Count</div>
         <div class="stat-label">Toplam Paylaşım</div>
       </div>
     </div>
     <div class="col-md-4">
-      <div class="stat-card">
-   <div class="stat-icon">📸</div>
+   <div class="stat-card">
+   <div class="stat-icon">@Html.Raw("&#128248;")</div>
    <div class="stat-number">@photoCount</div>
         <div class="stat-label">Görsel Paylaşımı</div>
   </div>
     </div>
     <div class="col-md-4">
       <div class="stat-card">
-        <div class="stat-icon">📰</div>
+        <div class="stat-icon">@Html.Raw("&#128240;")</div>
    <div class="stat-number">@articleCount</div>
         <div class="stat-label">Makale Paylaşımı</div>
       </div>
@@ -354,319 +507,594 @@ max-width:100%;
   <div class="row g-4 mb-5" data-reveal>
     <!-- Photo Share -->
     <div class="col-lg-6">
-      <div class="share-card">
-      <div class="d-flex align-items-center gap-2 mb-3">
-          <span style="font-size:32px;">📸</span>
-          <div>
-      <h5 class="mb-0 fw-bold">Fotoğraf Paylaş</h5>
- <small class="text-muted">Instagram tarzı görsel paylaşımı</small>
-          </div>
-   </div>
-        <form id="formPhoto" enctype="multipart/form-data">
-          @Html.AntiForgeryToken()
-          <div class="mb-3">
-       <label class="form-label fw-semibold">📷 Görsel Seçin</label>
-        <input type="file" name="image" accept="image/*" class="form-control" required />
+<div class="share-card">
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <span style="font-size:32px;">@Html.Raw("&#128248;")</span>
+<div>
+  <h5 class="mb-0 fw-bold">Fotoğraf Paylaş</h5>
+     <small class="text-muted">Instagram tarzı görsel paylaşımı</small>
+      </div>
     </div>
-       <div class="mb-3">
-        <label class="form-label fw-semibold">💬 Açıklama (opsiyonel)</label>
-         <textarea name="caption" rows="3" class="form-control" placeholder="Görsele açıklama ekleyin..." maxlength="500"></textarea>
-          </div>
-   <button class="btn btn-primary w-100" type="submit">
-       <span class="btn-text">✨ Paylaş</span>
-    <span class="spinner-border spinner-border-sm d-none" role="status"></span>
-       </button>
-          <div class="progress-wrap d-none">
-   <div class="progress-bar"></div>
-      </div>
-        </form>
-      </div>
+ <form id="formPhoto" enctype="multipart/form-data">
+@Html.AntiForgeryToken()
+    <div class="mb-3">
+     <label for="photoImage" class="form-label fw-semibold">@Html.Raw("&#128247;") Görsel Seçin</label>
+  <input type="file" id="photoImage" name="image" accept="image/*" class="form-control" required />
+   </div>
+       <div class="mb-3 emoji-picker-container">
+   <label for="photoCaption" class="form-label fw-semibold">@Html.Raw("&#128172;") Açıklama (opsiyonel)</label>
+    <textarea id="photoCaption" name="caption" rows="3" class="form-control" placeholder="Görsele açıklama ekleyin..." maxlength="500" style="padding-right:50px"></textarea>
+      <button type="button" class="emoji-picker-btn" data-target="photoCaption" title="Emoji ekle">😊</button>
+  <div class="emoji-picker-popup" id="emojiPickerPhoto"></div>
+       </div>
+<button class="btn btn-primary w-100" type="submit">
+ <span class="btn-text">@Html.Raw("&#10024;") Paylaş</span>
+  <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+        </button>
+    <div class="progress-wrap d-none">
+ <div class="progress-bar"></div>
+    </div>
+ </form>
+  </div>
     </div>
 
-    <!-- Article Share -->
+  <!-- Article Share -->
     <div class="col-lg-6">
-  <div class="share-card">
-      <div class="d-flex align-items-center gap-2 mb-3">
-      <span style="font-size:32px;">📰</span>
-          <div>
-            <h5 class="mb-0 fw-bold">Makale Paylaş</h5>
-      <small class="text-muted">Detaylı blog yazısı oluşturun</small>
- </div>
-        </div>
-    <form id="formArticle" enctype="multipart/form-data">
-       @Html.AntiForgeryToken()
-          <div class="mb-3">
-     <label class="form-label fw-semibold">📌 Başlık</label>
-   <input name="title" class="form-control" placeholder="Makale başlığı" required />
-     </div>
-          <div class="mb-3">
-    <label class="form-label fw-semibold">✨ Kısa Özet</label>
-          <input name="summary" class="form-control" placeholder="Kısa açıklama" required />
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">📝 İçerik (Markdown)</label>
-      <textarea name="contentMarkdown" rows="4" class="form-control" placeholder="Makale içeriği..." required></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">🖼️ Kapak Görseli (opsiyonel)</label>
-            <input type="file" name="cover" accept="image/*" class="form-control" />
+   <div class="share-card">
+  <div class="d-flex align-items-center gap-2 mb-3">
+   <span style="font-size:32px;">@Html.Raw("&#128240;")</span>
+  <div>
+    <h5 class="mb-0 fw-bold">Makale Paylaş</h5>
+ <small class="text-muted">Detaylı blog yazısı oluşturun</small>
+</div>
+      </div>
+  <form id="formArticle" enctype="multipart/form-data">
+      @Html.AntiForgeryToken()
+ <div class="mb-3">
+   <label for="articleTitle" class="form-label fw-semibold">@Html.Raw("&#128204;") Başlık</label>
+     <input id="articleTitle" name="title" class="form-control" placeholder="Makale başlığı" required />
   </div>
-   <button class="btn btn-primary w-100" type="submit">
-            <span class="btn-text">🚀 Yayınla</span>
-            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
-          </button>
-   <div class="progress-wrap d-none">
-            <div class="progress-bar"></div>
+  <div class="mb-3">
+   <label for="articleSummary" class="form-label fw-semibold">@Html.Raw("&#10024;") Kısa Özet</label>
+          <input id="articleSummary" name="summary" class="form-control" placeholder="Kısa açıklama" required />
           </div>
-        </form>
+  <div class="mb-3 emoji-picker-container">
+<label for="articleContent" class="form-label fw-semibold">@Html.Raw("&#128221;") İçerik (Markdown)</label>
+            <textarea id="articleContent" name="contentMarkdown" rows="4" class="form-control" placeholder="Makale içeriği..." required style="padding-right:50px"></textarea>
+ <button type="button" class="emoji-picker-btn" data-target="articleContent" title="Emoji ekle">😊</button>
+    <div class="emoji-picker-popup" id="emojiPickerArticle"></div>
+   </div>
+<div class="mb-3">
+     <label for="articleCover" class="form-label fw-semibold">@Html.Raw("&#128444;&#65039;") Kapak Görseli (opsiyonel)</label>
+      <input type="file" id="articleCover" name="cover" accept="image/*" class="form-control" />
+   </div>
+      <button class="btn btn-primary w-100" type="submit">
+      <span class="btn-text">@Html.Raw("&#128640;") Yayınla</span>
+ <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+     </button>
+  <div class="progress-wrap d-none">
+<div class="progress-bar"></div>
+      </div>
+     </form>
+  </div>
+    </div>
+  </div>
+
+  <!-- Popular Tags Reminder - Her İki Formun Altında -->
+  <div class="row g-4 mb-5" data-reveal>
+    <div class="col-12">
+      <div class="popular-tags-reminder">
+        <div class="popular-tags-reminder-header">
+          <span class="popular-tags-reminder-icon">@Html.Raw("&#127991;")</span>
+        <div>
+        <h6 class="popular-tags-reminder-title">Popüler Etiketler</h6>
+<p class="popular-tags-reminder-subtitle">İçeriğinize etiket eklemek için aşağıdaki etiketlere tıklayın</p>
+    </div>
+        </div>
+        <div class="popular-tags-list">
+       <span class="popular-tag" data-tag="#beslenme">
+  <span class="popular-tag-icon">@Html.Raw("&#127790;")</span>
+            #beslenme
+      </span>
+        <span class="popular-tag" data-tag="#kilo">
+     <span class="popular-tag-icon">@Html.Raw("&#9875;")</span>
+    #kilo
+          </span>
+   <span class="popular-tag" data-tag="#diyet">
+            <span class="popular-tag-icon">@Html.Raw("&#129367;")</span>
+          #diyet
+          </span>
+      <span class="popular-tag" data-tag="#sağlıklı">
+            <span class="popular-tag-icon">@Html.Raw("&#128154;")</span>
+   #sağlıklı
+       </span>
+          <span class="popular-tag" data-tag="#spor">
+            <span class="popular-tag-icon">@Html.Raw("&#127943;")</span>
+            #spor
+          </span>
+  <span class="popular-tag" data-tag="#tarif">
+    <span class="popular-tag-icon">@Html.Raw("&#127859;")</span>
+         #tarif
+          </span>
+      <span class="popular-tag" data-tag="#protein">
+       <span class="popular-tag-icon">@Html.Raw("&#129388;")</span>
+       #protein
+          </span>
+        <span class="popular-tag" data-tag="#vitamin">
+ <span class="popular-tag-icon">@Html.Raw("&#129505;")</span>
+      #vitamin
+          </span>
+          <span class="popular-tag" data-tag="#kahvaltı">
+            <span class="popular-tag-icon">@Html.Raw("&#129472;")</span>
+            #kahvaltı
+</span>
+          <span class="popular-tag" data-tag="#metabolizma">
+  <span class="popular-tag-icon">@Html.Raw("&#128293;")</span>
+            #metabolizma
+          </span>
+          <span class="popular-tag" data-tag="#detoks">
+  <span class="popular-tag-icon">@Html.Raw("&#128293;")</span>
+     #detoks
+        </span>
+    <span class="popular-tag" data-tag="#vegan">
+   <span class="popular-tag-icon">@Html.Raw("&#127793;")</span>
+        #vegan
+     </span>
+     <span class="popular-tag" data-tag="#glutensiz">
+      <span class="popular-tag-icon">@Html.Raw("&#127838;")</span>
+            #glutensiz
+</span>
+          <span class="popular-tag" data-tag="#şeker">
+            <span class="popular-tag-icon">@Html.Raw("&#127852;")</span>
+   #şeker
+          </span>
+          <span class="popular-tag" data-tag="#kolesterol">
+    <span class="popular-tag-icon">@Html.Raw("&#10004;")</span>
+          #kolesterol
+   </span>
+   </div>
       </div>
     </div>
   </div>
 
   <!-- Recent Posts -->
   <div data-reveal>
-    <div class="d-flex align-items-center justify-content-between mb-4">
-      <div>
-        <h5 class="fw-bold mb-1">📚 Son Paylaşımlar</h5>
-  <p class="text-muted small mb-0">Yayınlanan içerikleriniz</p>
+    <h4 class="fw-bold mb-4">📚 Son Paylaşımlar (Son 8)</h4>
+    @if(Model.Count==0){
+      <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h5>Henüz paylaşım yok</h5>
+        <p class="text-muted">Yukarıdaki formlardan ilk paylaşımınızı yapın!</p>
       </div>
-      @if (Model.Any())
-      {
-        <div class="d-flex gap-2">
-          <span class="badge">@photoCount 📸</span>
-      <span class="badge">@articleCount 📰</span>
-        </div>
-      }
-    </div>
-
-    @if (!Model.Any())
-    {
-   <div class="empty-state">
-     <div class="empty-state-icon">📭</div>
-     <h5>Henüz paylaşım yok</h5>
-        <p class="text-muted">Yukarıdaki formları kullanarak ilk içeriğinizi paylaşın</p>
-      </div>
-    }
-    else
-    {
-      <div class="row g-4">
+  } else {
+      <div class="row g-3">
         @foreach(var p in Model){
-       var isPhoto = string.IsNullOrEmpty(p.Title);
-     var cover = p.Media.OrderBy(m=>m.DisplayOrder).FirstOrDefault()?.MediaFile?.Url;
-     <div class="col-md-6 col-lg-4">
-            <div class="post-card js-admin-post-card h-100" 
-         data-id="@p.Id" 
-             data-type="@(isPhoto?"photo":"article")" 
-    data-img="@cover" 
-     data-title="@p.Title" 
-   data-summary="@(string.IsNullOrEmpty(p.Summary) ? p.ContentMarkdown : p.Summary)" 
-         data-slug="@p.Slug">
-        <div class="post-card-header">
-         <div class="text-muted small post-type">
-    <span>@(isPhoto ? "📸 Görsel" : "📰 Makale")</span>
-          </div>
-   <div class="text-muted small">
-             @((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd.MM.yyyy HH:mm"))
-        </div>
-   </div>
-          <div class="post-card-body">
-  @if(!string.IsNullOrEmpty(p.Title)){
-               <div class="post-title">@p.Title</div>
-    }
-         <div class="post-summary">@(string.IsNullOrEmpty(p.Summary) ? p.ContentMarkdown : p.Summary)</div>
-              </div>
-         </div>
+       <div class="col-md-6 col-lg-4">
+            <div class="post-card" onclick="@(string.IsNullOrEmpty(p.Title) ? $"openLightbox({p.Id})" : $"window.location.href='/blog/{p.Slug}'")">
+   <div class="post-card-header">
+            <span class="post-type">
+         @Html.Raw(string.IsNullOrEmpty(p.Title) ? "&#128248; Fotoğraf" : "&#128240; Makale")
+   </span>
+  <small class="text-muted">@((p.PublishDateUtc ?? p.CreatedAtUtc).ToLocalTime().ToString("dd MMM"))</small>
+  </div>
+              <div class="post-card-body">
+    @if(!string.IsNullOrEmpty(p.Title)){
+                  <div class="post-title">@p.Title</div>
+          <div class="post-summary">@p.Summary</div>
+             } else {
+  <div class="post-summary">@p.Summary</div>
+       }
+     </div>
+       </div>
           </div>
         }
       </div>
-    }
+  }
   </div>
 </div>
 
-<!-- Lightbox -->
-<div class="lb" id="adminPostLightbox" aria-hidden="true">
-  <div class="lb-dialog" role="dialog" aria-modal="true">
-    <button class="lb-close" type="button" aria-label="Kapat">×</button>
+<!-- Lightbox for photos -->
+<div id="lb" class="lb">
+  <div class="lb-dialog">
+    <button class="lb-close" onclick="closeLightbox()">&times;</button>
     <div class="lb-body">
-      <img class="lb-img" alt="Paylaşım görseli" style="display:none" />
-      <div class="lb-article" style="display:none; width:100%;">
-        <div class="lb-title"></div>
-      <div class="lb-text"></div>
-        <div class="mt-4 text-center">
-          <a target="_blank" class="btn btn-primary lb-view-public" href="#">
-            🔗 Sitede Görüntüle
-          </a>
-        </div>
-      </div>
+      <img id="lbImg" class="lb-img" src="" alt="" />
+  <div id="lbText" class="lb-text"></div>
     </div>
   </div>
 </div>
 
 <!-- Toast -->
-<div class="toast" id="toast">
-  <span class="toast-text">✅ Başarıyla paylaşıldı!</span>
-</div>
+<div id="toast" class="toast"></div>
 
 @section Scripts{
 <script>
 (function(){
   // Reveal animation
-  const reveals=[...document.querySelectorAll('[data-reveal]')];
+  const reveals = [...document.querySelectorAll('[data-reveal]')];
   if('IntersectionObserver' in window){
-    const io=new IntersectionObserver((entries)=>{
-   entries.forEach(en=>{ 
-    if(en.isIntersecting){ 
-        setTimeout(()=>en.target.classList.add('in'), 100); 
-       io.unobserve(en.target); 
-        } 
-      });
-    },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
-    reveals.forEach(e=>io.observe(e));
-  } else {
- reveals.forEach(e=>e.classList.add('in'));
-  }
-
-  function submitWithProgress(form, url){
-    const btnText = form.querySelector('.btn-text');
-    const spinner = form.querySelector('.spinner-border');
-    const submitBtn = form.querySelector('button[type="submit"]');
-  
- form.addEventListener('submit', function(e){
-      e.preventDefault();
-      
-      // Button loading state
-      btnText.classList.add('d-none');
-      spinner.classList.remove('d-none');
-      submitBtn.disabled = true;
-      
-      const fd = new FormData(form);
-      const wrap = form.querySelector('.progress-wrap');
-      const bar = form.querySelector('.progress-bar');
-      wrap.classList.remove('d-none');
-      bar.style.width = '0%';
-
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', url);
-      xhr.upload.onprogress = function(ev){
-        if(ev.lengthComputable){
-          const percent = Math.round(ev.loaded / ev.total * 100);
-          bar.style.width = percent + '%';
-}
-      };
-      xhr.onreadystatechange = function(){
-   if(xhr.readyState === 4){
-      btnText.classList.remove('d-none');
-          spinner.classList.add('d-none');
-          submitBtn.disabled = false;
-  
-       try{
-      const resp = JSON.parse(xhr.responseText||'{}');
-    if(resp.ok){
-              bar.style.width = '100%';
-              showToast('✅ Başarıyla paylaşıldı!');
-              setTimeout(()=>{
-          window.location.href = resp.redirect || window.location.href;
-    }, 1000);
-   } else {
-              alert('❌ ' + (resp.message || 'Bir hata oluştu'));
-    wrap.classList.add('d-none');
-      }
-          }catch{
-         alert('❌ Sunucu hatası oluştu');
-        wrap.classList.add('d-none');
-    }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(en => {
+        if(en.isIntersecting){
+  setTimeout(() => en.target.classList.add('in'), 100);
+          io.unobserve(en.target);
         }
-      };
-      xhr.setRequestHeader('X-Requested-With','XMLHttpRequest');
-      xhr.send(fd);
+      });
+    }, {threshold: .1, rootMargin: '0px 0px -50px 0px'});
+    reveals.forEach(e => io.observe(e));
+  } else {
+    reveals.forEach(e => e.classList.add('in'));
+  }
+
+  // Emoji Picker
+  const emojis = {
+    'Yüzler': ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','😵','🤯','🤠','🥳','🥸','😎','🤓','🧐'],
+    'Eller': ['👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','✋','🤚','🖐️','🖖','👋','🤝','🙏','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🫀','🫁','🦷','🦴','👀','👁️','👅','👄'],
+    'Kalpler': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','♥️','💌','💋','💏','💑','👩‍❤️‍👨','👨‍❤️‍👨','👩‍❤️‍👩'],
+    'Yiyecek': ['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶️','🫑','🌽','🥕','🫒','🧄','🧅','🥔','🍠','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕'],
+    'Aktivite': ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🪀','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌','🎿','⛷️','🏂','🪂','🏋️','🤼','🤸','⛹️','🤺','🤾','🏌️','🏇','🧘','🏄','🏊','🤽'],
+'Doğa': ['🌸','🏵️','🌹','🥀','🌺','🌻','🌼','🌷','🌱','🪴','🌲','🌳','🌴','🌵','🌾','🌿','☘️','🍀','🍁','🍂','🍃','🪨','🪵','🔥','💧','🌊','🌬️','☁️','🌤️','⛅','🌥️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌪️','🌫️','🌈','☀️','🌞','⭐','🌟','✨','💫'],
+    'Nesneler': ['📱','💻','⌨️','🖥️','🖨️','🖱️','🖲️','🕹️','🗜️','💾','💿','📀','📼','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🎙️','🎚️','🎛️','🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯️','🪔','🧯','🛢️','💸','💵','💴','💶','💷','🪙'],
+    'Semboller': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','✔️','✅','❌','❎','➕','➖','✖️','➗','💯','💢','💬','👁️‍🗨️','🗯️','💭','🗨️','♠️','♣️','♥️','♦️','🃏','🎴','🀄','🔇','🔈','🔉','🔊','📢','📣','📯','🔔','🔕']
+  };
+
+  // Emoji picker'ı oluştur
+  function createEmojiPicker(pickerId, targetId) {
+    const picker = document.getElementById(pickerId);
+    if(!picker) return;
+
+    let html = '<div class="emoji-picker-header">Emoji Seç</div>';
+    
+    for(const [category, emojiList] of Object.entries(emojis)) {
+  html += `<div class="emoji-category">${category}</div><div class="emoji-grid">`;
+      emojiList.forEach(emoji => {
+        html += `<span class="emoji-item" data-emoji="${emoji}">${emoji}</span>`;
+      });
+      html += '</div>';
+    }
+    
+    picker.innerHTML = html;
+
+    // Emoji seçildiğinde
+    picker.addEventListener('click', function(e) {
+   const emojiItem = e.target.closest('.emoji-item');
+    if(!emojiItem) return;
+
+      const emoji = emojiItem.getAttribute('data-emoji');
+      const target = document.getElementById(targetId);
+      
+      if(target) {
+        const cursorPos = target.selectionStart || target.value.length;
+   const currentValue = target.value || '';
+  
+        // İmlecin bulunduğu yere emoji ekle
+        target.value = currentValue.substring(0, cursorPos) + emoji + currentValue.substring(cursorPos);
+        
+        // İmleci emojinin sonuna getir
+        const newCursorPos = cursorPos + emoji.length;
+ target.setSelectionRange(newCursorPos, newCursorPos);
+        target.focus();
+   
+ // Son aktif formu güncelle (etiketler için)
+        lastActiveForm = target;
+        
+        // Picker'ı kapat
+  picker.classList.remove('show');
+      }
     });
   }
 
-  function showToast(message){
-    const t = document.getElementById('toast');
-    const textEl = t.querySelector('.toast-text');
-    if(textEl) textEl.textContent = message;
-    t.classList.add('show');
-    setTimeout(()=>{
-   t.classList.remove('show');
- }, 3000);
-  }
+  // Emoji picker'ları oluştur
+  createEmojiPicker('emojiPickerPhoto', 'photoCaption');
+  createEmojiPicker('emojiPickerArticle', 'articleContent');
 
-  submitWithProgress(document.getElementById('formPhoto'), '/Admin/BlogAdmin/SharePhoto');
-  submitWithProgress(document.getElementById('formArticle'), '/Admin/BlogAdmin/ShareArticle');
-
-  // Lightbox behavior
-  const lb = document.getElementById('adminPostLightbox');
-  const img = lb.querySelector('.lb-img');
-  const articleBox = lb.querySelector('.lb-article');
-  const titleEl = lb.querySelector('.lb-title');
-  const textEl = lb.querySelector('.lb-text');
-  const viewBtn = lb.querySelector('.lb-view-public');
-
-  function openPhoto(src, text){
-    articleBox.style.display='none';
-    img.style.display='block';
-    img.src = src;
-    img.alt = text || '';
-    lb.classList.add('open');
-    document.body.style.overflow='hidden';
-  }
-
-  function openArticle(title, text, slug, cover){
-    img.style.display='none';
-    if(cover){
-      img.src = cover;
-      img.style.display='block';
- }
-    titleEl.textContent = title || '';
-    textEl.textContent = text || '';
-    viewBtn.href = '/blog/' + slug;
-articleBox.style.display='block';
-    lb.classList.add('open');
-    document.body.style.overflow='hidden';
-  }
-
-  function closeLb(){
-    lb.classList.remove('open');
-    document.body.style.overflow='';
-    img.removeAttribute('src');
-  }
-
-  lb.addEventListener('click', function(e){
-    if(e.target === lb) closeLb();
-  });
-  lb.querySelector('.lb-close').addEventListener('click', closeLb);
-  document.addEventListener('keydown', function(e){
-    if(e.key==='Escape') closeLb();
-  });
-
-  // Post card click handlers
-  document.querySelectorAll('.js-admin-post-card').forEach(card => {
-    card.addEventListener('click', function(){
-      const type = this.getAttribute('data-type');
-      if(type==='photo'){
-        openPhoto(
-    this.getAttribute('data-img'),
-       this.getAttribute('data-summary')
-        );
-      } else {
-        openArticle(
-   this.getAttribute('data-title'),
-          this.getAttribute('data-summary'),
-       this.getAttribute('data-slug'),
-          this.getAttribute('data-img')
-        );
+  // Emoji picker butonları
+  document.querySelectorAll('.emoji-picker-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const container = this.closest('.emoji-picker-container');
+      const popup = container?.querySelector('.emoji-picker-popup');
+      
+      if(popup) {
+        // Tüm diğer picker'ları kapat
+        document.querySelectorAll('.emoji-picker-popup').forEach(p => {
+          if(p !== popup) p.classList.remove('show');
+   });
+        
+        // Bu picker'ı aç/kapat
+   popup.classList.toggle('show');
       }
     });
   });
 
-  // Auto-open when query has open=id
-  const openId = '@(ViewBag.OpenPostId ?? "")';
-  if(openId){
-    const card = document.querySelector('.js-admin-post-card[data-id="' + openId + '"]');
-    if(card){
-      card.click();
+  // Dışarı tıklandığında picker'ı kapat
+  document.addEventListener('click', function(e) {
+    if(!e.target.closest('.emoji-picker-container')) {
+   document.querySelectorAll('.emoji-picker-popup').forEach(p => {
+      p.classList.remove('show');
+      });
     }
+  });
+
+  // Popular tags - Add tag to active form
+  let lastActiveForm = null; // Son aktif olan form alanını takip et
+  
+
+  // Form alanlarına focus olduğunda kaydet
+  document.getElementById('photoCaption')?.addEventListener('focus', function(){
+    lastActiveForm = this;
+  });
+  
+  document.getElementById('articleTitle')?.addEventListener('focus', function(){
+    lastActiveForm = this;
+  });
+  
+  document.getElementById('articleSummary')?.addEventListener('focus', function(){
+  lastActiveForm = this;
+  });
+  
+  document.getElementById('articleContent')?.addEventListener('focus', function(){
+    lastActiveForm = this;
+  });
+
+  // Popüler etiketlere tıklandığında
+  document.querySelectorAll('.popular-tag[data-tag]').forEach(tag => {
+  tag.addEventListener('click', function(){
+      const tagText = this.getAttribute('data-tag') || '';
+ 
+      // Eğer son aktif form varsa oraya ekle
+      if(lastActiveForm){
+        const currentValue = lastActiveForm.value || '';
+        const cursorPos = lastActiveForm.selectionStart || currentValue.length;
+        
+      // İmlecin bulunduğu yere etiketi ekle
+        const newValue = currentValue.substring(0, cursorPos) + 
+        (cursorPos > 0 && currentValue[cursorPos - 1] !== ' ' ? ' ' : '') + 
+        tagText + ' ' + 
+    currentValue.substring(cursorPos);
+        
+        lastActiveForm.value = newValue;
+        
+     // İmleci etiketin sonuna getir
+     const newCursorPos = cursorPos + tagText.length + (cursorPos > 0 && currentValue[cursorPos - 1] !== ' ' ? 2 : 1);
+  lastActiveForm.setSelectionRange(newCursorPos, newCursorPos);
+        lastActiveForm.focus();
+      
+        // Görsel geri bildirim
+   this.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+          this.style.transform = '';
+    }, 200);
+      } else {
+   // Hiçbir form alanı aktif değilse, makale içeriğine varsayılan olarak ekle
+ const articleContent = document.getElementById('articleContent');
+if(articleContent){
+        const currentValue = articleContent.value || '';
+   articleContent.value = currentValue + (currentValue ? ' ' : '') + tagText + ' ';
+   articleContent.focus();
+      lastActiveForm = articleContent;
+        
+          // Görsel geri bildirim
+this.style.transform = 'scale(1.1)';
+          setTimeout(() => {
+      this.style.transform = '';
+  }, 200);
+    }
+ }
+    });
+  });
+
+  // Toast notification
+  function showToast(msg){
+    const toast = document.getElementById('toast');
+  toast.textContent = msg;
+toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+  // Lightbox for photo posts
+  window.openLightbox = function(postId){
+    const post = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Select(p => new {
+      Id = p.Id,
+    Summary = p.Summary,
+      Media = p.Media.OrderBy(m => m.DisplayOrder).Select(m => new { Url = m.MediaFile.Url }).ToList()
+    })));
+    const p = post.find(x => x.Id === postId);
+    if(!p || !p.Media || p.Media.length === 0) return;
+    document.getElementById('lbImg').src = p.Media[0].Url;
+    document.getElementById('lbText').textContent = p.Summary || '';
+  document.getElementById('lb').classList.add('open');
+  };
+
+  window.closeLightbox = function(){
+    document.getElementById('lb').classList.remove('open');
+  };
+
+  // Close lightbox on ESC key
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+  closeLightbox();
+   // Emoji picker'ları da kapat
+      document.querySelectorAll('.emoji-picker-popup').forEach(p => {
+    p.classList.remove('show');
+      });
+    }
+  });
+
+  // Close lightbox on backdrop click
+  document.getElementById('lb').addEventListener('click', function(e){
+    if(e.target === this){
+      closeLightbox();
+    }
+  });
+
+  // Photo form submission
+  const formPhoto = document.getElementById('formPhoto');
+  formPhoto.addEventListener('submit', async function(e){
+    e.preventDefault();
+    
+    const btn = this.querySelector('button[type="submit"]');
+    const btnText = btn.querySelector('.btn-text');
+ const spinner = btn.querySelector('.spinner-border');
+    const progressWrap = this.querySelector('.progress-wrap');
+    const progressBar = this.querySelector('.progress-bar');
+    
+    const formData = new FormData(this);
+    
+    // Validation
+    if(!formData.get('image') || formData.get('image').size === 0){
+      showToast('⚠️ Lütfen bir görsel seçin');
+    return;
+    }
+
+    btn.disabled = true;
+    btnText.classList.add('d-none');
+spinner.classList.remove('d-none');
+    progressWrap.classList.remove('d-none');
+
+    try {
+  const xhr = new XMLHttpRequest();
+  
+      xhr.upload.addEventListener('progress', function(e){
+        if(e.lengthComputable){
+  const percent = (e.loaded / e.total) + 0.05;
+   progressBar.style.width = percent * 100 + '%';
+        }
+  });
+
+      xhr.addEventListener('load', function(){
+      if(xhr.status === 200){
+const resp = JSON.parse(xhr.responseText);
+       if(resp.ok){
+     showToast('✅ Fotoğraf paylaşıldı!');
+ setTimeout(() => {
+     window.location.href = resp.redirect || '/blog';
+      }, 1500);
+    } else {
+   showToast('❌ ' + (resp.message || 'Bir hata oluştu'));
+  resetButton();
+    }
+  } else {
+     showToast('❌ Sunucu hatası');
+    resetButton();
+        }
+      });
+
+      xhr.addEventListener('error', function(){
+      showToast('❌ Bağlantı hatası');
+   resetButton();
+      });
+
+      xhr.open('POST', '@Url.Action("SharePhoto", "BlogAdmin", new { area = "Admin" })');
+      xhr.send(formData);
+
+    } catch(err){
+      console.error(err);
+  showToast('❌ ' + err.message);
+      resetButton();
+    }
+
+    function resetButton(){
+  btn.disabled = false;
+  btnText.classList.remove('d-none');
+      spinner.classList.add('d-none');
+      progressWrap.classList.add('d-none');
+      progressBar.style.width = '0%';
+    }
+  });
+
+  // Article form submission
+  const formArticle = document.getElementById('formArticle');
+  formArticle.addEventListener('submit', async function(e){
+    e.preventDefault();
+    
+    const btn = this.querySelector('button[type="submit"]');
+    const btnText = btn.querySelector('.btn-text');
+    const spinner = btn.querySelector('.spinner-border');
+    const progressWrap = this.querySelector('.progress-wrap');
+    const progressBar = this.querySelector('.progress-bar');
+    
+ const formData = new FormData(this);
+    
+ // Validation
+    if(!formData.get('title') || formData.get('title').trim() === ''){
+ showToast('⚠️ Lütfen başlık girin');
+      return;
+    }
+    if(!formData.get('summary') || formData.get('summary').trim() === ''){
+      showToast('⚠️ Lütfen özet girin');
+      return;
+}
+ if(!formData.get('contentMarkdown') || formData.get('contentMarkdown').trim() === ''){
+      showToast('⚠️ Lütfen içerik girin');
+      return;
+    }
+
+    btn.disabled = true;
+ btnText.classList.add('d-none');
+ spinner.classList.remove('d-none');
+    progressWrap.classList.remove('d-none');
+
+    try {
+  const xhr = new XMLHttpRequest();
+      
+      xhr.upload.addEventListener('progress', function(e){
+  if(e.lengthComputable){
+       const percent = (e.loaded / e.total) + 0.05;
+     progressBar.style.width = percent * 100 + '%';
+  }
+      });
+
+ xhr.addEventListener('load', function(){
+        if(xhr.status === 200){
+   const resp = JSON.parse(xhr.responseText);
+  if(resp.ok){
+   showToast('✅ Makale yayınlandı!');
+ setTimeout(() => {
+   window.location.href = resp.redirect || '/blog';
+  }, 1500);
+        } else {
+  showToast('❌ ' + (resp.message || 'Bir hata oluştu'));
+     resetButton();
+          }
+      } else {
+  showToast('❌ Sunucu hatası');
+    resetButton();
+        }
+      });
+
+      xhr.addEventListener('error', function(){
+   showToast('❌ Bağlantı hatası');
+   resetButton();
+      });
+
+  xhr.open('POST', '@Url.Action("ShareArticle", "BlogAdmin", new { area = "Admin" })');
+      xhr.send(formData);
+
+} catch(err){
+      console.error(err);
+  showToast('❌ ' + err.message);
+      resetButton();
+ }
+
+    function resetButton(){
+      btn.disabled = false;
+ btnText.classList.remove('d-none');
+      spinner.classList.add('d-none');
+  progressWrap.classList.add('d-none');
+      progressBar.style.width = '0%';
+  }
+  });
+
+  // Open specific post if URL parameter provided
+  @if(ViewBag.OpenPostId != null){
+    <text>
+    setTimeout(() => {
+      openLightbox(@ViewBag.OpenPostId);
+    }, 500);
+    </text>
   }
 })();
 </script>

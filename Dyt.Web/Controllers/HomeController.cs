@@ -22,17 +22,29 @@ namespace Dyt.Web.Controllers
         public async Task<IActionResult> Index(CancellationToken ct) // GET /Home/Index veya / isteði için action'ý tanýmlýyorum
         {
             var now = DateTime.UtcNow;
-            var latest = await _db.BlogPosts.AsNoTracking()
+            
+            // Son 6 blog yazýsý
+            var latestBlogs = await _db.BlogPosts.AsNoTracking()
                 .Where(p => p.IsPublished && (p.PublishDateUtc == null || p.PublishDateUtc <= now))
                 .Include(p => p.Media).ThenInclude(m => m.MediaFile)
                 .OrderByDescending(p => p.PublishDateUtc ?? p.CreatedAtUtc)
                 .Take(6)
                 .ToListAsync(ct);
 
-            // Enable translucent surfaces on Home only
+            // Son 3 tarif - EN SON EKLENEN ÖNCELÝKLÝ
+            var latestRecipes = await _db.Recipes.AsNoTracking()
+                .Where(r => r.IsPublished && (r.PublishDateUtc == null || r.PublishDateUtc <= now))
+                .Include(r => r.Ingredients)
+                .Include(r => r.Steps)
+                .Include(r => r.RecipeTags).ThenInclude(rt => rt.Tag)
+                .OrderByDescending(r => r.CreatedAtUtc)
+                .Take(3)
+                .ToListAsync(ct);
+
+            ViewBag.LatestRecipes = latestRecipes;
             ViewData["FvEnable"] = true;
 
-            return View(latest);
+            return View(latestBlogs);
         }
 
         /// <summary>

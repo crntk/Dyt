@@ -1,282 +1,575 @@
 @model List<Dyt.Data.Entities.Content.ContactMessage>
 @{
-    ViewData["Title"] = "Ýletiþim Mesajlarý";
+ViewData["Title"] = "Ýletiþim Mesajlarý";
     var unreadCount = Model.Count(m => !m.IsRead);
     var unrepliedCount = Model.Count(m => !m.IsReplied);
 }
 
 <style>
-  .message-card {
- border-left: 4px solid #e0e0e0;
-        transition: all 0.3s ease;
-        background: #fff;
-    }
-    .message-card:hover {
- box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transform: translateX(2px);
-    }
- .message-card.unread {
-     border-left-color: #4CAF50;
-        background: rgba(76,175,80,0.05);
-    }
-    .badge-unread {
-        background: linear-gradient(135deg, #4CAF50, #81C784);
-      color: white;
-    }
-    .badge-replied {
- background: linear-gradient(135deg, #2196F3, #64B5F6);
-        color: white;
- }
-    .badge-unreplied {
-        background: linear-gradient(135deg, #FF9800, #FFB74D);
-        color: white;
-    }
-    .stats-card {
-        border-radius: 12px;
-        padding: 16px;
- background: linear-gradient(135deg, rgba(76,175,80,0.1), rgba(255,152,0,0.08));
-        border: 2px solid rgba(76,175,80,0.2);
-    }
-    .filter-chip {
-  display: inline-flex;
-  align-items: center;
- gap: 8px;
-   padding: 8px 16px;
-  border-radius: 999px;
-   border: 1px solid rgba(76,175,80,0.3);
-    background: rgba(76,175,80,0.08);
-     cursor: pointer;
- font-weight: 600;
-     color: #4CAF50;
-    transition: all 0.3s ease;
-    }
-    .filter-chip:hover, .filter-chip.active {
-   background: linear-gradient(135deg, #4CAF50, #81C784);
-        border-color: #4CAF50;
-  color: #fff;
-    }
-  .filter-chip svg {
- width: 16px;
-    height: 16px;
-    fill: currentColor;
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  
+  /* Hero with green gradient */
+  .messages-hero{
+    position:relative;
+    overflow:hidden;
+    background:
+    radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+  radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+    padding:48px 0 36px;
   }
-  .badge svg {
-    width: 14px;
-    height: 14px;
-    fill: currentColor;
-    vertical-align: middle;
-  margin-right: 4px;
+  .messages-hero:before{
+    content:"";
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+      radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size:32px 32px, 64px 64px;
+    background-position:0 0, 16px 16px;
+  opacity:.4;
+  animation:dotMove 25s linear infinite;
+  }
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
+
+  /* Cards */
+  .card{
+    border-radius:18px;
+    border:1px solid rgba(76,175,80,.2);
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+    transition:all .3s ease;
+  }
+  .card:hover{box-shadow:0 18px 50px rgba(76,175,80,.15)}
+
+  /* Stats Grid */
+  .stats-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));
+    gap:16px;
+    margin-bottom:24px;
+  }
+
+.stat-card{
+    background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+  border:2px solid rgba(76,175,80,.2);
+  border-radius:16px;
+    padding:20px;
+    text-align:center;
+    transition:all .3s ease;
+  }
+
+  .stat-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 8px 24px rgba(76,175,80,.2);
+  }
+
+  .stat-value{
+font-size:36px;
+    font-weight:800;
+    color:#4CAF50;
+    line-height:1;
+  }
+
+  .stat-label{
+ font-size:13px;
+  font-weight:600;
+    color:#666;
+    margin-top:8px;
+    text-transform:uppercase;
+ letter-spacing:0.5px;
+  }
+
+  /* Filter Chips */
+  .filter-chips-container{
+    background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border-radius:16px;
+    padding:20px;
+    border:2px solid rgba(76,175,80,.2);
+  }
+
+  .filter-chip {
+  display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 18px;
+ border-radius:999px;
+  border:2px solid rgba(76,175,80,.3);
+    background:#fff;
+    cursor:pointer;
+    font-weight:600;
+    font-size:14px;
+    color:#4CAF50;
+    transition:all .3s ease;
+  }
+  
+  .filter-chip:hover, .filter-chip.active {
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    border-color:#4CAF50;
+  color:#fff;
+    transform:translateY(-2px);
+    box-shadow:0 6px 16px rgba(76,175,80,.3);
+  }
+
+  .filter-chip .badge{
+ background:rgba(76,175,80,.2);
+    color:#2e7d32;
+    padding:4px 10px;
+  border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+  }
+
+  .filter-chip.active .badge, .filter-chip:hover .badge{
+    background:rgba(255,255,255,.3);
+    color:#fff;
+  }
+
+  /* Message Card */
+  .message-card {
+    border:2px solid rgba(76,175,80,.2);
+    border-radius:16px;
+    background:#fff;
+ transition:all .3s ease;
+    margin-bottom:16px;
+    overflow:hidden;
+  }
+  
+  .message-card:hover {
+  transform:translateY(-4px);
+    box-shadow:0 12px 30px rgba(76,175,80,.2);
+    border-color:#4CAF50;
+  }
+  
+  .message-card.unread {
+    border-left:6px solid #4CAF50;
+ background:linear-gradient(135deg, rgba(76,175,80,.05), rgba(255,152,0,.02));
+  }
+
+  .message-header{
+    display:flex;
+    justify-content:space-between;
+align-items:flex-start;
+    padding:20px 20px 0;
+    gap:16px;
+  }
+
+  .message-title{
+    font-size:20px;
+    font-weight:700;
+    color:#333;
+    margin-bottom:8px;
+    display:flex;
+align-items:center;
+    gap:10px;
+  }
+
+  .message-sender-info{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+    margin-bottom:12px;
+font-size:14px;
+  }
+
+  .sender-item{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    background:rgba(76,175,80,.08);
+    border-radius:999px;
+  font-weight:600;
+    color:#333;
+  }
+
+  .sender-item a{
+    color:#4CAF50;
+    text-decoration:none;
+    font-weight:700;
+  }
+
+  .sender-item a:hover{
+    text-decoration:underline;
+  }
+
+  .message-content{
+    padding:0 20px;
+    color:#666;
+    font-size:15px;
+    line-height:1.6;
+  margin-bottom:16px;
+  }
+
+  .message-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:center;
+ padding:0 20px 16px;
+  }
+
+  .message-actions{
+    padding:16px 20px;
+    background:rgba(76,175,80,.05);
+    border-top:2px solid rgba(76,175,80,.1);
+    display:flex;
+    gap:10px;
+  }
+
+  /* Badges */
+  .badge-custom{
+    padding:6px 14px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:12px;
+display:inline-flex;
+    align-items:center;
+  gap:6px;
+  text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+
+  .badge-unread {
+  background:linear-gradient(135deg, #4CAF50, #81C784);
+    color:#fff;
+    box-shadow:0 2px 8px rgba(76,175,80,.3);
+  }
+
+  .badge-replied {
+    background:linear-gradient(135deg, #2196F3, #64B5F6);
+    color:#fff;
+    box-shadow:0 2px 8px rgba(33,150,243,.3);
+  }
+
+  .badge-unreplied {
+    background:linear-gradient(135deg, #FF9800, #FFB74D);
+    color:#fff;
+    box-shadow:0 2px 8px rgba(255,152,0,.3);
+  }
+
+  .date-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 12px;
+    background:rgba(76,175,80,.1);
+  border-radius:999px;
+    font-size:13px;
+  font-weight:600;
+    color:#666;
+  }
+
+  /* Action Buttons */
+  .btn-action{
+    padding:10px 20px;
+    border-radius:10px;
+    font-weight:600;
+    font-size:14px;
+    border:2px solid transparent;
+    transition:all .3s ease;
+display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+
+  .btn-action-primary{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    color:#fff;
+    border-color:#4CAF50;
+  }
+
+  .btn-action-primary:hover{
+    background:linear-gradient(135deg, #388E3C, #4CAF50);
+    transform:translateY(-2px);
+    box-shadow:0 6px 16px rgba(76,175,80,.3);
+color:#fff;
+  }
+
+  .btn-action-secondary{
+  background:#fff;
+ color:#4CAF50;
+  border-color:rgba(76,175,80,.3);
+  }
+
+  .btn-action-secondary:hover{
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.05));
+  border-color:#4CAF50;
+    transform:translateY(-2px);
+    color:#4CAF50;
+  }
+
+  /* Empty State */
+  .empty-state{
+  text-align:center;
+  padding:60px 20px;
+  }
+
+  .empty-state-icon{
+    font-size:80px;
+    margin-bottom:20px;
+    opacity:.5;
+  }
+
+  .empty-state-title{
+    font-size:24px;
+    font-weight:700;
+    color:#333;
+    margin-bottom:12px;
+  }
+
+  .empty-state-text{
+    font-size:16px;
+    color:#666;
+  }
+
+  /* Reveal Animation */
+  [data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-reveal].in{opacity:1;transform:translateY(0)}
+
+  /* Responsive */
+  @@media (max-width: 768px){
+    .message-header{
+      flex-direction:column;
+    }
+    
+  .message-actions{
+      flex-direction:column;
+    }
+    
+    .btn-action{
+    width:100%;
+      justify-content:center;
+  }
+
+  .filter-chips-container{
+    padding:16px;
+    }
+
+.filter-chip{
+  font-size:12px;
+      padding:8px 14px;
+    }
   }
 </style>
 
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
- <div>
-   <h2 class="mb-1">
-     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-mailbox d-inline-block" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:8px;">
-       <path d="M4 4a3 3 0 0 0-3 3v6h6V7a3 3 0 0 0-3-3m0-1h8a4 4 0 0 1 4 4v6a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V7a4 4 0 0 1 4-4m2.646 1A4 4 0 0 1 8 7v6h7V7a3 3 0 0 0-3-3z"/>
-     <path d="M11.793 8.5H9v-1h5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.354-.146zM5 7c0 .552-.448 0-1 0s-1 .552-1 0a1 1 0 0 1 2 0"/>
-     </svg>
-     Ýletiþim Mesajlarý
-   </h2>
-   <p class="text-muted mb-0">Siteden gelen mesajlarý görüntüleyin ve yönetin</p>
-        </div>
- <div class="d-flex gap-2">
-   <div class="stats-card">
-    <strong>@unreadCount</strong> okunmamýþ
-   </div>
-      <div class="stats-card">
-       <strong>@unrepliedCount</strong> yanýtlanmamýþ
-      </div>
-        </div>
+<!-- Hero -->
+<section class="messages-hero">
+  <div class="container position-relative" style="z-index:1">
+    <div class="text-center" data-reveal>
+      <h1 class="display-5 fw-bold mb-3">&#128236; Ýletiþim Mesajlarý</h1>
+      <p class="lead mb-0">Siteden gelen mesajlarý görüntüleyin ve yönetin</p>
+  </div>
+  </div>
+</section>
+
+<div class="container py-5">
+  @if (TempData["SuccessMessage"] is string successMsg)
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert" data-reveal>
+      &#9989; @successMsg
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+  }
 
-    @if (TempData["SuccessMessage"] is string successMsg)
-    {
-     <div class="alert alert-success alert-dismissible fade show">
-   @successMsg
- <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    }
+  <!-- Stats -->
+  <div class="stats-grid" data-reveal>
+    <div class="stat-card">
+      <div class="stat-value">@Model.Count</div>
+<div class="stat-label">Toplam Mesaj</div>
+  </div>
+    <div class="stat-card">
+      <div class="stat-value">@unreadCount</div>
+      <div class="stat-label">Okunmamýþ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">@unrepliedCount</div>
+      <div class="stat-label">Yanýtlanmamýþ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">@(Model.Count - unrepliedCount)</div>
+      <div class="stat-label">Yanýtlanmýþ</div>
+    </div>
+  </div>
 
- <!-- Filtreler -->
- <div class="card mb-4">
-     <div class="card-body">
-<div class="d-flex align-items-center gap-2 flex-wrap">
-        <span class="fw-semibold me-2">Filtre:</span>
-    <button class="filter-chip active" data-filter="all">
-       <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-list-stars" viewBox="0 0 16 16">
-         <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5"/>
-         <path d="M2.242 2.194a.27.27 0 0 1 .516 0l.162.53c.035.115.14.194.258.194h.551c.259 0 .37.333.164.493l-.468.363a.28.28 0 0 0-.098.306l.162.53c.076.248-.213.456-.423.303l-.468-.363a.28.28 0 0 0-.328 0l-.468.363c-.21.153-.5-.055-.423-.303l.162-.53a.28.28 0 0 0-.098-.306l-.468-.363c-.206-.16-.095-.493.164-.493h.551a.27.27 0 0 0 .258-.194z"/>
-       </svg>
-       Tümü <span class="badge bg-light text-dark ms-1">@Model.Count</span>
-     </button>
- <button class="filter-chip" data-filter="unread">
-     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
-         <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
-       </svg>
-        Okunmamýþ <span class="badge bg-light text-dark ms-1">@unreadCount</span>
-     </button>
-      <button class="filter-chip" data-filter="read">
-       <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-envelope-open" viewBox="0 0 16 16">
-         <path d="M8.47 1.318a1 1 0 0 0-.94 0l-6 3.2A1 1 0 0 0 1 5.4v.817l5.75 3.45L8 8.917l1.25.75L15 6.217V5.4a1 1 0 0 0-.53-.882zM15 7.383l-4.778 2.867L15 13.117zm-.035 6.88L8 10.082l-6.965 4.18A1 1 0 0 0 2 15h12a1 1 0 0 0 .965-.738ZM1 13.116l4.778-2.867L1 7.383v5.734ZM7.059.435a2 2 0 0 1 1.882 0l6 3.2A2 2 0 0 1 16 5.4V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5.4a2 2 0 0 1 1.059-1.765z"/>
-       </svg>
-     Okunmuþ <span class="badge bg-light text-dark ms-1">@(Model.Count - unreadCount)</span>
-     </button>
-     <button class="filter-chip" data-filter="unreplied">
-   <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16">
-       <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
-     </svg>
-     Yanýtlanmamýþ <span class="badge bg-light text-dark ms-1">@unrepliedCount</span>
-       </button>
-    <button class="filter-chip" data-filter="replied">
-       <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-circle" viewBox="0 0 16 16">
-         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-         <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
-       </svg>
-    Yanýtlanmýþ <span class="badge bg-light text-dark ms-1">@(Model.Count - unrepliedCount)</span>
+  <!-- Filters -->
+  <div class="card mb-4" data-reveal>
+    <div class="card-body">
+      <h5 class="card-title fw-bold mb-4">&#128269; Filtrele</h5>
+ <div class="filter-chips-container">
+        <div class="d-flex gap-2 flex-wrap">
+ <button class="filter-chip active" data-filter="all">
+            &#128466; Tümü <span class="badge">@Model.Count</span>
+ </button>
+     <button class="filter-chip" data-filter="unread">
+      &#128231; Okunmamýþ <span class="badge">@unreadCount</span>
    </button>
+          <button class="filter-chip" data-filter="read">
+        &#128238; Okunmuþ <span class="badge">@(Model.Count - unreadCount)</span>
+      </button>
+   <button class="filter-chip" data-filter="unreplied">
+        &#128276; Yanýtlanmamýþ <span class="badge">@unrepliedCount</span>
+    </button>
+    <button class="filter-chip" data-filter="replied">
+       &#9989; Yanýtlanmýþ <span class="badge">@(Model.Count - unrepliedCount)</span>
+     </button>
+        </div>
       </div>
     </div>
   </div>
 
-    @if (!Model.Any())
-    {
- <div class="alert alert-info">
-   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle d-inline-block" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:6px;">
-     <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-     <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533z"/>
- <path d="M9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
-   </svg>
-   Henüz hiç mesaj gelmemiþ.
+  <!-- Messages List -->
+  @if (!Model.Any())
+  {
+    <div class="card" data-reveal>
+<div class="card-body">
+   <div class="empty-state">
+          <div class="empty-state-icon">&#128237;</div>
+          <h3 class="empty-state-title">Henüz Mesaj Yok</h3>
+          <p class="empty-state-text">Henüz hiç mesaj gelmemiþ.</p>
+    </div>
       </div>
-    }
-    else
-    {
-      <div class="row g-3" id="messagesList">
-   @foreach (var message in Model)
-{
-       <div class="col-12 message-item" 
-  data-read="@(message.IsRead ? "true" : "false")"
-           data-replied="@(message.IsReplied ? "true" : "false")">
-    <div class="card message-card @(message.IsRead ? "" : "unread")">
-       <div class="card-body">
-       <div class="d-flex justify-content-between align-items-start mb-2">
-       <div class="flex-grow-1">
-     <h5 class="mb-1">
-          <a href="@Url.Action("Details", new { id = message.Id })" class="text-decoration-none">
-@message.Subject
-   </a>
-     @if (!message.IsRead)
-    {
-              <span class="badge badge-unread ms-2">
-       <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
-           <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
-          </svg>
- Yeni
-          </span>
-}
-    </h5>
- <div class="text-muted small mb-2">
-   <strong>@message.Name</strong> • 
- <a href="mailto:@message.Email">@message.Email</a> • 
-     <a href="tel:@message.Phone">@message.Phone</a>
-       </div>
- <p class="mb-2 text-muted">
-@(message.Message.Length > 150 ? message.Message.Substring(0, 150) + "..." : message.Message)
-   </p>
-   <div class="d-flex gap-2 align-items-center flex-wrap">
-     <span class="badge @(message.IsReplied ? "badge-replied" : "badge-unreplied")">
-       @if (message.IsReplied)
+    </div>
+  }
+  else
+  {
+    <div id="messagesList">
+      @foreach (var message in Model)
+      {
+        <div class="message-item" 
+       data-read="@(message.IsRead ? "true" : "false")"
+   data-replied="@(message.IsReplied ? "true" : "false")"
+       data-reveal>
+          <div class="message-card @(message.IsRead ? "" : "unread")">
+        <div class="message-header">
+        <div class="flex-grow-1">
+        <h5 class="message-title">
+   @message.Subject
+         @if (!message.IsRead)
  {
-       <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
-           <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z"/>
-         </svg>
- <text>Yanýtlandý</text>
-       }
-       else
-       {
-    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
-           <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z"/>
-         <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0"/>
-     </svg>
-  <text>Yanýtlanmamýþ</text>
-       }
-        </span>
-    <span class="text-muted small">
-         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-calendar3 d-inline-block" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;">
-   <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2M1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857z"/>
-       <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2m3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
-         </svg>
-         @message.CreatedAtUtc.ToString("dd.MM.yyyy HH:mm")
-  </span>
-      @if (message.ReadAt.HasValue)
-         {
-   <span class="text-muted small">
-       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-eye d-inline-block" viewBox="0 0 16 16" style="vertical-align:middle;margin-right:4px;">
-     <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
-     <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
-  </svg>
-    @message.ReadAt.Value.ToString("dd.MM.yyyy HH:mm")
- </span>
-       }
-     </div>
-</div>
-       <div class="d-flex flex-column gap-2">
- <a href="@Url.Action("Details", new { id = message.Id })" class="btn btn-sm btn-primary">
-    Detay
-       </a>
-   <form asp-action="ToggleRead" method="post" class="d-inline">
-     @Html.AntiForgeryToken()
-    <input type="hidden" name="id" value="@message.Id" />
-      <button type="submit" class="btn btn-sm btn-outline-secondary w-100">
-   @(message.IsRead ? "Okunmadý" : "Okundu")
-       </button>
-     </form>
- </div>
- </div>
-       </div>
-       </div>
-        </div>
-            }
-        </div>
+<span class="badge-custom badge-unread">
+  &#11088; Yeni
+      </span>
     }
+     </h5>
+     <div class="message-sender-info">
+           <span class="sender-item">
+    &#128100; @message.Name
+        </span>
+        <span class="sender-item">
+              &#128231; <a href="mailto:@message.Email">@message.Email</a>
+           </span>
+        <span class="sender-item">
+  &#128241; <a href="tel:@message.Phone">@message.Phone</a>
+  </span>
+           </div>
+   </div>
+              <div>
+    <span class="badge-custom @(message.IsReplied ? "badge-replied" : "badge-unreplied")">
+      @if (message.IsReplied)
+     {
+        <text>&#9989; Yanýtlandý</text>
+     }
+             else
+           {
+          <text>&#9200; Bekliyor</text>
+  }
+  </span>
+      </div>
+            </div>
+
+    <div class="message-content">
+   <p>@(message.Message.Length > 200 ? message.Message.Substring(0, 200) + "..." : message.Message)</p>
+  </div>
+
+            <div class="message-meta">
+              <span class="date-badge">
+                &#128197; @message.CreatedAtUtc.ToString("dd.MM.yyyy HH:mm")
+              </span>
+           @if (message.ReadAt.HasValue)
+       {
+     <span class="date-badge">
+                &#128065; Okundu: @message.ReadAt.Value.ToString("dd.MM.yyyy HH:mm")
+ </span>
+      }
+        </div>
+
+ <div class="message-actions">
+          <a href="@Url.Action("Details", new { id = message.Id })" class="btn-action btn-action-primary">
+     &#128196; Detay Görüntüle
+    </a>
+<form asp-action="ToggleRead" method="post" class="d-inline">
+            @Html.AntiForgeryToken()
+     <input type="hidden" name="id" value="@message.Id" />
+       <button type="submit" class="btn-action btn-action-secondary">
+             @if (message.IsRead)
+    {
+         <text>&#128683; Okunmadý Ýþaretle</text>
+      }
+    else
+   {
+    <text>&#9989; Okundu Ýþaretle</text>
+      }
+  </button>
+         </form>
+    </div>
+        </div>
+        </div>
+   }
+    </div>
+  }
 </div>
 
 @section Scripts {
 <script>
-    (function(){
-        const chips = document.querySelectorAll('.filter-chip');
-const items = document.querySelectorAll('.message-item');
-        
-      chips.forEach(chip => {
-   chip.addEventListener('click', function() {
-     // Aktif chip'i güncelle
-       chips.forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-    
-          const filter = this.dataset.filter;
-  
-                items.forEach(item => {
-   const isRead = item.dataset.read === 'true';
-           const isReplied = item.dataset.replied === 'true';
-   
-       let show = true;
-    
-   if (filter === 'unread') {
-         show = !isRead;
-     } else if (filter === 'read') {
-        show = isRead;
-      } else if (filter === 'unreplied') {
-show = !isReplied;
-   } else if (filter === 'replied') {
-     show = isReplied;
+// Reveal animation
+  const reveals=[...document.querySelectorAll('[data-reveal]')];
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{ 
+ if(en.isIntersecting){ 
+   setTimeout(()=>en.target.classList.add('in'), 100); 
+  io.unobserve(en.target); 
+        } 
+      });
+    },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
+    reveals.forEach(e=>io.observe(e));
+  } else {
+    reveals.forEach(e=>e.classList.add('in'));
   }
+
+  // Filter functionality
+  (function(){
+    const chips = document.querySelectorAll('.filter-chip');
+    const items = document.querySelectorAll('.message-item');
+    
+    chips.forEach(chip => {
+      chip.addEventListener('click', function() {
+        // Update active chip
+        chips.forEach(c => c.classList.remove('active'));
+   this.classList.add('active');
+        
+        const filter = this.dataset.filter;
+   
+        items.forEach(item => {
+          const isRead = item.dataset.read === 'true';
+       const isReplied = item.dataset.replied === 'true';
           
-           item.style.display = show ? '' : 'none';
+  let show = true;
+          
+   if (filter === 'unread') {
+          show = !isRead;
+        } else if (filter === 'read') {
+      show = isRead;
+    } else if (filter === 'unreplied') {
+            show = !isReplied;
+          } else if (filter === 'replied') {
+        show = isReplied;
+ }
+ 
+          item.style.display = show ? '' : 'none';
      });
-     });
-        });
-    })();
+      });
+    });
+  })();
 </script>
 }

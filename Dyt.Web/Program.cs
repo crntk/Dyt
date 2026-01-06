@@ -8,18 +8,21 @@
 using Dyt.Business.Background;                 // ReminderHostedService için
 using Dyt.Business.Interfaces.Appointments;    // IAppointmentService için
 using Dyt.Business.Interfaces.Notifications;   // ISmsSender, INotificationTemplateService için
+using Dyt.Business.Interfaces.Recipes;         // IRecipeService için
 using Dyt.Business.Interfaces.Scheduling;      // IScheduleService için
 using Dyt.Business.Options;                    // ReminderOptions, SmsOptions, SecurityOptions, EmailOptions için
 using Dyt.Business.Security.Sanitization;      // IContentSanitizer için
 using Dyt.Business.Security.Url;               // ISignedUrlService için
 using Dyt.Business.Services.Appointments;      // AppointmentService, ConfirmationTokenService için
 using Dyt.Business.Services.Notifications;     // SmsSenderMock, NotificationTemplateService, EmailSenderSmtp için
+using Dyt.Business.Services.Recipes;           // RecipeService için
 using Dyt.Business.Services.Scheduling;        // ScheduleService için
 using Dyt.Business.Utils;                      // IDateTimeProvider, DateTimeProvider için
 
 // Data katmanı: DbContext ve Identity varlıkları için gerekli using'leri ekliyorum
 using Dyt.Data.Context;                        // AppDbContext için
 using Dyt.Data.Entities.Identity;              // AppUser, AppRole için
+using Dyt.Data.Interceptors;                   // SaveChangesAuditingInterceptor için
 
 // ASP.NET Core: Identity, EF Core ve MVC altyapısı için gerekli using'leri ekliyorum
 using Microsoft.AspNetCore.Identity;           // Identity servisleri için
@@ -38,8 +41,8 @@ var connectionString = builder.Configuration.GetConnectionString("Default"); // 
 builder.Services.AddDbContext<AppDbContext>(opt =>                           // DbContext'i DI'a ekliyorum
 {
     opt.UseSqlServer(connectionString);                                      // SQL Server sağlayıcısını seçiyorum
-    // İstersen audit/soft-delete gibi interceptor'ları burada ekleyebilirsin:
-    // opt.AddInterceptors(new SaveChangesAuditingInterceptor());
+    // Audit/soft-delete için interceptor'ı ekliyorum
+    opt.AddInterceptors(new SaveChangesAuditingInterceptor());
 });
 
 // -----------------------------------------------------------------------------
@@ -79,8 +82,9 @@ builder.Services.AddControllersWithViews();             // Controller ve View de
 // DbContext kullanan servisleri scoped olarak kaydediyorum.
 // -----------------------------------------------------------------------------
 builder.Services.AddSingleton<IDateTimeProvider, DateTimeProvider>();              // Zaman sağlayıcısı (stateless)
-builder.Services.AddScoped<IScheduleService, ScheduleService>();                   // Çalışma saatleri/slot hesaplama (DbContext kullanır)
+builder.Services.AddScoped<IScheduleService, ScheduleService>();        // Çalışma saatleri/slot hesaplama (DbContext kullanır)
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();             // Randevu iş akışları (DbContext kullanır)
+builder.Services.AddScoped<IRecipeService, RecipeService>(); // Tarif iş akışları (DbContext kullanır)
 builder.Services.AddSingleton<IConfirmationTokenService, ConfirmationTokenService>(); // Onay token servisi (stateless)
 builder.Services.AddSingleton<ISmsSender, SmsSenderMock>();                        // SMS gönderici (şimdilik mock, stateless)
 builder.Services.AddSingleton<INotificationTemplateService, NotificationTemplateService>(); // SMS şablon üretimi (stateless)
@@ -141,7 +145,8 @@ app.MapControllerRoute(
 // -----------------------------------------------------------------------------
 // Seed: Başlangıç admin kullanıcısını oluşturuyorum (tek seferlik)
 // -----------------------------------------------------------------------------
-await AdminSeeder.SeedAsync(app.Services);                    // DI üzerinden seed çalıştırıyorum
+await AdminSeeder.SeedAsync(app.Services);          // DI üzerinden seed çalıştırıyorum
+await RecipeSeeder.SeedAsync(app.Services);             // Varsayılan tarifleri ekliyorum
 
 // Uygulamayı çalıştırıyorum
 app.Run();

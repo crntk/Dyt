@@ -17,4 +17,12 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Exceptions\" />
+    <Folder Include="Interfaces\Settings\" />
+    <Folder Include="Services\Blog\" />
+    <Folder Include="Services\Profile\" />
+    <Folder Include="Services\Settings\" />
+  </ItemGroup>
+
 </Project>

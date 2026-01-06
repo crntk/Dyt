@@ -694,17 +694,18 @@ text-transform: uppercase;
           <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Anasayfa</a></li>
        <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">Hakkımda</a></li>
  <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Recipes" asp-action="Index">Tarifler</a></li>
-              <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a></li>
+            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a></li>
     <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="BlogAdmin" asp-action="Index">Blog Paylaş</a></li>
+ <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="RecipesAdmin" asp-action="Index">Tarif Yönetimi</a></li>
  <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Appointments" asp-action="Index">Randevularım</a></li>
    <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="WorkingHours" asp-action="Index">Randevu Aç</a></li>
       <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="ContactMessages" asp-action="Index">İletişim Mesajları</a></li>
       <li class="nav-item">
        <a asp-area="" asp-controller="Admin" asp-action="Index" class="nav-link avo-icon-link" title="Giriş Yap">
           <img src="~/icons/avo.png" alt="Avokado" style="width: 28px; height: 28px; display: block;" />
-        </a>
-                 </li>
-     <li class="nav-item d-flex align-items-center ms-2">
+   </a>
+      </li>
+   <li class="nav-item d-flex align-items-center ms-2">
  @await Component.InvokeAsync("AdminNotifications")
    </li>
             <li class="nav-item ms-2">
@@ -712,12 +713,12 @@ text-transform: uppercase;
      @Html.AntiForgeryToken()
 <button type="submit" class="btn btn-admin-logout">
    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
-        </svg>        
-       Çıkış
+     <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+     </svg>        
+  Çıkış
 </button>
     </form>
-         </li>
+ </li>
         }
 
 
@@ -726,12 +727,12 @@ else
              {
       <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Anasayfa</a></li>
          <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">Hakkımda</a></li>
-             <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Recipes" asp-action="Index">Tarifler</a></li>
+          <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Recipes" asp-action="Index">Tarifler</a></li>
       <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a></li>
-         <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="Create">Randevu Al</a></li>
+    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Appointment" asp-action="Create">Randevu Al</a></li>
  <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Contact" asp-action="Index">İletişim</a></li>
           
-         }
+}
     </ul>
     </div>
       </div>
