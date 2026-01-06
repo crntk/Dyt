@@ -609,16 +609,25 @@ margin-top:2px;
   async function loadSlotStates(iso){
     console.log('Loading slot states for:', iso);
     try {
-      const r = await fetch(`/appointment/slot-states?date=${encodeURIComponent(iso)}`);
+ const r = await fetch(`/appointment/slot-states?date=${encodeURIComponent(iso)}`);
       if(!r.ok) {
         console.error('Slot states fetch failed:', r.status, r.statusText);
-      return [];
+        // API hatası durumunda boş array yerine kullanıcıyı bilgilendir
+        alert('⚠️ Saat bilgileri yüklenemedi. Lütfen sayfayı yenileyin.');
+        return [];
       }
       const j = await r.json();
-  console.log('Slot states loaded:', j.length);
-      return Array.isArray(j) ? j : [];
+      console.log('Slot states loaded:', j.length);
+      // Null/undefined kontrolü ekle
+      if (!j || !Array.isArray(j)) {
+        console.error('Invalid slot states response:', j);
+alert('⚠️ Geçersiz veri formatı alındı.');
+        return [];
+      }
+      return j;
     } catch (error) {
       console.error('Error loading slot states:', error);
+      alert('❌ Bağlantı hatası. Lütfen internet bağlantınızı kontrol edin.');
       return [];
     }
   }
@@ -627,16 +636,22 @@ margin-top:2px;
     console.log('Loading closed starts for:', iso);
     try {
       const r = await fetch(`/Admin/WorkingHours/ClosedSlotStarts?date=${encodeURIComponent(iso)}`);
-   if(!r.ok) {
+      if(!r.ok) {
         console.error('Closed starts fetch failed:', r.status, r.statusText);
-   return [];
-}
+        alert('⚠️ Kapalı saat bilgileri yüklenemedi.');
+     return [];
+    }
       const j = await r.json();
-      console.log('Closed starts loaded:', j.length);
-      return Array.isArray(j) ? j : [];
+      console.log('Closed starts loaded:', j ? j.length : 0);
+    // Null/undefined kontrolü
+      if (!j || !Array.isArray(j)) {
+        console.error('Invalid closed starts response:', j);
+        return [];
+      }
+  return j;
     } catch (error) {
       console.error('Error loading closed starts:', error);
-  return [];
+      return [];
     }
   }
 
@@ -644,16 +659,22 @@ margin-top:2px;
     console.log('Loading reserved starts for:', iso);
     try {
       const r = await fetch(`/Admin/WorkingHours/ReservedSlotStarts?date=${encodeURIComponent(iso)}&onlyConfirmed=true`);
-      if(!r.ok) {
+    if(!r.ok) {
         console.error('Reserved starts fetch failed:', r.status, r.statusText);
+        alert('⚠️ Randevu bilgileri yüklenemedi.');
         return [];
       }
       const j = await r.json();
-      console.log('Reserved starts loaded:', j.length);
-      return Array.isArray(j) ? j : [];
+      console.log('Reserved starts loaded:', j ? j.length : 0);
+      // Null/undefined kontrolü
+      if (!j || !Array.isArray(j)) {
+        console.error('Invalid reserved starts response:', j);
+        return [];
+      }
+      return j;
     } catch (error) {
       console.error('Error loading reserved starts:', error);
-    return [];
+      return [];
     }
   }
 
@@ -848,21 +869,37 @@ const monthNames = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki
     
     try {
       for(let i=0; i<14; i++){
-  const d = new Date(today.getFullYear(), today.getMonth(), today.getDate()+i);
+const d = new Date(today.getFullYear(), today.getMonth(), today.getDate()+i);
         const iso = ymd(d);
         
         console.log(`Processing day ${i+1}/14:`, iso);
         
-        const states = await loadSlotStates(iso);
-        const closedStarts = await loadClosedStarts(iso);
-        const reservedStarts = await loadReservedStarts(iso);
+      // Fetch çağrılarında null/undefined kontrolü
+    let states, closedStarts, reservedStarts;
+        
+        try {
+          states = await loadSlotStates(iso);
+    closedStarts = await loadClosedStarts(iso);
+    reservedStarts = await loadReservedStarts(iso);
+        } catch (innerError) {
+ console.error(`Error loading data for ${iso}:`, innerError);
+          // Bu gün için veri yüklenemedi, boş göster
+   states = [];
+          closedStarts = [];
+          reservedStarts = [];
+        }
+
+        // Null/undefined güvenlik kontrolü
+        states = states || [];
+  closedStarts = closedStarts || [];
+   reservedStarts = reservedStarts || [];
 
         const card = document.createElement('div');
         const isToday = d.getTime() === today.getTime();
         
-  const openCount = states.filter(s => s.isAvailable && !closedStarts.includes(fmt(s.startTime))).length;
-        const closedCount = closedStarts.length;
-    const reservedCount = reservedStarts.length;
+      const openCount = states.filter(s => s && s.isAvailable && !closedStarts.includes(fmt(s.startTime))).length;
+      const closedCount = closedStarts.length;
+        const reservedCount = reservedStarts.length;
         const allClosed = states.length > 0 && openCount === 0;
 
         card.className = `calendar-day-card ${allClosed ? 'all-closed' : (states.length > 0 ? 'has-work' : '')} ${isToday ? 'today' : ''}`;
@@ -939,9 +976,9 @@ card.appendChild(info);
    frag.appendChild(card);
       }
 
-   calendarGrid.innerHTML = '';
-  calendarGrid.appendChild(frag);
-      console.log('Calendar built successfully!');
+      calendarGrid.innerHTML = '';
+      calendarGrid.appendChild(frag);
+   console.log('Calendar built successfully!');
     } catch (error) {
       console.error('Error building calendar:', error);
       calendarGrid.innerHTML = '<div class="alert alert-danger">Takvim yüklenirken hata oluştu. Lütfen sayfayı yenileyin.</div>';

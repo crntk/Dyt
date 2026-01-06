@@ -128,8 +128,9 @@ namespace Dyt.Web.Areas.Admin.Controllers           // Admin alanı controller�
             return Json(new { ok = true, affected });
         }
 
-        // Yeni: gün için kapalı slot başlangıçları
+        // Yeni: gün için kapalı slot başlangıçları - Route düzeltildi
         [HttpGet]
+        [Route("Admin/WorkingHours/ClosedSlotStarts")]
         public async Task<IActionResult> ClosedSlotStarts([FromQuery] DateOnly date, CancellationToken ct)
         {
             var list = await _schedule.GetClosedSlotStartsAsync(date, ct);
@@ -137,8 +138,9 @@ namespace Dyt.Web.Areas.Admin.Controllers           // Admin alanı controller�
             return Json(arr);
         }
 
-        // Yeni: gün için randevulu slot başlangıçları (onaylı)
+        // Yeni: gün için randevulu slot başlangıçları (onaylı) - Route düzeltildi
         [HttpGet]
+        [Route("Admin/WorkingHours/ReservedSlotStarts")]
         public async Task<IActionResult> ReservedSlotStarts([FromQuery] DateOnly date, [FromQuery] bool onlyConfirmed = true, CancellationToken ct = default)
         {
             var list = await _schedule.GetReservedSlotStartsAsync(date, onlyConfirmed, ct);
