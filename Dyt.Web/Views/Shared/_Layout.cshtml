@@ -107,21 +107,52 @@ transform: translateY(-2px);
 
         .notif-bell {
      position: relative;
-       display: inline-block;
-      }
+ display: inline-flex;
+            align-items: center;
+  justify-content: center;
+     padding: 6px 10px;
+            border-radius: 8px;
+      transition: all 0.3s ease;
+  text-decoration: none;
+            color: white;
+    }
+
+     .notif-bell:hover {
+        background: rgba(255, 255, 255, 0.25);
+   transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.4);
+       color: white;
+        }
+
+        .notif-bell svg {
+       fill: white;
+      stroke: white;
+        }
 
    .notif-badge {
    position: absolute;
-    top: -6px;
-      right: -8px;
-       background: #FF5722;
+    top: -2px;
+      right: -2px;
+   background: linear-gradient(135deg, #FF5722, #F44336);
        color: #fff;
-   border-radius: 14px;
-      font-size: 11px;
-        padding: 1px 6px;
-            min-width: 18px;
-            text-align: center;
-     }
+   border-radius: 10px;
+      font-size: 10px;
+        font-weight: 700;
+        padding: 2px 6px;
+      min-width: 16px;
+ text-align: center;
+   box-shadow: 0 2px 8px rgba(255, 87, 34, 0.5);
+            animation: bellPulse 2s ease-in-out infinite;
+  }
+
+        @@keyframes bellPulse {
+        0%, 100% {
+        transform: scale(1);
+}
+        50% {
+        transform: scale(1.1);
+   }
+        }
 
         /* Fixed Social Icons - Bottom Right */
    .fixed-social-icons {
@@ -691,38 +722,30 @@ text-transform: uppercase;
 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
        @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
       {
+       <a asp-area="" asp-controller="Admin" asp-action="Index" class="nav-link avo-icon-link" title="Ayarlar">
+           <img src="~/icons/avo.png" alt="Avokado" style="width: 28px; height: 28px; display: block;" />
+       </a>
           <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Anasayfa</a></li>
-       <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">Hakkımda</a></li>
- <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Recipes" asp-action="Index">Tarifler</a></li>
-            <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Blog" asp-action="Index">Blog</a></li>
-    <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="BlogAdmin" asp-action="Index">Blog Paylaş</a></li>
- <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="RecipesAdmin" asp-action="Index">Tarif Yönetimi</a></li>
- <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="Appointments" asp-action="Index">Randevularım</a></li>
-   <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="WorkingHours" asp-action="Index">Randevu Aç</a></li>
-      <li class="nav-item"><a class="nav-link" asp-area="Admin" asp-controller="ContactMessages" asp-action="Index">İletişim Mesajları</a></li>
-      <li class="nav-item">
-       <a asp-area="" asp-controller="Admin" asp-action="Index" class="nav-link avo-icon-link" title="Giriş Yap">
-          <img src="~/icons/avo.png" alt="Avokado" style="width: 28px; height: 28px; display: block;" />
-   </a>
+    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">Hakkımda</a></li>
+ <li class="nav-item">
+       
       </li>
    <li class="nav-item d-flex align-items-center ms-2">
  @await Component.InvokeAsync("AdminNotifications")
    </li>
-            <li class="nav-item ms-2">
+   <li class="nav-item ms-3">
       <form asp-area="" asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
      @Html.AntiForgeryToken()
+    
 <button type="submit" class="btn btn-admin-logout">
    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
      <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
-     </svg>        
+     </svg>  
   Çıkış
 </button>
     </form>
  </li>
-        }
-
-
-
+ }
 else
              {
       <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Anasayfa</a></li>
@@ -814,7 +837,7 @@ else
          <h3>
   📍 Konum Bilgisi
              </h3>
-       <p>Kliniğimizi kolayca bulabilirsiniz</p>
+       <p>Kliniğimizizi kolayca bulabilirsiniz</p>
      </div>
 
         <div class="location-modal-map">

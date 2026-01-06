@@ -1,0 +1,647 @@
+@model Dyt.Contracts.About.Responses.AboutSectionDto
+@{
+    ViewData["Title"] = "Ben Kimim - Hakkýmda Yönetimi";
+}
+
+<style>
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  
+  .about-hero{
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+      radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+    padding:48px 0 36px;
+    margin-bottom:32px;
+  }
+  .about-hero:before{
+    content:"";
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+      radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size:32px 32px, 64px 64px;
+    background-position:0 0, 16px 16px;
+    opacity:.4;
+    animation:dotMove 25s linear infinite;
+  }
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
+
+  .card{
+    border-radius:18px;
+    border:1px solid rgba(76,175,80,.2);
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+    transition:all .3s ease;
+  }
+  .card:hover{box-shadow:0 18px 50px rgba(76,175,80,.15)}
+
+  .form-label{
+    font-weight:600;
+    color:#374151;
+    margin-bottom:8px;
+  }
+
+  .form-control:focus, .form-select:focus{
+    border-color:#4CAF50;
+    box-shadow:0 0 0 0.2rem rgba(76,175,80,.25);
+  }
+
+  .btn-primary{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+  border:none;
+    font-weight:600;
+    padding:12px 28px;
+    border-radius:12px;
+    transition:all .3s ease;
+  }
+  .btn-primary:hover{
+  background:linear-gradient(135deg, #388E3C, #4CAF50);
+    transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(76,175,80,.3);
+  }
+
+  .info-box{
+    background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border:2px solid rgba(76,175,80,.2);
+    border-radius:12px;
+    padding:16px;
+    margin-bottom:20px;
+  }
+
+  /* Markdown yardým kutusu stilleri */
+  .markdown-help {
+    background: linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
+    border: 2px solid rgba(76,175,80,.25);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  
+  .markdown-help-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px dashed rgba(76,175,80,.2);
+  }
+  
+  .markdown-help-icon {
+    font-size: 32px;
+    background: linear-gradient(135deg, #4CAF50, #81C784);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+  }
+  
+  .markdown-help-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+  }
+  
+  .markdown-help-subtitle {
+  font-size: 0.875rem;
+    color: #6c757d;
+    margin: 4px 0 0 0;
+  }
+  
+  .markdown-examples {
+  display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  
+  .markdown-example {
+    background: #fff;
+    border: 1px solid rgba(76,175,80,.15);
+    border-radius: 12px;
+    padding: 14px 16px;
+    transition: all .2s ease;
+  }
+  
+  .markdown-example:hover {
+    border-color: #4CAF50;
+    box-shadow: 0 4px 12px rgba(76,175,80,.15);
+    transform: translateY(-2px);
+  }
+  
+  .markdown-example-row {
+    display: flex;
+  align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .markdown-example-row:last-child {
+    margin-bottom: 0;
+  }
+  
+  .markdown-example-label {
+  font-size: 0.75rem;
+    font-weight: 600;
+    color: #4CAF50;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+ min-width: 60px;
+  }
+  
+  .markdown-example-code {
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+    background: rgba(76,175,80,.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: #2c3e50;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .markdown-example-arrow {
+    color: #FF9800;
+ font-weight: 700;
+    font-size: 1rem;
+  }
+  
+  .markdown-example-result {
+    flex: 1;
+    font-size: 0.875rem;
+  }
+  
+  .markdown-example-result strong {
+    font-weight: 700;
+    color: #2c3e50;
+  }
+  
+  .markdown-example-result em {
+    font-style: italic;
+    color: #555;
+  }
+  
+  .markdown-category {
+    margin-bottom: 20px;
+  }
+  
+  .markdown-category:last-child {
+    margin-bottom: 0;
+  }
+  
+  .markdown-category-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+ color: #FF9800;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .markdown-category-icon {
+    font-size: 1.2rem;
+  }
+
+  /* Örnek yükleme butonu */
+  #loadExampleBtn {
+    font-size: 0.875rem;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all .3s ease;
+border-width: 2px;
+  }
+  
+  #loadExampleBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76,175,80,.25);
+  }
+
+  [data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-reveal].in{opacity:1;transform:translateY(0)}
+
+  /* Markdown önizleme stilleri */
+  #markdownPreview {
+    min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  #markdownPreview h1, #markdownPreview h2, #markdownPreview h3,
+  #markdownPreview h4, #markdownPreview h5, #markdownPreview h6 {
+    font-weight: 700;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    color: #2c3e50;
+  }
+  #markdownPreview h1 { font-size: 2em; }
+  #markdownPreview h2 { font-size: 1.5em; }
+  #markdownPreview h3 { font-size: 1.25em; }
+  #markdownPreview p {
+    margin-bottom: 1em;
+    line-height: 1.6;
+  }
+  #markdownPreview ul, #markdownPreview ol {
+    margin: 1em 0;
+    padding-left: 2em;
+  }
+  #markdownPreview li {
+    margin-bottom: 0.5em;
+  }
+  #markdownPreview strong {
+    font-weight: 700;
+    color: #2c3e50;
+  }
+  #markdownPreview em {
+    font-style: italic;
+  }
+  #markdownPreview code {
+  background: rgba(76,175,80,.15);
+  padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+  }
+  #markdownPreview pre {
+    background: #f5f5f5;
+  padding: 1em;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1em 0;
+  }
+  #markdownPreview pre code {
+    background: none;
+    padding: 0;
+  }
+  #markdownPreview blockquote {
+    border-left: 4px solid #4CAF50;
+    padding-left: 1em;
+    margin: 1em 0;
+    color: #666;
+    font-style: italic;
+  }
+#markdownPreview a {
+    color: #4CAF50;
+    text-decoration: none;
+  }
+  #markdownPreview a:hover {
+ text-decoration: underline;
+  }
+  #markdownPreview hr {
+    border: none;
+    border-top: 2px solid rgba(76,175,80,.2);
+    margin: 2em 0;
+  }
+  #markdownPreview table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+  }
+  #markdownPreview th, #markdownPreview td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  #markdownPreview th {
+    background: rgba(76,175,80,.1);
+    font-weight: 700;
+  }
+</style>
+
+<section class="about-hero">
+  <div class="container position-relative" style="z-index:1">
+    <div class="text-center" data-reveal>
+      <h1 class="display-5 fw-bold mb-3">@Html.Raw("&#9997;&#65039;") Ben Kimim - Hakkýmda</h1>
+      <p class="lead mb-0">Hakkýmda sayfasýndaki "Ben Kimim" bölümünü düzenleyin</p>
+    </div>
+  </div>
+</section>
+
+<div class="container pb-5">
+  @if (TempData["Success"] != null)
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert" data-reveal>
+@TempData["Success"]
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  }
+
+  @if (TempData["Error"] != null)
+  {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" data-reveal>
+      @TempData["Error"]
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  }
+
+  <div class="row justify-content-center" data-reveal>
+    <div class="col-lg-10">
+      <div class="card">
+        <div class="card-body p-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+            <h5 class="card-title mb-0 fw-bold">@Html.Raw("&#128221;") Ýçerik Düzenle</h5>
+         <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        @Html.Raw("&#8592;") Panele Dön
+    </a>
+          </div>
+
+    <div class="markdown-help">
+      <div class="markdown-help-header">
+        <div class="markdown-help-icon">@Html.Raw("&#128218;")</div>
+        <div>
+  <h6 class="markdown-help-title">Markdown Formatý Nasýl Kullanýlýr?</h6>
+          <p class="markdown-help-subtitle">Ýçeriðinizi zenginleþtirmek için aþaðýdaki formatlarý kullanabilirsiniz</p>
+        </div>
+ </div>
+
+      <div class="markdown-examples">
+        @* Metin Stilleri *@
+        <div class="markdown-example">
+   <div class="markdown-category">
+      <div class="markdown-category-title">
+    <span class="markdown-category-icon">@Html.Raw("&#9999;&#65039;")</span>
+     Metin Stilleri
+         </div>
+   <div class="markdown-example-row">
+      <span class="markdown-example-code">**kalýn**</span>
+  <span class="markdown-example-arrow">?</span>
+    <span class="markdown-example-result"><strong>kalýn</strong></span>
+   </div>
+     <div class="markdown-example-row">
+     <span class="markdown-example-code">*italik*</span>
+    <span class="markdown-example-arrow">?</span>
+    <span class="markdown-example-result"><em>italik</em></span>
+      </div>
+</div>
+        </div>
+
+        @* Baþlýklar *@
+    <div class="markdown-example">
+    <div class="markdown-category">
+  <div class="markdown-category-title">
+     <span class="markdown-category-icon">@Html.Raw("&#128204;")</span>
+      Baþlýklar
+   </div>
+         <div class="markdown-example-row">
+  <span class="markdown-example-code"># Baþlýk 1</span>
+    <span class="markdown-example-arrow">?</span>
+          <span class="markdown-example-result">En Büyük</span>
+ </div>
+    <div class="markdown-example-row">
+  <span class="markdown-example-code">## Baþlýk 2</span>
+            <span class="markdown-example-arrow">?</span>
+      <span class="markdown-example-result">Orta Boy</span>
+            </div>
+ <div class="markdown-example-row">
+       <span class="markdown-example-code">### Baþlýk 3</span>
+         <span class="markdown-example-arrow">?</span>
+     <span class="markdown-example-result">Küçük</span>
+      </div>
+          </div>
+        </div>
+
+        @* Listeler *@
+        <div class="markdown-example">
+   <div class="markdown-category">
+        <div class="markdown-category-title">
+  <span class="markdown-category-icon">@Html.Raw("&#128221;")</span>
+     Listeler
+      </div>
+    <div class="markdown-example-row">
+  <span class="markdown-example-code">- Madde</span>
+         <span class="markdown-example-arrow">?</span>
+         <span class="markdown-example-result">• Madde iþareti</span>
+            </div>
+ <div class="markdown-example-row">
+   <span class="markdown-example-code">1. Madde</span>
+          <span class="markdown-example-arrow">?</span>
+  <span class="markdown-example-result">1. Numaralý liste</span>
+            </div>
+ </div>
+        </div>
+
+   @* Diðer *@
+        <div class="markdown-example">
+          <div class="markdown-category">
+      <div class="markdown-category-title">
+  <span class="markdown-category-icon">@Html.Raw("&#10024;")</span>
+              Diðer
+    </div>
+      <div class="markdown-example-row">
+        <span class="markdown-example-code">`kod`</span>
+    <span class="markdown-example-arrow">?</span>
+      <span class="markdown-example-result">Satýr içi kod</span>
+      </div>
+    <div class="markdown-example-row">
+        <span class="markdown-example-code">> Alýntý</span>
+       <span class="markdown-example-arrow">?</span>
+   <span class="markdown-example-result">Alýntý bloðu</span>
+ </div>
+   <div class="markdown-example-row">
+    <span class="markdown-example-code">---</span>
+          <span class="markdown-example-arrow">?</span>
+       <span class="markdown-example-result">Yatay çizgi</span>
+   </div>
+       </div>
+      </div>
+    </div>
+
+      <div class="text-center mt-3">
+        <button type="button" class="btn btn-sm btn-outline-success" id="loadExampleBtn">
+   @Html.Raw("&#128161;") Örnek Metni Yükle
+     </button>
+   </div>
+    </div>
+
+          <form asp-action="Upsert" method="post">
+    @Html.AntiForgeryToken()
+
+  <div class="mb-3">
+     <label for="Title" class="form-label">@Html.Raw("&#128204;") Baþlýk</label>
+   <input type="text" 
+       class="form-control" 
+             id="Title" 
+       name="Title" 
+              value="@(Model?.Title ?? "Ben Kimim?")"
+     placeholder="Örn: Ben Kimim?"
+ required
+      maxlength="200" />
+     <small class="text-muted">Maksimum 200 karakter</small>
+       </div>
+
+     <div class="mb-3">
+ <label for="ContentMarkdown" class="form-label">@Html.Raw("&#128196;") Ýçerik (Markdown)</label>
+   <textarea class="form-control" 
+      id="ContentMarkdown" 
+    name="ContentMarkdown" 
+       rows="15"
+       placeholder="Örnek:&#10;&#10;# Merhaba!&#10;&#10;Ben bir **diyetisyen**im ve sizlere *saðlýklý beslenme* konusunda yardýmcý olmak istiyorum.&#10;&#10;## Uzmanlýk Alanlarým:&#10;- Kilo yönetimi&#10;- Sporcu beslenmesi&#10;- Klinik beslenme&#10;&#10;Daha fazla bilgi için **iletiþime geçin**!"
+  required
+ maxlength="5000">@(Model?.ContentMarkdown)</textarea>
+    <small class="text-muted">Maksimum 5000 karakter</small>
+    </div>
+
+            @* Önizleme alaný *@
+   <div class="mb-3">
+        <label class="form-label">@Html.Raw("&#128065;") Önizleme</label>
+      <div id="markdownPreview" class="border rounded p-3" style="min-height: 150px; background: #f8f9fa;">
+     <p class="text-muted text-center">Önizleme burada görünecek...</p>
+     </div>
+    </div>
+
+         <div class="form-check mb-4">
+              <input class="form-check-input" 
+      type="checkbox" 
+          id="IsPublished" 
+        name="IsPublished" 
+              value="true"
+       @(Model?.IsPublished ?? true ? "checked=\"checked\"" : "") />
+ <label class="form-check-label" for="IsPublished">
+           @Html.Raw("&#9989;") Yayýnda (Hakkýmda sayfasýnda görünsün)
+           </label>
+            </div>
+
+            <div class="d-flex gap-2">
+   <button type="submit" class="btn btn-primary">
+    @Html.Raw("&#128190;") Kaydet
+              </button>
+              <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">
+   Ýptal
+     </a>
+ </div>
+     </form>
+
+ @if (Model != null)
+          {
+   <hr class="my-4" />
+    <div class="text-muted small">
+     <strong>Son güncelleme:</strong> @(Model.UpdatedAtUtc?.ToLocalTime().ToString("dd MMMM yyyy HH:mm") ?? Model.CreatedAtUtc.ToLocalTime().ToString("dd MMMM yyyy HH:mm"))
+            </div>
+      }
+    </div>
+   </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts{
+<script>
+(function(){
+  const reveals=[...document.querySelectorAll('[data-reveal]')];
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver((entries)=>{
+  entries.forEach(en=>{
+        if(en.isIntersecting){
+          setTimeout(()=>en.target.classList.add('in'), 100);
+      io.unobserve(en.target);
+        }
+      });
+    },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
+    reveals.forEach(e=>io.observe(e));
+  } else {
+    reveals.forEach(e=>e.classList.add('in'));
+  }
+
+  // Markdown önizleme
+const textarea = document.getElementById('ContentMarkdown');
+  const preview = document.getElementById('markdownPreview');
+  const loadExampleBtn = document.getElementById('loadExampleBtn');
+  let debounceTimer;
+
+  function updatePreview() {
+ const markdown = textarea.value.trim();
+     
+    if (!markdown) {
+    preview.innerHTML = '<p class="text-muted text-center">Önizleme burada görünecek...</p>';
+   return;
+        }
+
+   // AJAX ile markdown'ý HTML'e çevir
+  fetch('@Url.Action("PreviewMarkdown", "About", new { area = "Admin" })', {
+   method: 'POST',
+ headers: {
+       'Content-Type': 'application/json'
+   },
+body: JSON.stringify({ markdown: markdown })
+     })
+ .then(response => response.json())
+.then(data => {
+preview.innerHTML = data.html || '<p class="text-muted">Önizleme yüklenemedi</p>';
+   })
+   .catch(error => {
+       console.error('Önizleme hatasý:', error);
+  preview.innerHTML = '<p class="text-danger">Önizleme yüklenirken hata oluþtu</p>';
+      });
+  }
+
+  // Textarea deðiþtiðinde önizlemeyi güncelle (debounce ile)
+  if (textarea && preview) {
+ textarea.addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(updatePreview, 500);
+ });
+
+        // Sayfa yüklendiðinde ilk önizlemeyi göster
+        if (textarea.value.trim()) {
+       updatePreview();
+        }
+  }
+
+  // Örnek metin yükleme
+  if (loadExampleBtn && textarea) {
+    loadExampleBtn.addEventListener('click', function() {
+const exampleText = `# Ben Kimim?
+
+Merhaba! Ben **Dyt. Riyaza Tair**, alanýnda uzman bir *diyetisyenim*.
+
+## Uzmanlýk Alanlarým
+
+Yýllardýr sürdürdüðüm çalýþmalarýmda þu alanlarda uzmanlaþtým:
+
+- **Kilo yönetimi** ve saðlýklý beslenme
+- *Sporcu beslenmesi* ve performans artýrma
+- Klinik beslenme ve özel diyetler
+- Hamilelik ve emzirme dönemi beslenmesi
+
+## Çalýþma Prensibim
+
+> Saðlýklý yaþam, doðru beslenme ile baþlar!
+
+Her danýþanýma **kiþiye özel** programlar hazýrlýyorum. Hedeflerinize ulaþmanýz için:
+
+1. Detaylý deðerlendirme yapýyorum
+2. Özel beslenme planý oluþturuyorum
+3. Düzenli takip saðlýyorum
+
+---
+
+### Ýletiþime Geçin
+
+Saðlýklý yaþam yolculuðunuzda sizinle birlikte olmak için \`randevu\` alabilirsiniz!`;
+
+      if (textarea.value.trim() && !confirm('Mevcut içerik silinecek. Devam etmek istiyor musunuz?')) {
+   return;
+      }
+
+    textarea.value = exampleText;
+      updatePreview();
+      
+      // Butona feedback
+      const originalText = loadExampleBtn.innerHTML;
+      loadExampleBtn.innerHTML = '@Html.Raw("&#10004;") Yüklendi!';
+      loadExampleBtn.classList.remove('btn-outline-success');
+      loadExampleBtn.classList.add('btn-success');
+      
+      setTimeout(() => {
+        loadExampleBtn.innerHTML = originalText;
+        loadExampleBtn.classList.remove('btn-success');
+        loadExampleBtn.classList.add('btn-outline-success');
+      }, 2000);
+    });
+  }
+})();
+</script>
+}

@@ -1,0 +1,262 @@
+@model List<Dyt.Contracts.About.Responses.ExperienceDto>
+@{
+ ViewData["Title"] = "Deneyim & Özgeçmiþ Yönetimi";
+}
+
+<style>
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  
+  .exp-hero{
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
+      radial-gradient(900px 350px at 80% -10%, rgba(255,152,0,.15), transparent);
+    padding:48px 0 36px;
+    margin-bottom:32px;
+  }
+  .exp-hero:before{
+    content:"";
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(rgba(76,175,80,.15) 1px, transparent 1.5px),
+      radial-gradient(rgba(255,152,0,.08) 1px, transparent 1.5px);
+    background-size:32px 32px, 64px 64px;
+    background-position:0 0, 16px 16px;
+    opacity:.4;
+    animation:dotMove 25s linear infinite;
+  }
+  @@keyframes dotMove{from{transform:translate(0,0)}to{transform:translate(32px,32px)}}
+
+  .card{
+    border-radius:18px;
+    border:1px solid rgba(76,175,80,.2);
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+    transition:all .3s ease;
+  }
+  .card:hover{box-shadow:0 18px 50px rgba(76,175,80,.15)}
+
+  .exp-card{
+    border:2px solid rgba(76,175,80,.2);
+    border-radius:16px;
+    padding:20px;
+    background:#fff;
+    transition:all .3s ease;
+    margin-bottom:16px;
+  }
+.exp-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 30px rgba(76,175,80,.2);
+    border-color:#4CAF50;
+  }
+
+  .exp-icon{
+    width:48px;
+    height:48px;
+    border-radius:12px;
+    display:flex;
+ align-items:center;
+    justify-content:center;
+    font-size:24px;
+    background:linear-gradient(135deg, rgba(76,175,80,.1), rgba(255,152,0,.08));
+  }
+
+  .badge{
+    padding:6px 12px;
+    border-radius:999px;
+    font-weight:600;
+    font-size:12px;
+  }
+
+  .badge-work{
+    background:rgba(76,175,80,.1);
+    color:#2e7d32;
+    border:1px solid rgba(76,175,80,.3);
+}
+
+  .badge-education{
+    background:rgba(33,150,243,.1);
+    color:#1565c0;
+    border:1px solid rgba(33,150,243,.3);
+  }
+
+  .badge-internship{
+    background:rgba(255,152,0,.1);
+    color:#e65100;
+    border:1px solid rgba(255,152,0,.3);
+  }
+
+  .badge-current{
+    background:linear-gradient(135deg, #4CAF50, #81C784);
+    color:#fff;
+    border:none;
+  }
+
+  [data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .6s ease, transform .6s ease}
+  [data-reveal].in{opacity:1;transform:translateY(0)}
+
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+  }
+  .empty-state-icon{
+    font-size:80px;
+    margin-bottom:20px;
+    opacity:.5;
+  }
+</style>
+
+<section class="exp-hero">
+  <div class="container position-relative" style="z-index:1">
+    <div class="text-center" data-reveal>
+      <h1 class="display-5 fw-bold mb-3">@Html.Raw("&#128221;") Deneyim & Özgeçmiþ</h1>
+      <p class="lead mb-0">Ýþ deneyimlerinizi, eðitim geçmiþinizi ve stajlarýnýzý yönetin</p>
+    </div>
+  </div>
+</section>
+
+<div class="container pb-5">
+  @if (TempData["Success"] != null)
+  {
+    <div class="alert alert-success alert-dismissible fade show" role="alert" data-reveal>
+      @TempData["Success"]
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  }
+
+  @if (TempData["Error"] != null)
+  {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert" data-reveal>
+      @TempData["Error"]
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  }
+
+  <div class="d-flex justify-content-between align-items-center mb-4" data-reveal>
+    <h5 class="mb-0 fw-bold">@Html.Raw("&#128203;") Tüm Deneyimler (@Model.Count)</h5>
+    <div class="d-flex gap-2">
+   <a asp-action="Create" class="btn btn-primary">
+        @Html.Raw("&#10133;") Yeni Ekle
+      </a>
+      <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">
+        @Html.Raw("&#8592;") Panele Dön
+      </a>
+    </div>
+  </div>
+
+  @if (Model.Count == 0)
+  {
+    <div class="card" data-reveal>
+      <div class="card-body">
+        <div class="empty-state">
+          <div class="empty-state-icon">@Html.Raw("&#128237;")</div>
+          <h3>Henüz deneyim eklenmemiþ</h3>
+      <p class="text-muted">Ýlk deneyiminizi eklemek için yukarýdaki "Yeni Ekle" butonuna týklayýn.</p>
+        </div>
+      </div>
+    </div>
+  }
+  else
+  {
+    @foreach (var exp in Model.OrderBy(x => x.DisplayOrder))
+    {
+      <div class="exp-card" data-reveal>
+  <div class="d-flex gap-3">
+          <div class="exp-icon">
+        @if (exp.Type == "Work")
+    {
+ <span>@Html.Raw("&#128188;")</span>
+      }
+   else if (exp.Type == "Education")
+  {
+            <span>@Html.Raw("&#127891;")</span>
+            }
+       else
+      {
+ <span>@Html.Raw("&#128218;")</span>
+        }
+          </div>
+
+          <div class="flex-grow-1">
+     <div class="d-flex justify-content-between align-items-start mb-2">
+    <div>
+     <h5 class="mb-1 fw-bold">@exp.Position</h5>
+     <div class="text-muted">@exp.Institution</div>
+      </div>
+        <div class="d-flex gap-2 align-items-center">
+            @if (exp.Type == "Work")
+ {
+             <span class="badge badge-work">@Html.Raw("&#128188;") Ýþ</span>
+                }
+        else if (exp.Type == "Education")
+      {
+     <span class="badge badge-education">@Html.Raw("&#127891;") Eðitim</span>
+     }
+   else
+         {
+                <span class="badge badge-internship">@Html.Raw("&#128218;") Staj</span>
+    }
+
+     @if (exp.IsCurrent)
+              {
+  <span class="badge badge-current">@Html.Raw("&#10024;") Devam Ediyor</span>
+   }
+
+         @if (!exp.IsActive)
+{
+       <span class="badge bg-secondary">Pasif</span>
+        }
+  </div>
+ </div>
+
+            @if (!string.IsNullOrEmpty(exp.Description))
+            {
+   <p class="text-muted small mb-2">@exp.Description</p>
+            }
+
+       <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted small">
+     @Html.Raw("&#128197;") @exp.StartDate.ToString("MMMM yyyy") - @(exp.IsCurrent ? "Devam Ediyor" : exp.EndDate?.ToString("MMMM yyyy") ?? "Bilinmiyor")
+              </div>
+
+    <div class="d-flex gap-2">
+     <span class="badge bg-light text-dark border">Sýra: @exp.DisplayOrder</span>
+    <a asp-action="Edit" asp-route-id="@exp.Id" class="btn btn-sm btn-outline-primary">
+      @Html.Raw("&#9997;&#65039;") Düzenle
+ </a>
+     <form asp-action="Delete" asp-route-id="@exp.Id" method="post" style="display:inline" onsubmit="return confirm('Bu deneyimi silmek istediðinizden emin misiniz?');">
+         @Html.AntiForgeryToken()
+   <button type="submit" class="btn btn-sm btn-outline-danger">
+  @Html.Raw("&#128465;&#65039;") Sil
+  </button>
+  </form>
+          </div>
+            </div>
+        </div>
+        </div>
+      </div>
+    }
+  }
+</div>
+
+@section Scripts{
+<script>
+(function(){
+  const reveals=[...document.querySelectorAll('[data-reveal]')];
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+        if(en.isIntersecting){
+  setTimeout(()=>en.target.classList.add('in'), 100);
+          io.unobserve(en.target);
+ }
+      });
+  },{threshold:.1, rootMargin:'0px 0px -50px 0px'});
+    reveals.forEach(e=>io.observe(e));
+  } else {
+reveals.forEach(e=>e.classList.add('in'));
+  }
+})();
+</script>
+}

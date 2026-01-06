@@ -1,0 +1,122 @@
+@model Dyt.Contracts.About.Requests.ExperienceRequest
+@{
+    ViewData["Title"] = "Deneyim Düzenle";
+}
+
+<style>
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  .card{border-radius:18px;border:1px solid rgba(76,175,80,.2);box-shadow:0 12px 35px rgba(0,0,0,.08)}
+  .form-label{font-weight:600;color:#374151;margin-bottom:8px}
+  .form-control:focus, .form-select:focus{border-color:#4CAF50;box-shadow:0 0 0 0.2rem rgba(76,175,80,.25)}
+  .btn-primary{background:linear-gradient(135deg, #4CAF50, #81C784);border:none;font-weight:600;padding:12px 28px;border-radius:12px}
+  .btn-primary:hover{background:linear-gradient(135deg, #388E3C, #4CAF50);transform:translateY(-2px);box-shadow:0 6px 20px rgba(76,175,80,.3)}
+</style>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+  <div class="card-body p-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+  <h5 class="card-title mb-0 fw-bold">@Html.Raw("&#9997;&#65039;") Deneyim Düzenle</h5>
+     <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+    @Html.Raw("&#8592;") Listeye Dön
+   </a>
+          </div>
+
+     <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+     <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+    <div class="mb-3">
+    <label asp-for="Type" class="form-label">@Html.Raw("&#128193;") Tip</label>
+         <select asp-for="Type" class="form-select" required>
+    <option value="Work">@Html.Raw("&#128188;") Ýþ</option>
+          <option value="Education">@Html.Raw("&#127891;") Eðitim</option>
+      <option value="Internship">@Html.Raw("&#128218;") Staj</option>
+        </select>
+      <span asp-validation-for="Type" class="text-danger"></span>
+            </div>
+
+  <div class="mb-3">
+      <label asp-for="Position" class="form-label">@Html.Raw("&#128100;") Pozisyon/Ünvan</label>
+<input asp-for="Position" class="form-control" placeholder="Örn: Diyetisyen" required maxlength="200" />
+       <span asp-validation-for="Position" class="text-danger"></span>
+      </div>
+
+      <div class="mb-3">
+ <label asp-for="Institution" class="form-label">@Html.Raw("&#127970;") Kurum/Okul</label>
+        <input asp-for="Institution" class="form-control" placeholder="Örn: Özel Klinik" required maxlength="200" />
+        <span asp-validation-for="Institution" class="text-danger"></span>
+      </div>
+
+      <div class="mb-3">
+   <label asp-for="Description" class="form-label">@Html.Raw("&#128221;") Açýklama (opsiyonel)</label>
+        <textarea asp-for="Description" class="form-control" rows="3" maxlength="1000"></textarea>
+  <span asp-validation-for="Description" class="text-danger"></span>
+      </div>
+
+<div class="row">
+   <div class="col-md-6 mb-3">
+      <label asp-for="StartDate" class="form-label">@Html.Raw("&#128197;") Baþlangýç Tarihi</label>
+        <input asp-for="StartDate" type="date" class="form-control" required />
+    <span asp-validation-for="StartDate" class="text-danger"></span>
+              </div>
+
+      <div class="col-md-6 mb-3">
+      <label asp-for="EndDate" class="form-label">@Html.Raw("&#128197;") Bitiþ Tarihi</label>
+   <input asp-for="EndDate" type="date" class="form-control" id="endDateInput" />
+        <span asp-validation-for="EndDate" class="text-danger"></span>
+           </div>
+          </div>
+
+      <div class="form-check mb-3">
+   <input asp-for="IsCurrent" class="form-check-input" type="checkbox" id="isCurrentCheck" />
+   <label class="form-check-label" for="isCurrentCheck">
+         @Html.Raw("&#10024;") Halen devam ediyor
+     </label>
+        </div>
+
+     <div class="mb-3">
+   <label asp-for="DisplayOrder" class="form-label">@Html.Raw("&#128290;") Gösterim Sýrasý</label>
+       <input asp-for="DisplayOrder" type="number" class="form-control" min="0" />
+    <small class="text-muted">Küçük sayýlar önce gösterilir</small>
+     </div>
+
+      <div class="form-check mb-4">
+ <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+     <label class="form-check-label" asp-for="IsActive">
+             @Html.Raw("&#9989;") Aktif (Hakkýmda sayfasýnda görünsün)
+   </label>
+    </div>
+
+          <div class="d-flex gap-2">
+       <button type="submit" class="btn btn-primary">
+    @Html.Raw("&#128190;") Güncelle
+         </button>
+       <a asp-action="Index" class="btn btn-outline-secondary">
+           Ýptal
+              </a>
+     </div>
+  </form>
+        </div>
+</div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+  <script>
+    const isCurrentCheck = document.getElementById('isCurrentCheck');
+    const endDateInput = document.getElementById('endDateInput');
+    
+    function updateEndDate() {
+      endDateInput.disabled = isCurrentCheck.checked;
+      if(isCurrentCheck.checked) endDateInput.value = '';
+    }
+ 
+    isCurrentCheck.addEventListener('change', updateEndDate);
+    updateEndDate(); // Ýlk yüklemede çalýþtýr
+  </script>
+}

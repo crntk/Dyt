@@ -6,6 +6,7 @@
 
 // Business katmanı: arka plan iş, arayüzler, uygulamalar ve yardımcılar için gerekli using'leri ekliyorum
 using Dyt.Business.Background;                 // ReminderHostedService için
+using Dyt.Business.Interfaces.About;           // About servisleri için
 using Dyt.Business.Interfaces.Appointments;    // IAppointmentService için
 using Dyt.Business.Interfaces.Notifications;   // ISmsSender, INotificationTemplateService için
 using Dyt.Business.Interfaces.Recipes;         // IRecipeService için
@@ -13,6 +14,7 @@ using Dyt.Business.Interfaces.Scheduling;      // IScheduleService için
 using Dyt.Business.Options;                    // ReminderOptions, SmsOptions, SecurityOptions, EmailOptions için
 using Dyt.Business.Security.Sanitization;      // IContentSanitizer için
 using Dyt.Business.Security.Url;               // ISignedUrlService için
+using Dyt.Business.Services.About;             // About servis implementasyonları için
 using Dyt.Business.Services.Appointments;      // AppointmentService, ConfirmationTokenService için
 using Dyt.Business.Services.Notifications;     // SmsSenderMock, NotificationTemplateService, EmailSenderSmtp için
 using Dyt.Business.Services.Recipes;           // RecipeService için
@@ -85,6 +87,9 @@ builder.Services.AddSingleton<IDateTimeProvider, DateTimeProvider>();           
 builder.Services.AddScoped<IScheduleService, ScheduleService>();        // Çalışma saatleri/slot hesaplama (DbContext kullanır)
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();             // Randevu iş akışları (DbContext kullanır)
 builder.Services.AddScoped<IRecipeService, RecipeService>(); // Tarif iş akışları (DbContext kullanır)
+builder.Services.AddScoped<IAboutSectionService, AboutSectionService>(); // Ben Kimim servisi
+builder.Services.AddScoped<IExperienceService, ExperienceService>(); // Deneyim/Özgeçmiş servisi
+builder.Services.AddScoped<ICertificateService, CertificateService>(); // Sertifika/Başarı servisi
 builder.Services.AddSingleton<IConfirmationTokenService, ConfirmationTokenService>(); // Onay token servisi (stateless)
 builder.Services.AddSingleton<ISmsSender, SmsSenderMock>();                        // SMS gönderici (şimdilik mock, stateless)
 builder.Services.AddSingleton<INotificationTemplateService, NotificationTemplateService>(); // SMS şablon üretimi (stateless)

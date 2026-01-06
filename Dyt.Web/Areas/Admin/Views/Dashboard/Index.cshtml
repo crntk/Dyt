@@ -321,7 +321,7 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
   <!-- Main Cards -->
   <div class="row g-4">
     <!-- Randevular -->
-    <div class="col-lg-4" data-reveal>
+    <div class="col-lg-4 col-md-6" data-reveal>
       <div class="dashboard-card">
     <div class="card-icon">
      <span class="card-icon-emoji">📅</span>
@@ -330,20 +330,20 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
    <p class="card-description">
   Randevu taleplerini görüntüleyin, onaylayın veya reddedin. Detaylı filtreleme ve arama yapabilirsiniz.
      </p>
-        <div class="card-actions">
+  <div class="card-actions">
  <a class="btn-admin btn-admin-primary" asp-area="Admin" asp-controller="Appointments" asp-action="Index">
-       <span>📋</span>
+    <span>📋</span>
    <span>Randevuları Görüntüle</span>
  </a>
  </div>
-      </div>
+    </div>
     </div>
 
     <!-- Müsaitlik -->
-    <div class="col-lg-4" data-reveal>
+    <div class="col-lg-4 col-md-6" data-reveal>
       <div class="dashboard-card">
 <div class="card-icon">
-          <span class="card-icon-emoji">🕒</span>
+   <span class="card-icon-emoji">🕒</span>
     </div>
 <h3 class="card-title-main">Müsaitlik Yönetimi</h3>
         <p class="card-description">
@@ -352,53 +352,103 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
         <div class="card-actions">
        <a class="btn-admin btn-admin-primary" asp-area="Admin" asp-controller="WorkingHours" asp-action="Index">
         <span>⚙️</span>
-            <span>Müsaitliği Düzenle</span>
+   <span>Müsaitliği Düzenle</span>
        </a>
     </div>
       </div>
     </div>
 
     <!-- Blog -->
-    <div class="col-lg-4" data-reveal>
+<div class="col-lg-4 col-md-6" data-reveal>
   <div class="dashboard-card">
     <div class="card-icon">
-     <span class="card-icon-emoji">✍️</span>
-   </div>
+   <span class="card-icon-emoji">✍️</span>
+ </div>
  <h3 class="card-title-main">Blog Yönetimi</h3>
         <p class="card-description">
      Fotoğraf ve makale paylaşın, içeriklerinizi düzenleyin ve yayınlayın.
-        </p>
+      </p>
  <div class="card-actions">
   <a class="btn-admin btn-admin-primary" asp-area="Admin" asp-controller="BlogAdmin" asp-action="Index">
-  <span>📸</span>
-      <span>İçerik Paylaş</span>
+<span>📸</span>
+<span>Blog Gönderileri</span>
+          </a>
+          <a class="btn-admin btn-admin-outline" asp-area="" asp-controller="Blog" asp-action="Index">
+            <span>📰</span>
+            <span>Blog Sayfasını Görüntüle</span>
+        </a>
+        </div>
+ </div>
+    </div>
+
+    <!-- Tarif Yönetimi -->
+    <div class="col-lg-4 col-md-6" data-reveal>
+      <div class="dashboard-card">
+  <div class="card-icon">
+  <span class="card-icon-emoji">🍳</span>
+        </div>
+   <h3 class="card-title-main">Tarif Yönetimi</h3>
+ <p class="card-description">
+Sağlıklı tarifler ekleyin, düzenleyin ve paylaşın. Pratik ve besleyici yemek tarifleri.
+ </p>
+        <div class="card-actions">
+  <a class="btn-admin btn-admin-primary" asp-area="Admin" asp-controller="RecipesAdmin" asp-action="Index">
+<span>🍽️</span>
+     <span>Tarifleri Yönet</span>
+  </a>
+     <a class="btn-admin btn-admin-outline" asp-area="Admin" asp-controller="RecipesAdmin" asp-action="Create">
+ <span>➕</span>
+     <span>Yeni Tarif Ekle</span>
+ </a>
+        </div>
+      </div>
+ </div>
+
+    <!-- İletişim Mesajları -->
+    <div class="col-lg-4 col-md-6" data-reveal>
+      <div class="dashboard-card">
+        <div class="card-icon">
+          <span class="card-icon-emoji">💬</span>
+        </div>
+     <h3 class="card-title-main">İletişim Mesajları</h3>
+        <p class="card-description">
+  Ziyaretçilerden gelen iletişim formları ve mesajlarını görüntüleyin ve yönetin.
+</p>
+        <div class="card-actions">
+          <a class="btn-admin btn-admin-primary" asp-area="Admin" asp-controller="ContactMessages" asp-action="Index">
+            <span>📬</span>
+         <span>Mesajları Görüntüle</span>
           </a>
         </div>
       </div>
     </div>
 
-    <!-- Tarif Yönetimi -->
-    <div class="col-lg-4" data-reveal>
-      <div class="dashboard-card">
-  <div class="card-icon">
-          <span class="card-icon-emoji">🍳</span>
-        </div>
-   <h3 class="card-title-main">Tarif Yönetimi</h3>
+    <!-- Hakkımda Yönetimi - ÖNEMLİ KART -->
+    <div class="col-lg-4 col-md-6" data-reveal>
+      <div class="dashboard-card" style="border-color:rgba(76,175,80,.35);box-shadow:0 8px 30px rgba(76,175,80,.12)">
+     <div class="card-icon" style="background:linear-gradient(135deg, rgba(76,175,80,.15), rgba(255,152,0,.1))">
+          <span class="card-icon-emoji">👤</span>
+     </div>
+        <h3 class="card-title-main" style="color:#4CAF50">✨ Hakkımda Yönetimi</h3>
      <p class="card-description">
-          Sağlıklı tarifler ekleyin, düzenleyin ve paylaşın. Pratik ve besleyici yemek tarifleri.
-        </p>
+  <strong>Ben Kimim</strong> bölümü, <strong>Özgeçmiş/Deneyim</strong> ve <strong>Sertifikalar</strong> bölümlerini buradan yönetin.
+</p>
         <div class="card-actions">
-  <a class="btn-admin btn-admin-primary" asp-area="Admin" asp-controller="RecipesAdmin" asp-action="Index">
-<span>🍽️</span>
-     <span>Tarifleri Yönet</span>
-          </a>
-        <a class="btn-admin btn-admin-outline" asp-area="Admin" asp-controller="RecipesAdmin" asp-action="Create">
-     <span>➕</span>
-     <span>Yeni Tarif Ekle</span>
- </a>
-        </div>
+          <a class="btn-admin btn-admin-primary" asp-area="Admin" asp-controller="About" asp-action="Index">
+          <span>✏️</span>
+   <span>Ben Kimim Düzenle</span>
+   </a>
+        <a class="btn-admin btn-admin-outline" asp-area="Admin" asp-controller="Experience" asp-action="Index">
+   <span>📝</span>
+       <span>Deneyimler</span>
+      </a>
+       <a class="btn-admin btn-admin-outline" asp-area="Admin" asp-controller="Certificate" asp-action="Index">
+<span>🏆</span>
+   <span>Sertifikalar</span>
+        </a>
+  </div>
       </div>
-    </div>
+</div>
   </div>
 </div>
 
@@ -411,9 +461,9 @@ background:linear-gradient(135deg, rgba(76,175,80,.08), rgba(255,152,0,.05));
     const io = new IntersectionObserver((entries) => {
       entries.forEach(en => {
         if(en.isIntersecting){
-          setTimeout(() => en.target.classList.add('in'), 100);
-          io.unobserve(en.target);
-        }
+ setTimeout(() => en.target.classList.add('in'), 100);
+        io.unobserve(en.target);
+     }
    });
     }, {threshold: .1, rootMargin: '0px 0px -50px 0px'});
     reveals.forEach(e => io.observe(e));

@@ -112,35 +112,103 @@ radial-gradient(1200px 500px at 20% -10%, rgba(76,175,80,.18), transparent),
 <section class="section fv-nobg" style="background:transparent;">
   <div class="container">
   <div class="row g-4">
-      <div class="col-lg-5" data-animate>
+ <div class="col-lg-5" data-animate>
      <div class="glass p-4 h-100 fv-surface-strong fv-text">
-          <h2 class="h3 fw-bold mb-3">TANIŞALIM</h2>
-      <p class="mb-3">Beslenme ve diyetetik alanında eğitimimi tamamladıktan sonra klinik ve bireysel danışmanlıkta deneyim kazandım. Her danışanımın yaşam tarzına uygun, sürdürülebilir planlar oluşturmayı hedefliyorum.</p>
-      <div class="mt-3">
-            <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="About">Daha Fazla</a>
-          </div>
-        </div>
+  <h2 class="h3 fw-bold mb-3">TANIŞALIM</h2>
+  
+       @{
+       var aboutSection = ViewBag.AboutSection as Dyt.Contracts.About.Responses.AboutSectionDto;
+          }
+ 
+    @if (aboutSection != null && !string.IsNullOrWhiteSpace(aboutSection.ContentMarkdown))
+     {
+@* Markdown içeriğini düz metne çevir ve kısalt *@
+    var plainText = aboutSection.ContentMarkdown
+      .Replace("#", "")
+       .Replace("*", "")
+    .Replace(">", "")
+   .Replace("-", "")
+         .Replace("`", "")
+        .Trim();
+           
+  var lines = plainText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+       var summary = string.Join(" ", lines.Take(3));
+  
+    if (summary.Length > 350)
+  {
+            summary = summary.Substring(0, 350).TrimEnd() + "...";
+          }
+ 
+  <p class="mb-3">@summary</p>
+ }
+       else
+      {
+    <p class="mb-3">Beslenme ve diyetetik alanında eğitimimi tamamladıktan sonra klinik ve bireysel danışmanlıkta deneyim kazandım. Her danışanımın yaşam tarzına uygun, sürdürülebilir planlar oluşturmayı hedefliyorum.</p>
+   }
+          
+   <div class="mt-3">
+    <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="About">Daha Fazla</a>
+  </div>
       </div>
+      </div>
+      
   <div class="col-lg-7" data-animate>
     <div class="glass p-4 h-100 fv-surface-strong fv-text">
           <h2 class="h3 fw-bold mb-3">Özgeçmiş</h2>
-   <div class="timeline">
+          
+          @{
+              var experiences = ViewBag.TopExperiences as List<Dyt.Contracts.About.Responses.ExperienceDto> ?? new List<Dyt.Contracts.About.Responses.ExperienceDto>();
+    }
+          
+    @if (experiences.Any())
+   {
+           <div class="timeline">
+     @foreach (var exp in experiences)
+       {
+         <div class="timeline-item">
+   <div class="fw-semibold">@exp.Position</div>
+                <div class="text-muted small">
+    @if (exp.IsCurrent)
+    {
+                 <span>@exp.StartDate.ToString("yyyy") - Günümüz</span>
+ }
+           else if (exp.EndDate.HasValue)
+      {
+              <span>@exp.StartDate.ToString("yyyy") - @exp.EndDate.Value.ToString("yyyy")</span>
+      }
+           else
+     {
+<span>@exp.StartDate.ToString("yyyy")</span>
+ }
+        </div>
+         @if (!string.IsNullOrWhiteSpace(exp.Description))
+             {
+       <p class="mb-2">@exp.Description</p>
+      }
+         </div>
+     }
+       </div>
+          }
+      else
+     {
+    <div class="timeline">
        <div class="timeline-item">
    <div class="fw-semibold">Diyetisyen – Özel Klinik</div>
     <div class="text-muted small">2022 - Günümüz</div>
-            <p class="mb-2">Bireysel beslenme danışmanlığı, sporcu ve kurumsal programlar.</p>
-        </div>
+      <p class="mb-2">Bireysel beslenme danışmanlığı, sporcu ve kurumsal programlar.</p>
+     </div>
   <div class="timeline-item">
     <div class="fw-semibold">Beslenme ve Diyetetik – Lisans</div>
-            <div class="text-muted small">2018 - 2022</div>
+       <div class="text-muted small">2018 - 2022</div>
       <p class="mb-2">Araştırma projeleri ve saha çalışmaları.</p>
     </div>
         <div class="timeline-item">
         <div class="fw-semibold">Staj – Hastane</div>
-              <div class="text-muted small">2021</div>
-          <p class="mb-0">Klinik beslenme, menü planlama, hasta takibi.</p>
+ <div class="text-muted small">2021</div>
+        <p class="mb-0">Klinik beslenme, menü planlama, hasta takibi.</p>
             </div>
           </div>
+          }
         </div>
       </div>
     </div>

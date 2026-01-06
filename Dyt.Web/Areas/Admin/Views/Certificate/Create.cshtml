@@ -1,0 +1,99 @@
+@model Dyt.Contracts.About.Requests.CertificateRequest
+@{
+    ViewData["Title"] = "Yeni Sertifika Ekle";
+}
+
+<style>
+  :root{ --brand:#4CAF50; --brand-orange:#FF9800 }
+  .card{border-radius:18px;border:1px solid rgba(76,175,80,.2);box-shadow:0 12px 35px rgba(0,0,0,.08)}
+  .form-label{font-weight:600;color:#374151;margin-bottom:8px}
+  .form-control:focus, .form-select:focus{border-color:#4CAF50;box-shadow:0 0 0 0.2rem rgba(76,175,80,.25)}
+  .btn-primary{background:linear-gradient(135deg, #4CAF50, #81C784);border:none;font-weight:600;padding:12px 28px;border-radius:12px}
+  .btn-primary:hover{background:linear-gradient(135deg, #388E3C, #4CAF50);transform:translateY(-2px);box-shadow:0 6px 20px rgba(76,175,80,.3)}
+</style>
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+ <div class="col-lg-8">
+      <div class="card">
+        <div class="card-body p-4">
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h5 class="card-title mb-0 fw-bold">@Html.Raw("&#10133;") Yeni Sertifika Ekle</h5>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+   @Html.Raw("&#8592;") Listeye Dön
+            </a>
+      </div>
+
+  <form asp-action="Create" method="post">
+         @Html.AntiForgeryToken()
+ <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+       <div class="mb-3">
+       <label asp-for="Title" class="form-label">@Html.Raw("&#127942;") Sertifika Adý</label>
+       <input asp-for="Title" class="form-control" placeholder="Örn: Klinik Beslenme Sertifikasý" required maxlength="300" />
+       <span asp-validation-for="Title" class="text-danger"></span>
+      </div>
+
+   <div class="mb-3">
+   <label asp-for="Issuer" class="form-label">@Html.Raw("&#127970;") Veren Kurum</label>
+  <input asp-for="Issuer" class="form-control" placeholder="Örn: Türkiye Diyetisyenler Derneði" required maxlength="200" />
+         <span asp-validation-for="Issuer" class="text-danger"></span>
+          </div>
+
+        <div class="mb-3">
+ <label asp-for="Description" class="form-label">@Html.Raw("&#128221;") Açýklama (opsiyonel)</label>
+      <textarea asp-for="Description" class="form-control" rows="3" placeholder="Sertifika hakkýnda kýsa bilgi..." maxlength="1000"></textarea>
+     <span asp-validation-for="Description" class="text-danger"></span>
+         </div>
+
+            <div class="mb-3">
+      <label asp-for="IssueDate" class="form-label">@Html.Raw("&#128197;") Alým Tarihi (opsiyonel)</label>
+       <input asp-for="IssueDate" type="date" class="form-control" />
+          <span asp-validation-for="IssueDate" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+       <label asp-for="VerificationUrl" class="form-label">@Html.Raw("&#128279;") Doðrulama/Görüntüleme Linki (opsiyonel)</label>
+          <input asp-for="VerificationUrl" type="url" class="form-control" placeholder="https://..." maxlength="500" />
+            <span asp-validation-for="VerificationUrl" class="text-danger"></span>
+       <small class="text-muted">Online sertifika doðrulama veya görüntüleme linki</small>
+            </div>
+
+          <div class="mb-3">
+         <label asp-for="ImageUrl" class="form-label">@Html.Raw("&#128444;&#65039;") Resim URL (opsiyonel)</label>
+     <input asp-for="ImageUrl" type="url" class="form-control" placeholder="https://..." maxlength="500" />
+  <span asp-validation-for="ImageUrl" class="text-danger"></span>
+        <small class="text-muted">Sertifika görseli URL'si</small>
+   </div>
+
+    <div class="mb-3">
+    <label asp-for="DisplayOrder" class="form-label">@Html.Raw("&#128290;") Gösterim Sýrasý</label>
+       <input asp-for="DisplayOrder" type="number" class="form-control" value="0" min="0" />
+       <small class="text-muted">Küçük sayýlar önce gösterilir</small>
+         </div>
+
+  <div class="form-check mb-4">
+       <input asp-for="IsPublished" class="form-check-input" type="checkbox" checked />
+              <label class="form-check-label" asp-for="IsPublished">
+          @Html.Raw("&#9989;") Yayýnda (Hakkýmda sayfasýnda görünsün)
+    </label>
+            </div>
+
+          <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary">
+           @Html.Raw("&#128190;") Kaydet
+         </button>
+              <a asp-action="Index" class="btn btn-outline-secondary">
+                Ýptal
+    </a>
+        </div>
+     </form>
+  </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+}

@@ -26,6 +26,9 @@ namespace Dyt.Data.Context // Veritabanı bağlamının bulunduğu ad alanı
 
         // İçerik yönetimi DbSet'leri
         public DbSet<DietitianProfile> DietitianProfiles => Set<DietitianProfile>(); // Diyetisyen profil içerikleri
+        public DbSet<AboutSection> AboutSections => Set<AboutSection>(); // Ben Kimim bölümü
+        public DbSet<Experience> Experiences => Set<Experience>(); // Özgeçmiş & Deneyim
+        public DbSet<Certificate> Certificates => Set<Certificate>(); // Başarılar & Sertifikalar
         public DbSet<BlogPost> BlogPosts => Set<BlogPost>(); // Blog yazıları
         public DbSet<Tag> Tags => Set<Tag>(); // Etiketler
         public DbSet<BlogPostTag> BlogPostTags => Set<BlogPostTag>(); // Blog-etiket köprüleri
